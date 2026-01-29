@@ -1,0 +1,926 @@
+{
+  "ads": [
+    {
+      "id": "208ccad6-3ab7-4822-9f25-dffafa62ab98",
+      "name": "sansol",
+      "type": "image",
+      "url": "/media/ads/1769617035236-p09u6m.png",
+      "durationSec": 10,
+      "priority": true,
+      "active": true,
+      "createdAt": "2026-01-28T16:17:15.325Z"
+    },
+    {
+      "id": "a98220c7-58d6-4131-a1f3-b049555999d0",
+      "name": "AB",
+      "type": "image",
+      "url": "/media/ads/1769617057511-2h6dxj.jpeg",
+      "durationSec": 10,
+      "priority": false,
+      "active": true,
+      "createdAt": "2026-01-28T16:17:37.518Z"
+    },
+    {
+      "id": "e6b0fd68-aa3c-415f-973e-5de8685645da",
+      "name": "auto",
+      "type": "image",
+      "url": "/media/ads/1769617743706-5pjxq6.jpg",
+      "durationSec": 10,
+      "priority": false,
+      "active": true,
+      "createdAt": "2026-01-28T16:29:03.719Z"
+    },
+    {
+      "id": "6d9920b8-f9cc-4b94-8aa5-33bc1312d568",
+      "name": "intro",
+      "type": "video",
+      "url": "/media/ads/1769622189636-88jmv7.mp4",
+      "durationSec": 8,
+      "priority": true,
+      "active": true,
+      "createdAt": "2026-01-28T17:43:09.649Z"
+    }
+  ],
+  "questions": [
+    {
+      "id": "1",
+      "text": "¿Capital de Francia?",
+      "options": {
+        "0": "Madrid",
+        "1": "París",
+        "2": "Londres",
+        "S": "1 ño",
+        "A": "10años",
+        "B": "11años"
+      },
+      "correctAnswer": 1,
+      "difficulty": "easy",
+      "active": true,
+      "question": "Cuantos Años tiene Agus",
+      "correctKey": "B"
+    },
+    {
+      "id": "2",
+      "text": "¿Elemento químico del oro?",
+      "options": {
+        "S": "Av San nicolas de bari",
+        "A": "Av madre tesera de calcuta ",
+        "B": "av angelelli"
+      },
+      "correctAnswer": 1,
+      "difficulty": "medium",
+      "active": true,
+      "question": "Sansol donde esta Ubicado ",
+      "correctKey": "B"
+    },
+    {
+      "id": "3",
+      "text": "¿Provincia donde estamos?",
+      "options": {
+        "S": "La Rioja",
+        "A": "Catamarca",
+        "B": "San Juan"
+      },
+      "correctAnswer": 0,
+      "difficulty": "easy",
+      "active": true,
+      "question": "¿Provincia donde estamos?",
+      "correctKey": "B"
+    },
+    {
+      "id": "adbbd184-eee9-41d5-946f-37fc55bb249b",
+      "question": "Nose",
+      "options": {
+        "S": "1",
+        "A": "2",
+        "B": "3"
+      },
+      "correctKey": "B",
+      "active": true
+    }
+  ],
+  "prizes": [
+    {
+      "id": "1",
+      "name": "Premio Especial",
+      "description": "¡Ganaste el juego!",
+      "stock": 999
+    }
+  ],
+  "tickets": [
+    {
+      "id": "8581ff13-9d98-4165-8c5b-e361c1e02a39",
+      "code": "HNQ8R9GH",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T09:49:38.656Z"
+    },
+    {
+      "id": "0e9ec1df-0c4f-4aa0-b415-03499ef6652d",
+      "code": "O0K7TBMX",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T10:10:17.575Z"
+    },
+    {
+      "id": "1f10977d-5172-4964-9257-30204d93bec6",
+      "code": "VQC5ESCR",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T10:17:38.482Z"
+    },
+    {
+      "id": "d2459b3f-103f-4741-9dc9-ceaa212f0595",
+      "code": "GPNEUNJ3",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T10:44:35.514Z"
+    },
+    {
+      "id": "0b3f8cfb-d6cf-4f23-a6b4-ba750a7c11c1",
+      "code": "IP4W4XR8",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T10:45:24.188Z"
+    },
+    {
+      "id": "ac0c920d-a8d1-4894-82b0-32788a8f46bc",
+      "code": "MMQB8X9E",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T10:46:02.306Z"
+    },
+    {
+      "id": "cbb26093-3292-4f10-8fbe-1ee4f9c3ac87",
+      "code": "TXZT5EPW",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T10:52:22.996Z"
+    },
+    {
+      "id": "3e505425-637e-4a4c-828d-c77174aa0e95",
+      "code": "VQK3F8CH",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T10:53:02.823Z"
+    },
+    {
+      "id": "593ff9ef-2892-4034-af99-3c53d74e85da",
+      "code": "X2H0GOG8",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T10:53:53.648Z"
+    },
+    {
+      "id": "a1d7b38d-b59a-4e93-b403-b124a944aa4c",
+      "code": "Z5QJB68I",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T11:43:20.745Z"
+    },
+    {
+      "id": "5046369f-0751-4c5f-b46e-7990ee380e4a",
+      "code": "2Q1R4NH3",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T11:48:22.964Z"
+    },
+    {
+      "id": "65508225-4133-4037-ab1c-ad75b469cc65",
+      "code": "EBU4ZZBT",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T11:48:57.548Z"
+    },
+    {
+      "id": "92c57cbd-4cc5-40b8-a926-8328b46dae0d",
+      "code": "JRP0XDQO",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T11:49:49.532Z"
+    },
+    {
+      "id": "74593809-7e88-4cbd-93c7-9309ba055923",
+      "code": "ZB8M689P",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T11:59:22.101Z"
+    },
+    {
+      "id": "a5ab4a8e-1191-40a6-953d-2b2ded32fad5",
+      "code": "U1WNK98K",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T11:59:59.953Z"
+    },
+    {
+      "id": "b1caf8c5-753a-4c04-a61e-06de0dd29d16",
+      "code": "JNROAWGV",
+      "prizeId": "1",
+      "storeId": "1",
+      "redeemed": false,
+      "createdAt": "2026-01-28T12:01:18.094Z"
+    },
+    {
+      "id": "ed7e1301-0101-49c3-b6c7-416d04810d0a",
+      "token": "GEZ7EIVX",
+      "gameType": "ruleta",
+      "prizeId": "1",
+      "storeId": null,
+      "createdAt": "2026-01-28T17:03:55.100Z"
+    },
+    {
+      "id": "616f6ac3-ee4e-45f7-89f8-c2ffb7c33c3c",
+      "token": "UYAXJ1KD",
+      "gameType": "ruleta",
+      "prizeId": "1",
+      "storeId": null,
+      "createdAt": "2026-01-28T17:14:40.686Z"
+    },
+    {
+      "id": "472cd7e0-53eb-4cbb-b1fe-93f912adf718",
+      "token": "QQ3R6EFU",
+      "gameType": "chango",
+      "prizeId": "1",
+      "storeId": null,
+      "createdAt": "2026-01-28T17:46:27.900Z"
+    },
+    {
+      "id": "dd628fe0-13f1-4c2d-8933-5ae7579809e0",
+      "token": "PALNWC3Z",
+      "gameType": "trivia",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T09:48:08.967Z"
+    },
+    {
+      "id": "6bda029d-68f4-49a6-8fc0-5510d5597dd2",
+      "token": "HTAPGX4N",
+      "gameType": "ruleta",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T09:49:39.980Z"
+    },
+    {
+      "id": "7b37d4da-2f5d-44fd-a020-217fbfc4af5f",
+      "token": "0K6HH7N9",
+      "gameType": "ruleta",
+      "prizeId": "1",
+      "storeId": "57bc8040-4aec-4897-a8c9-ab162b577693",
+      "createdAt": "2026-01-29T09:53:06.773Z"
+    },
+    {
+      "id": "5d76d13f-30d7-402d-9bde-cc23920da33b",
+      "token": "KXPR10SC",
+      "gameType": "ruleta",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T10:09:02.160Z"
+    },
+    {
+      "id": "7f9d67c0-f846-414b-af0c-bc5beb498dcc",
+      "token": "SH4C6P2I",
+      "gameType": "trivia",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T10:10:36.951Z"
+    },
+    {
+      "id": "66d52e04-b258-4b4e-8747-c3325b244823",
+      "token": "594X6HQJ",
+      "gameType": "trivia",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T12:19:10.775Z"
+    },
+    {
+      "id": "5c1d598f-5b0e-49ae-a564-64f705e1d550",
+      "token": "TYHJ5LNH",
+      "gameType": "chango",
+      "prizeId": "1",
+      "storeId": "45217744-e266-471e-b912-778362d55422",
+      "createdAt": "2026-01-29T12:21:53.004Z"
+    },
+    {
+      "id": "45399efa-8e0c-4cb9-a021-0f5f63cf5da3",
+      "token": "MU3M376L",
+      "gameType": "trivia",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T12:33:56.676Z"
+    },
+    {
+      "id": "22370118-8b39-472a-a825-a6c3644176bc",
+      "token": "AR8T7BXJ",
+      "gameType": "ruleta",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T12:35:36.500Z"
+    },
+    {
+      "id": "f24d2a7f-0563-4246-ae9b-af083b36aa42",
+      "token": "LG3K9BGA",
+      "gameType": "trivia",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T12:39:03.097Z"
+    },
+    {
+      "id": "7ec6929a-abd4-4ba4-971d-966442e7e297",
+      "token": "MAQM585R",
+      "gameType": "trivia",
+      "prizeId": "1",
+      "storeId": "45217744-e266-471e-b912-778362d55422",
+      "createdAt": "2026-01-29T12:58:32.307Z"
+    },
+    {
+      "id": "db2388a8-d8c0-48b2-bce1-dea3799b6fe6",
+      "token": "IGM2XNTB",
+      "gameType": "trivia",
+      "prizeId": "1",
+      "storeId": "45217744-e266-471e-b912-778362d55422",
+      "createdAt": "2026-01-29T12:59:16.753Z"
+    },
+    {
+      "id": "2e055033-50c5-4ca0-8d11-34885f4b55eb",
+      "token": "H3JFYGK5",
+      "gameType": "chango",
+      "prizeId": "1",
+      "storeId": "45217744-e266-471e-b912-778362d55422",
+      "createdAt": "2026-01-29T16:05:27.409Z"
+    },
+    {
+      "id": "673ca003-aa4f-4012-968e-f06ca3e4100b",
+      "token": "KLJNTO64",
+      "gameType": "ruleta",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T16:08:27.872Z"
+    },
+    {
+      "id": "18cd7518-86a3-4735-97d4-357bee421ba4",
+      "token": "PZT7DDZE",
+      "gameType": "ruleta",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T16:10:44.378Z"
+    },
+    {
+      "id": "a4e21098-cf8e-4f40-9d09-6f62bccc47b0",
+      "token": "MDT6JOH0",
+      "gameType": "chango",
+      "prizeId": "1",
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "createdAt": "2026-01-29T16:25:39.634Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "username": "Sant",
+      "pin": "1521",
+      "role": "ADMIN",
+      "active": true
+    },
+    {
+      "id": "1d4ba327-1f89-43d7-b358-d744be8ab948",
+      "username": "canje",
+      "pin": "12234",
+      "role": "REDEEMER",
+      "active": true
+    }
+  ],
+  "stores": [
+    {
+      "id": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c",
+      "name": "Sansol",
+      "address": "Av Angelelli N°18",
+      "whatsapp": "3804802554",
+      "active": true,
+      "probability": 50
+    },
+    {
+      "id": "45217744-e266-471e-b912-778362d55422",
+      "name": "AB store",
+      "address": "av madre teresa de calcuta",
+      "whatsapp": "3804533112",
+      "probability": 40,
+      "active": true
+    }
+  ],
+  "changoConfig": {
+    "id": "default",
+    "difficulty": 3,
+    "updatedAt": "2026-01-29T16:27:36.754Z",
+    "timeLimit": 20,
+    "gameCooldownSeconds": 25,
+    "resultDurationSeconds": 1.5,
+    "priorityAdDurationSeconds": 5,
+    "qrDisplaySeconds": 10
+  },
+  "wheelSegments": [
+    {
+      "id": "1",
+      "slotIndex": 1,
+      "label": "sansol",
+      "color": "#FF6B6B",
+      "probability": 0.11,
+      "prizeId": "1",
+      "active": true,
+      "storeId": "da643310-bd95-4fd0-afc3-1a0a1ec9f03c"
+    },
+    {
+      "id": "2",
+      "slotIndex": 2,
+      "label": "SIGUE PARTICIPANDO",
+      "color": "#FECA57",
+      "probability": 0.11,
+      "active": true
+    },
+    {
+      "id": "3",
+      "slotIndex": 3,
+      "label": "ab store",
+      "color": "#1DD1A1",
+      "probability": 0.11,
+      "prizeId": "1",
+      "active": true,
+      "storeId": "45217744-e266-471e-b912-778362d55422"
+    },
+    {
+      "id": "4",
+      "slotIndex": 4,
+      "label": "VOLVÉ A INTENTAR",
+      "color": "#222F3E",
+      "probability": 0.11,
+      "active": true
+    },
+    {
+      "id": "5",
+      "slotIndex": 5,
+      "label": "vaiju",
+      "color": "#FF3838",
+      "probability": 0.11,
+      "prizeId": "1",
+      "active": true
+    },
+    {
+      "id": "6",
+      "slotIndex": 6,
+      "label": "SIGUE PARTICIPANDO",
+      "color": "#F368E0",
+      "probability": 0.23,
+      "active": true
+    },
+    {
+      "id": "7",
+      "slotIndex": 7,
+      "label": "eldk",
+      "color": "#5F27CD",
+      "probability": 0.11,
+      "prizeId": "1",
+      "active": true
+    },
+    {
+      "id": "8",
+      "slotIndex": 8,
+      "label": "VOLVÉ A INTENTAR",
+      "color": "#FF9F43",
+      "probability": 0.11,
+      "active": true
+    }
+  ],
+  "machines": [
+    {
+      "id": "ec6315df-9caa-438c-9864-2813118a7e53",
+      "name": "Terminal K-2",
+      "location": "Nueva Ubicación",
+      "isOperational": true,
+      "lastSeenAt": "2026-01-29T10:12:28.308Z"
+    }
+  ],
+  "gameEvents": [
+    {
+      "id": "e1",
+      "gameType": "trivia",
+      "startedAt": "2026-01-28T10:00:00Z",
+      "finishedAt": "2026-01-28T10:02:00Z",
+      "result": "WIN",
+      "ticketId": "t1"
+    },
+    {
+      "id": "e2",
+      "gameType": "ruleta",
+      "startedAt": "2026-01-28T10:10:00Z",
+      "finishedAt": "2026-01-28T10:11:00Z",
+      "result": "LOSE"
+    },
+    {
+      "id": "e3",
+      "gameType": "chango",
+      "startedAt": "2026-01-28T10:20:00Z",
+      "finishedAt": "2026-01-28T10:22:00Z",
+      "result": "WIN",
+      "ticketId": "t2"
+    },
+    {
+      "id": "e4",
+      "gameType": "trivia",
+      "startedAt": "2026-01-28T11:00:00Z",
+      "finishedAt": "2026-01-28T11:02:00Z",
+      "result": "LOSE"
+    },
+    {
+      "id": "e5",
+      "gameType": "ruleta",
+      "startedAt": "2026-01-28T11:10:00Z",
+      "finishedAt": "2026-01-28T11:11:00Z",
+      "result": "WIN",
+      "ticketId": "t3"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-28T16:53:09.878Z",
+      "finishedAt": "2026-01-28T16:53:14.784Z",
+      "result": "LOSE",
+      "id": "89b8c083-c21a-42e2-81c9-e23d52109106"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-28T17:03:05.805Z",
+      "finishedAt": "2026-01-28T17:03:16.698Z",
+      "result": "LOSE",
+      "id": "821107b4-06ae-4889-ba12-e6004d7bcaaa"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-28T17:03:46.138Z",
+      "finishedAt": "2026-01-28T17:03:55.118Z",
+      "result": "WIN",
+      "ticketId": "ed7e1301-0101-49c3-b6c7-416d04810d0a",
+      "id": "27941e86-e1c7-4e80-803f-8a345d6b73aa"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-28T17:13:26.537Z",
+      "finishedAt": "2026-01-28T17:13:35.198Z",
+      "result": "LOSE",
+      "id": "e482b760-0ba3-46f7-a370-ef9425b5eaa9"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-28T17:14:29.753Z",
+      "finishedAt": "2026-01-28T17:14:40.695Z",
+      "result": "WIN",
+      "ticketId": "616f6ac3-ee4e-45f7-89f8-c2ffb7c33c3c",
+      "id": "38fdd894-3bd9-4958-b1a1-be0433ec9cd8"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-28T17:21:53.561Z",
+      "finishedAt": "2026-01-28T17:22:03.668Z",
+      "result": "LOSE",
+      "id": "f80aec7c-24aa-48ed-aca0-6590b5c600c0"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-28T17:27:10.930Z",
+      "finishedAt": "2026-01-28T17:27:21.037Z",
+      "result": "LOSE",
+      "id": "d4baef20-268d-4036-b7db-89f369ff24d6"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-28T17:28:45.550Z",
+      "finishedAt": "2026-01-28T17:28:55.737Z",
+      "result": "LOSE",
+      "id": "4fc2d1c1-6b56-4e68-b342-d2ff9c47ffc6"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-28T17:31:01.607Z",
+      "finishedAt": "2026-01-28T17:31:11.690Z",
+      "result": "LOSE",
+      "id": "be005991-29dd-4c5f-b1ce-ec650c25148c"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-28T17:39:21.788Z",
+      "finishedAt": "2026-01-28T17:39:34.086Z",
+      "result": "LOSE",
+      "id": "9ddf2ca8-23cc-4e78-89df-8014014e489b"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-28T17:40:04.437Z",
+      "finishedAt": "2026-01-28T17:40:21.760Z",
+      "result": "LOSE",
+      "id": "989f2f16-4fac-4279-8227-f4b5bd3db803"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-28T17:40:42.124Z",
+      "finishedAt": "2026-01-28T17:40:59.420Z",
+      "result": "LOSE",
+      "id": "3ab4d301-e714-4c2f-bbde-528515db9a46"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-28T17:41:20.590Z",
+      "finishedAt": "2026-01-28T17:41:37.917Z",
+      "result": "LOSE",
+      "id": "c8fb204c-d450-48c8-b0c9-366be9022e1f"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-28T17:44:38.655Z",
+      "finishedAt": "2026-01-28T17:44:56.216Z",
+      "result": "LOSE",
+      "id": "4d99d005-78ff-4ba1-a911-4be809bef01b"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-28T17:46:11.435Z",
+      "finishedAt": "2026-01-28T17:46:28.183Z",
+      "result": "WIN",
+      "ticketId": "472cd7e0-53eb-4cbb-b1fe-93f912adf718",
+      "id": "7ba08188-ebc5-468e-abc0-104476dff473"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T09:47:50.816Z",
+      "finishedAt": "2026-01-29T09:48:09.195Z",
+      "result": "WIN",
+      "ticketId": "dd628fe0-13f1-4c2d-8933-5ae7579809e0",
+      "id": "6fa9cbe0-68ec-4087-a554-f1deb6ab3b89"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-29T09:49:17.360Z",
+      "finishedAt": "2026-01-29T09:49:40.051Z",
+      "result": "WIN",
+      "ticketId": "6bda029d-68f4-49a6-8fc0-5510d5597dd2",
+      "id": "21dade73-b7fc-4b62-a251-bc046116b1d1"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T09:52:16.605Z",
+      "finishedAt": "2026-01-29T09:52:24.548Z",
+      "result": "LOSE",
+      "id": "d9abe08f-a2fc-49a2-a760-26696ff1f45c"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-29T09:52:46.035Z",
+      "finishedAt": "2026-01-29T09:53:06.847Z",
+      "result": "WIN",
+      "ticketId": "7b37d4da-2f5d-44fd-a020-217fbfc4af5f",
+      "id": "3f5b5dc8-f26b-4ebe-a636-a9e2f95ef398"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-29T10:08:45.983Z",
+      "finishedAt": "2026-01-29T10:09:02.241Z",
+      "result": "WIN",
+      "ticketId": "5d76d13f-30d7-402d-9bde-cc23920da33b",
+      "id": "9711631c-297a-4507-9e99-7485ce0a2e80"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T10:09:56.517Z",
+      "finishedAt": "2026-01-29T10:10:09.540Z",
+      "result": "LOSE",
+      "id": "6017783e-c0ed-4262-9e64-f30a6ea1c632"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T10:10:27.650Z",
+      "finishedAt": "2026-01-29T10:10:36.976Z",
+      "result": "WIN",
+      "ticketId": "7f9d67c0-f846-414b-af0c-bc5beb498dcc",
+      "id": "647325c9-c720-4f8b-8e69-02c295af40d6"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T12:18:07.944Z",
+      "finishedAt": "2026-01-29T12:18:18.766Z",
+      "result": "LOSE",
+      "id": "84cc5e48-876a-443f-ae83-66bc603390c0"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T12:18:52.769Z",
+      "finishedAt": "2026-01-29T12:19:10.977Z",
+      "result": "WIN",
+      "ticketId": "66d52e04-b258-4b4e-8747-c3325b244823",
+      "id": "ab530d17-ad85-428b-851e-c5fbc35cb031"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-29T12:20:09.109Z",
+      "finishedAt": "2026-01-29T12:20:26.487Z",
+      "result": "LOSE",
+      "id": "23582be7-e1db-4026-b05f-6cec9baf384c"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-29T12:20:44.319Z",
+      "finishedAt": "2026-01-29T12:21:00.530Z",
+      "result": "LOSE",
+      "id": "4c79a7ac-8368-4396-8e5d-b95266ae773f"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-29T12:21:35.289Z",
+      "finishedAt": "2026-01-29T12:21:53.387Z",
+      "result": "WIN",
+      "ticketId": "5c1d598f-5b0e-49ae-a564-64f705e1d550",
+      "id": "26117c36-43bb-42cc-a177-9f3daacb3235"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T12:33:47.835Z",
+      "finishedAt": "2026-01-29T12:33:56.854Z",
+      "result": "WIN",
+      "ticketId": "45399efa-8e0c-4cb9-a021-0f5f63cf5da3",
+      "id": "cb7845d6-0d21-4f9a-9b0a-ca8b354f668c"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-29T12:34:46.100Z",
+      "finishedAt": "2026-01-29T12:35:01.857Z",
+      "result": "LOSE",
+      "id": "4c669a68-dde6-4e61-8026-359d84767fae"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-29T12:35:19.136Z",
+      "finishedAt": "2026-01-29T12:35:36.565Z",
+      "result": "WIN",
+      "ticketId": "22370118-8b39-472a-a825-a6c3644176bc",
+      "id": "ea2d9824-664b-42d1-97cc-aed0b22d314f"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T12:38:50.325Z",
+      "finishedAt": "2026-01-29T12:39:03.145Z",
+      "result": "WIN",
+      "ticketId": "f24d2a7f-0563-4246-ae9b-af083b36aa42",
+      "id": "b940fc93-6a3d-46fd-84f9-3b7432fad794"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T12:58:21.624Z",
+      "finishedAt": "2026-01-29T12:58:32.357Z",
+      "result": "WIN",
+      "ticketId": "7ec6929a-abd4-4ba4-971d-966442e7e297",
+      "id": "c32a6a64-f296-4b95-96b7-d1835de2a723"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T12:59:08.155Z",
+      "finishedAt": "2026-01-29T12:59:16.780Z",
+      "result": "WIN",
+      "ticketId": "db2388a8-d8c0-48b2-bce1-dea3799b6fe6",
+      "id": "aaadeea3-6f7d-49d8-b985-0b4146e2a9b1"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T13:51:48.729Z",
+      "finishedAt": "2026-01-29T13:51:51.908Z",
+      "result": "LOSE",
+      "id": "07885692-4cac-4f41-a4cf-b6421dfddd61"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T13:52:14.505Z",
+      "finishedAt": "2026-01-29T13:52:25.918Z",
+      "result": "LOSE",
+      "id": "b2114b9c-d64a-4f52-ad96-1e8af40c102b"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T13:52:14.505Z",
+      "finishedAt": "2026-01-29T13:52:25.924Z",
+      "result": "LOSE",
+      "id": "27a50055-3d26-4f58-9224-e1cf6fe7a261"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T13:57:26.324Z",
+      "finishedAt": "2026-01-29T13:57:31.493Z",
+      "result": "LOSE",
+      "id": "34b8a4b5-663a-4253-be95-0115f2c4812a"
+    },
+    {
+      "gameType": "trivia",
+      "startedAt": "2026-01-29T13:57:54.728Z",
+      "finishedAt": "2026-01-29T13:57:59.595Z",
+      "result": "LOSE",
+      "id": "2cfaf248-3fa6-42e8-9b70-5c7ceaced197"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-29T13:58:31.515Z",
+      "finishedAt": "2026-01-29T13:58:52.427Z",
+      "result": "LOSE",
+      "id": "3c6c351e-f31a-464c-b3f0-e1e969249121"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-29T14:04:02.293Z",
+      "finishedAt": "2026-01-29T14:04:32.258Z",
+      "result": "LOSE",
+      "id": "d80e77ce-8f64-4833-ab9b-0305d3a15439"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-29T14:08:03.872Z",
+      "finishedAt": "2026-01-29T14:08:32.970Z",
+      "result": "LOSE",
+      "id": "714315a8-35d4-46bc-9ef1-b342e2326828"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-29T16:05:07.240Z",
+      "finishedAt": "2026-01-29T16:05:28.060Z",
+      "result": "WIN",
+      "ticketId": "2e055033-50c5-4ca0-8d11-34885f4b55eb",
+      "id": "87390af3-cbb1-42b8-b330-5cddc72708c9"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-29T16:08:04.960Z",
+      "finishedAt": "2026-01-29T16:08:27.946Z",
+      "result": "WIN",
+      "ticketId": "673ca003-aa4f-4012-968e-f06ca3e4100b",
+      "id": "44dbb59f-df47-4336-b0b6-7d5260461ce4"
+    },
+    {
+      "gameType": "ruleta",
+      "startedAt": "2026-01-29T16:10:25.854Z",
+      "finishedAt": "2026-01-29T16:10:44.424Z",
+      "result": "WIN",
+      "ticketId": "18cd7518-86a3-4735-97d4-357bee421ba4",
+      "id": "d8fc50db-318e-4e4d-acad-5a74bea45bef"
+    },
+    {
+      "gameType": "chango",
+      "startedAt": "2026-01-29T16:25:21.115Z",
+      "finishedAt": "2026-01-29T16:25:40.268Z",
+      "result": "WIN",
+      "ticketId": "a4e21098-cf8e-4f40-9d09-6f62bccc47b0",
+      "id": "c82a6c56-08c0-4ff3-93cc-42478e075838"
+    }
+  ],
+  "settings": {
+    "changoDifficulty": 50
+  },
+  "rouletteSegments": [
+    {
+      "id": "1",
+      "label": "PREMIO 1",
+      "color": "#ff0000",
+      "weight": 10,
+      "prizeId": "1",
+      "active": true
+    },
+    {
+      "id": "2",
+      "label": "SIGUE PARTICIPANDO",
+      "color": "#000000",
+      "weight": 40,
+      "active": true
+    },
+    {
+      "id": "3",
+      "label": "PREMIO 2",
+      "color": "#00ff00",
+      "weight": 10,
+      "prizeId": "1",
+      "active": true
+    },
+    {
+      "id": "4",
+      "label": "VOLVÉ A INTENTAR",
+      "color": "#888888",
+      "weight": 40,
+      "active": true
+    }
+  ]
+}

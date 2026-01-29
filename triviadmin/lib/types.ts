@@ -1,0 +1,106 @@
+export type GameType = 'trivia' | 'ruleta' | 'chango';
+
+export interface User {
+    id: string;
+    username: string;
+    pin?: string;
+    role: 'ADMIN' | 'REDEEMER' | 'KIOSK';
+    active: boolean;
+}
+
+export interface Machine {
+    id: string;
+    name: string;
+    location?: string;
+    isOperational: boolean;
+    lastSeenAt?: Date;
+}
+
+export interface AdMedia {
+    id: string;
+    name: string;
+    type: 'image' | 'video';
+    url: string;
+    durationSec: number;
+    priority: boolean;
+    active: boolean;
+    createdAt: Date;
+}
+
+export interface TriviaQuestion {
+    id: string;
+    question: string;
+    options: {
+        S: string;
+        A: string;
+        B: string;
+    };
+    correctKey: 'S' | 'A' | 'B';
+    active: boolean;
+}
+
+export interface Prize {
+    id: string;
+    name: string;
+    description?: string;
+    active: boolean;
+}
+
+export interface WheelSegment {
+    id: string;
+    slotIndex: number; // 1..8
+    label: string;
+    probability: number; // 0..1
+    prizeId?: string;
+    storeId?: string; // Link to specific store
+    active: boolean;
+    color: string; // Keep color for UI
+}
+
+export interface ChangoConfig {
+    id: 'default';
+    difficulty: number; // 1..10
+    timeLimit: number; // in seconds
+    gameCooldownSeconds?: number; // Wait time between games
+    resultDurationSeconds?: number; // Duration of result screen
+    priorityAdDurationSeconds?: number; // Duration of priority ad (interstitial)
+    qrDisplaySeconds?: number; // Duration of QR display on win
+    updatedAt: Date;
+}
+
+export interface Ticket {
+    id: string;
+    token: string;
+    gameType: GameType;
+    prizeId?: string;
+    storeId?: string | null;
+    createdAt: Date;
+    redeemedAt?: Date;
+    redeemedBy?: string; // User ID of redeemer
+}
+
+export interface Store {
+    id: string;
+    name: string;
+    whatsapp: string;
+    address: string;
+    mapsUrl?: string;
+    probability?: number;
+    active: boolean;
+}
+
+export interface GameEvent {
+    id: string;
+    gameType: GameType;
+    machineId?: string;
+    startedAt: Date;
+    finishedAt?: Date;
+    result: 'WIN' | 'LOSE';
+    ticketId?: string;
+}
+
+// Legacy compatibility (to be cleaned up or mapped)
+export type Question = TriviaQuestion;
+export type RouletteSegment = WheelSegment;
+export type AppSettings = ChangoConfig;
+export type Ad = AdMedia;
