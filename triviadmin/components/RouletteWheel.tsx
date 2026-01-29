@@ -215,7 +215,7 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
     }, [result, isSpinning, handleConfirmResult]);
 
     return (
-        <div className="flex flex-col items-center justify-center gap-12 max-w-2xl mx-auto">
+        <div className="flex flex-col items-center justify-center gap-8 md:gap-12 max-w-2xl mx-auto w-full p-4">
             <GameResultOverlay
                 isOpen={!!result && !isSpinning}
                 isWin={!!result?.prizeId}
@@ -224,28 +224,28 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
                 statusMessage={result?.prizeId ? 'Generando tu ticket premiado...' : '¡Inténtalo en otra oportunidad!'}
             />
 
-            <div className="relative group">
+            <div className="relative group w-[300px] h-[300px] md:w-[500px] md:h-[500px] transition-all duration-300">
                 <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500 to-amber-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                 <canvas
                     ref={canvasRef}
                     width={500}
                     height={500}
-                    className="relative bg-white/5 rounded-full shadow-2xl backdrop-blur-sm border-8 border-white/10"
+                    className="relative w-full h-full bg-white/5 rounded-full shadow-2xl backdrop-blur-sm border-4 md:border-8 border-white/10"
                 />
             </div>
 
-            <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-col items-center gap-6 w-full">
                 <button
                     onClick={spin}
                     disabled={isSpinning || !!result}
-                    className={`px-12 py-5 bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-yellow-500/20 transform transition-all active:scale-95 disabled:grayscale disabled:opacity-50 disabled:translate-y-0 hover:-translate-y-1 ${isSpinning ? 'cursor-not-allowed' : ''}`}
+                    className={`w-full max-w-xs px-8 md:px-12 py-4 md:py-5 bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-yellow-500/20 transform transition-all active:scale-95 disabled:grayscale disabled:opacity-50 disabled:translate-y-0 hover:-translate-y-1 text-sm md:text-base ${isSpinning ? 'cursor-not-allowed' : ''}`}
                 >
                     {isSpinning ? 'GIrando...' : result ? 'Fin del Juego' : 'Girar la Ruleta'}
                 </button>
 
                 {!isSpinning && !result && (
-                    <div className="flex flex-col items-center gap-2">
-                        <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div className="flex flex-col items-center gap-2 w-full max-w-xs">
+                        <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-yellow-500 transition-all duration-1000 ease-linear"
                                 style={{ width: `${(timeLeft / 30) * 100}%` }}

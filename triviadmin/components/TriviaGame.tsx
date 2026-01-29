@@ -174,9 +174,9 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
                     <div className="space-y-2">
                         <span className="text-yellow-500 font-black text-xs uppercase tracking-[0.5em]">Trivia Riojana</span>
                         <div className="flex items-center gap-4">
-                            <span className="text-6xl font-black tracking-tighter">{currentQuestionIndex + 1}</span>
-                            <div className="h-10 w-1 bg-yellow-500/30 rounded-full" />
-                            <span className="text-xl font-bold text-white/40 uppercase tracking-widest leading-none">Pregunta <br /> de {questions.length}</span>
+                            <span className="text-4xl md:text-6xl font-black tracking-tighter">{currentQuestionIndex + 1}</span>
+                            <div className="h-8 md:h-10 w-1 bg-yellow-500/30 rounded-full" />
+                            <span className="text-sm md:text-xl font-bold text-white/40 uppercase tracking-widest leading-none">Pregunta <br /> de {questions.length}</span>
                         </div>
                     </div>
 

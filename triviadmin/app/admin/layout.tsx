@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -30,6 +31,7 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const handleLogout = () => {
         document.cookie = "sb_session=; path=/; max-age=0";
@@ -38,9 +40,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     return (
         <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden font-sans">
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-72 bg-slate-900 text-white flex flex-col shadow-2xl relative z-20">
-                <div className="p-8 border-b border-white/5">
+            <aside className={cn(
+                "fixed lg:static inset-y-0 left-0 z-40 w-72 bg-slate-900 text-white flex flex-col shadow-2xl transition-transform duration-300 lg:translate-x-0",
+                isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            )}>
+                <div className="p-8 border-b border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center">
                             <Gamepad2 className="text-black w-6 h-6" />
@@ -50,6 +63,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-0.5">Admin Dashboard</p>
                         </div>
                     </div>
+                    {/* Mobile Close Button */}
+                    <button
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="lg:hidden p-2 text-white/50 hover:text-white"
+                    >
+                        <LogOut className="w-5 h-5 rotate-180" />
+                    </button>
                 </div>
 
                 <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto custom-scrollbar">
@@ -61,6 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                onClick={() => setIsSidebarOpen(false)}
                                 className={cn(
                                     "flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group",
                                     isActive
@@ -90,18 +111,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col relative overflow-hidden">
-                {/* Top bar (Optional, can be used for contextual breadcrumbs or search) */}
-                <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-10 shrink-0 shadow-sm relative z-10">
-                    <div>
-                        <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Sección</h2>
-                        <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight">
-                            {navItems.find(i => i.href === pathname)?.label || 'Gestión'}
-                        </h3>
+            <main className="flex-1 flex flex-col relative overflow-hidden w-full">
+                {/* Top bar */}
+                <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-10 shrink-0 shadow-sm relative z-10">
+                    <div className="flex items-center gap-4">
+                        {/* Mobile Menu Button */}
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg"
+                        >
+                            <LayoutDashboard className="w-6 h-6" />
+                        </button>
+
+                        <div>
+                            <h2 className="text-[10px] lg:text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Sección</h2>
+                            <h3 className="text-lg lg:text-2xl font-black text-slate-800 uppercase tracking-tight truncate max-w-[200px] lg:max-w-none">
+                                {navItems.find(i => i.href === pathname)?.label || 'Gestión'}
+                            </h3>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4 p-2 pl-4 bg-slate-100 rounded-2xl border border-slate-200">
-                        <div className="text-right">
+                        <div className="text-right hidden sm:block">
                             <p className="text-xs font-black text-slate-800 uppercase">Admin Principal</p>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Activo ahora</p>
                         </div>
@@ -110,7 +141,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </header>
 
                 {/* Content with scroll padding */}
-                <div className="flex-1 overflow-y-auto p-10 bg-slate-50 relative custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-4 lg:p-10 bg-slate-50 relative custom-scrollbar">
                     {children}
                 </div>
             </main>

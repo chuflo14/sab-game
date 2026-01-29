@@ -97,13 +97,25 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
 
     const currentAd = sortedAds[currentIndex];
 
-    // Helper to bypass static cache for local uploads
-    const getMediaUrl = (url: string) => {
+    const [clientSideTimestamp, setClientSideTimestamp] = useState<number | null>(null);
+
+    useEffect(() => {
+        setClientSideTimestamp(Date.now());
+    }, []);
+
+    // Helper to bypass static cache for local uploads and force refresh
+    const getMediaUrl = useCallback((url: string) => {
+        if (!clientSideTimestamp) return url;
+
+        const separator = url.includes('?') ? '&' : '?';
+
         if (url.startsWith('/media/')) {
-            return `/api/ad-image?path=${encodeURIComponent(url)}`;
+            return `/api/ad-image?path=${encodeURIComponent(url)}&t=${clientSideTimestamp}`;
         }
-        return url;
-    };
+
+        // Ensure remote URLs also get cache busted if needed, or if we suspect CDN caching issues
+        return `${url}${separator}t=${clientSideTimestamp}`;
+    }, [clientSideTimestamp]);
 
     const mediaSrc = getMediaUrl(currentAd.url);
 

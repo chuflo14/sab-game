@@ -55,8 +55,8 @@ function LoginForm() {
                 <div className="bg-white/[0.03] backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl">
                     <div className="text-center mb-10">
                         <span className="text-yellow-500 font-black text-xs uppercase tracking-[0.5em] mb-4 block">Seguridad SAB</span>
-                        <h1 className="text-4xl font-black uppercase tracking-tight">Acceso <span className="text-yellow-500">Restringido</span></h1>
-                        <p className="text-white/40 text-sm mt-4 font-medium uppercase tracking-widest">Identifíquese para continuar</p>
+                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-black uppercase tracking-tight">Acceso <span className="text-yellow-500">Restringido</span></h1>
+                        <p className="text-white/40 text-xs md:text-sm mt-4 font-medium uppercase tracking-widest">Identifíquese para continuar</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-6">
