@@ -132,9 +132,7 @@ export default async function AdminPage() {
     );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function MetricCard({ title, value, icon: Icon, description, color, alert }: any) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const colorClasses: any = {
         yellow: 'text-yellow-500 bg-yellow-500/10',
         blue: 'text-blue-500 bg-blue-500/10',

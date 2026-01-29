@@ -83,18 +83,6 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
         return () => clearTimeout(timer);
     }, [currentIndex, sortedAds, config]);
 
-    if (sortedAds.length === 0) {
-        return (
-            <div
-                className="h-screen bg-black flex flex-col items-center justify-center text-white cursor-pointer"
-                onClick={handleStart}
-            >
-                <h1 className="text-4xl font-black uppercase tracking-widest mb-4">SAB GAME</h1>
-                <p className="text-sm opacity-50 animate-pulse">Toque para comenzar</p>
-            </div>
-        );
-    }
-
     const currentAd = sortedAds[currentIndex];
 
     const [clientSideTimestamp, setClientSideTimestamp] = useState<number | null>(null);
@@ -116,6 +104,18 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
         // Ensure remote URLs also get cache busted if needed, or if we suspect CDN caching issues
         return `${url}${separator}t=${clientSideTimestamp}`;
     }, [clientSideTimestamp]);
+
+    if (sortedAds.length === 0) {
+        return (
+            <div
+                className="h-screen bg-black flex flex-col items-center justify-center text-white cursor-pointer"
+                onClick={handleStart}
+            >
+                <h1 className="text-4xl font-black uppercase tracking-widest mb-4">SAB GAME</h1>
+                <p className="text-sm opacity-50 animate-pulse">Toque para comenzar</p>
+            </div>
+        );
+    }
 
     const mediaSrc = getMediaUrl(currentAd.url);
 

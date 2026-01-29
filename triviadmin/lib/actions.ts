@@ -61,7 +61,7 @@ export async function uploadAdMedia(formData: FormData) {
     const ext = path.extname(file.name);
     const fileName = `ads/${Date.now()}-${Math.random().toString(36).substring(7)}${ext}`;
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
         .from('media')
         .upload(fileName, buffer, {
             contentType: file.type,

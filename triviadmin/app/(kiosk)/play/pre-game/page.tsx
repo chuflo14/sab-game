@@ -1,11 +1,13 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { fetchAds, fetchChangoConfig } from '@/lib/actions';
+import { fetchAds } from '@/lib/actions';
 import { AdMedia } from '@/lib/types';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
-export default function PreGamePage() {
+import { Suspense } from 'react';
+
+function PreGameContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const nextRoute = searchParams.get('next') || '/';
@@ -24,9 +26,9 @@ export default function PreGamePage() {
         return url;
     };
 
-    const handleFinish = () => {
+    const handleFinish = useCallback(() => {
         router.replace(nextRoute);
-    };
+    }, [router, nextRoute]);
 
     useEffect(() => {
         const init = async () => {
@@ -43,17 +45,17 @@ export default function PreGamePage() {
                     }
                 } else {
                     // No priority ads, skip directly
-                    router.replace(nextRoute);
+                    handleFinish();
                 }
             } catch (e) {
                 console.error(e);
-                router.replace(nextRoute);
+                handleFinish();
             } finally {
                 setLoading(false);
             }
         };
         init();
-    }, [nextRoute, router]);
+    }, [handleFinish]);
 
     // Timer for images
     useEffect(() => {
@@ -69,7 +71,7 @@ export default function PreGamePage() {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [timeLeft, selectedAd]);
+    }, [timeLeft, selectedAd, handleFinish]);
 
     if (loading) return <div className="h-screen bg-black" />;
     if (!selectedAd) return null; // Redirecting...
@@ -79,7 +81,7 @@ export default function PreGamePage() {
     return (
         <div className="h-screen w-screen bg-black flex items-center justify-center overflow-hidden relative">
             {selectedAd.type === 'video' ? (
-                 
+
                 <video
                     ref={videoRef}
                     src={mediaSrc}
@@ -122,5 +124,13 @@ export default function PreGamePage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function PreGamePage() {
+    return (
+        <Suspense fallback={<div className="h-screen bg-black" />}>
+            <PreGameContent />
+        </Suspense>
     );
 }

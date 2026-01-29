@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchAds, updateAdAction } from '@/lib/actions';
 import { AdMedia } from '@/lib/types';
@@ -8,10 +8,7 @@ import {
     ArrowLeft,
     Save,
     Star,
-    Image as ImageIcon,
-    Video,
-    Clock,
-    X
+    Clock
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -28,11 +25,7 @@ export default function EditAdPage({ params }: { params: Promise<{ id: string }>
     const [durationSec, setDurationSec] = useState(10);
     const [priority, setPriority] = useState(false);
 
-    useEffect(() => {
-        loadAd();
-    }, [id]);
-
-    const loadAd = async () => {
+    const loadAd = useCallback(async () => {
         setIsLoading(true);
         const ads = await fetchAds();
         const found = ads.find(a => a.id === id);
@@ -46,7 +39,11 @@ export default function EditAdPage({ params }: { params: Promise<{ id: string }>
             router.push('/admin/ads');
         }
         setIsLoading(false);
-    };
+    }, [id, router]);
+
+    useEffect(() => {
+        loadAd();
+    }, [loadAd]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -101,7 +98,8 @@ export default function EditAdPage({ params }: { params: Promise<{ id: string }>
                 {/* Preview Area (Read Only) */}
                 <div className="relative aspect-video rounded-[2rem] border-4 border-slate-200 overflow-hidden bg-slate-900 group">
                     {ad.type === 'image' ? (
-                        <img src={ad.url} className="w-full h-full object-contain" />
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={ad.url} alt="Ad Preview" className="w-full h-full object-contain" />
                     ) : (
                         <video src={ad.url} className="w-full h-full object-cover" controls />
                     )}

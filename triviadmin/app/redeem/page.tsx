@@ -8,7 +8,6 @@ export default function RedeemPage() {
     const [token, setToken] = useState('');
     const [showScanner, setShowScanner] = useState(false);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleScan = (result: any) => {
         if (result) {
             // The library might return an array or object depending on version, 

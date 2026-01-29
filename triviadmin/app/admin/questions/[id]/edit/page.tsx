@@ -26,7 +26,6 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
     const loadQuestion = useCallback(async () => {
         setIsLoading(true);
         const allQuestions = await fetchQuestions();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const q = allQuestions.find(item => item.id === id) as any; // Cast as any to handle legacy fields
         if (q) {
             // Support 'question' or 'text'

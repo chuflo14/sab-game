@@ -2,7 +2,7 @@
 
 import { Ticket, Store, ChangoConfig } from '@/lib/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import QRCode from 'react-qr-code';
 
 interface ResultDisplayProps {
@@ -20,7 +20,7 @@ export default function ResultDisplay({ ticket, store, config }: ResultDisplayPr
     // Safety ref to prevent double execution
     const cooldownSet = useRef(false);
 
-    const handleFinish = () => {
+    const handleFinish = useCallback(() => {
         if (!cooldownSet.current) {
             cooldownSet.current = true;
 
@@ -33,7 +33,7 @@ export default function ResultDisplay({ ticket, store, config }: ResultDisplayPr
 
             router.push('/');
         }
-    };
+    }, [config.gameCooldownSeconds, router]);
 
     useEffect(() => {
         if (timeLeft <= 0) {
@@ -46,7 +46,7 @@ export default function ResultDisplay({ ticket, store, config }: ResultDisplayPr
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [timeLeft, router]);
+    }, [timeLeft, handleFinish]);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8 text-center animate-in fade-in zoom-in duration-500">

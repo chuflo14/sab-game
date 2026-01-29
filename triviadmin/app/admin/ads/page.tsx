@@ -10,10 +10,7 @@ import {
     Image as ImageIcon,
     Video,
     Star,
-    Activity,
     Trash2,
-    CheckCircle2,
-    XCircle,
     Clock,
     Edit2
 } from 'lucide-react';
@@ -86,6 +83,7 @@ export default function AdsAdminPage() {
                                         autoPlay
                                     />
                                 ) : (
+                                    // eslint-disable-next-line @next/next/no-img-element
                                     <img
                                         src={ad.url}
                                         alt="Preview"

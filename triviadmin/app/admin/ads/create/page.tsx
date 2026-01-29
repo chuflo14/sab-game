@@ -7,12 +7,8 @@ import { AdMedia } from '@/lib/types';
 import {
     ArrowLeft,
     Save,
-    MonitorPlay,
     Star,
-    Image as ImageIcon,
-    Video,
     UploadCloud,
-    X,
     Clock
 } from 'lucide-react';
 import Link from 'next/link';
@@ -157,7 +153,8 @@ export default function CreateAdPage() {
                     {previewUrl ? (
                         <div className="relative w-full h-full flex items-center justify-center">
                             {type === 'image' ? (
-                                <img src={previewUrl} className="w-full h-full object-contain" />
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
                             ) : (
                                 <video src={previewUrl} className="w-full h-full" controls />
                             )}
