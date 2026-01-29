@@ -32,8 +32,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
 
         if (user) {
             setUsername(user.username);
-            setPin(user.pin);
-            setRole(user.role);
+            setPin(user.pin || '');
+            setRole(user.role as 'ADMIN' | 'REDEEMER');
         } else {
             router.push('/admin/users');
         }

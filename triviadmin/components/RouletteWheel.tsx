@@ -169,7 +169,7 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
 
         const isWin = !!result.prizeId;
 
-        if (!config && !import.meta.env) console.warn("Config not loaded"); // Debug
+        if (!config && process.env.NODE_ENV === 'development') console.warn("Config not loaded"); // Debug
 
         const cooldownSec = config?.gameCooldownSeconds || 0;
         if (cooldownSec > 0) {
