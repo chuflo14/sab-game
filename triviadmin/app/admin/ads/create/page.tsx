@@ -63,9 +63,9 @@ export default function CreateAdPage() {
             setUploading(true);
             const uploadedPath = await uploadAdMedia(formData);
             return uploadedPath;
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert('Error al subir el archivo');
+            alert(error.message || 'Error al subir el archivo');
             return null;
         } finally {
             setUploading(false);

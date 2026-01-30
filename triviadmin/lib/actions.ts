@@ -69,8 +69,8 @@ export async function uploadAdMedia(formData: FormData) {
         });
 
     if (error) {
-        console.error('Upload Error:', error);
-        throw new Error('Failed to upload image');
+        console.error('Upload Error details:', error);
+        throw new Error(`Upload failed: ${error.message} (Code: ${error.statusCode || 'Unknown'})`);
     }
 
     const { data: publicData } = supabase.storage
