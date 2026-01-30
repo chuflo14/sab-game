@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { AdMedia, ChangoConfig } from '@/lib/types';
 
 interface KioskLoopProps {
@@ -12,6 +13,22 @@ interface KioskLoopProps {
 export default function KioskLoop({ ads, config }: KioskLoopProps) {
     const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const toggleFullscreen = useCallback(() => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().then(() => {
+                setIsFullscreen(true);
+            }).catch(err => {
+                console.error(`Error attempting to enable fullscreen: ${err.message} (${err.name})`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                setIsFullscreen(false);
+            }
+        }
+    }, []);
 
     // Sort ads: Priority true first, then others.
     const sortedAds = useMemo(() => {
@@ -64,12 +81,25 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                 console.log("KioskLoop: Valid key (S,A,B) detected, triggering start.");
                 handleStart();
             }
+
+            if (key === 'ESCAPE') {
+                if (document.fullscreenElement && document.exitFullscreen) {
+                    document.exitFullscreen();
+                    setIsFullscreen(false);
+                }
+            }
+        };
+
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
         };
 
         window.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
         console.log("KioskLoop: Keydown listener attached to window.");
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
             console.log("KioskLoop: Keydown listener detached.");
         };
     }, [handleStart]);
@@ -164,11 +194,23 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                     src={mediaSrc}
                     className="w-full h-full object-cover animate-in fade-in duration-1000 pointer-events-none"
                     autoPlay
-                    muted
+                    autoPlay
+                    // muted removed to allow audio
                     loop
                     playsInline
                 />
             )}
+
+            {/* Fullscreen Toggle Button */}
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFullscreen();
+                }}
+                className="absolute top-4 right-4 z-50 p-3 bg-black/50 hover:bg-black/70 text-white/50 hover:text-white rounded-full backdrop-blur-md transition-all duration-300 border border-white/10"
+            >
+                {isFullscreen ? <Minimize2 size={24} /> : <Maximize2 size={24} />}
+            </button>
 
             {/* Touch to start overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 pointer-events-none" />
