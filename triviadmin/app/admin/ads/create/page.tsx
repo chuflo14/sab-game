@@ -70,7 +70,7 @@ export default function CreateAdPage() {
             console.log('Starting client-side upload:', fileName);
 
             const { error: uploadError } = await supabase.storage
-                .from('MEDIA')
+                .from('media')
                 .upload(fileName, selectedFile, {
                     contentType: selectedFile.type,
                     upsert: false
@@ -82,7 +82,7 @@ export default function CreateAdPage() {
             }
 
             const { data: publicData } = supabase.storage
-                .from('MEDIA')
+                .from('media')
                 .getPublicUrl(fileName);
 
             console.log('Upload success, URL:', publicData.publicUrl);
