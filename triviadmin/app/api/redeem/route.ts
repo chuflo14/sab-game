@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Token is required' }, { status: 400 });
         }
 
-        const supabase = createClient();
+        // const supabase = createClient(); // Removed, using imported instance
 
         // 1. Fetch ticket
         const { data: ticket, error: fetchError } = await supabase
