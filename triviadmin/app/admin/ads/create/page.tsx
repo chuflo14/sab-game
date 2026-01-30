@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createAd, uploadAdMedia } from '@/lib/actions';
+import { createAd } from '@/lib/actions';
 import { AdMedia } from '@/lib/types';
 import {
     ArrowLeft,

@@ -194,7 +194,6 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                     src={mediaSrc}
                     className="w-full h-full object-cover animate-in fade-in duration-1000 pointer-events-none"
                     autoPlay
-                    autoPlay
                     // muted removed to allow audio
                     loop
                     playsInline
