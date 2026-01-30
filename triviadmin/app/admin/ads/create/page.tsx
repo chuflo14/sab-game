@@ -61,11 +61,17 @@ export default function CreateAdPage() {
 
         try {
             setUploading(true);
-            const uploadedPath = await uploadAdMedia(formData);
-            return uploadedPath;
+            const result = await uploadAdMedia(formData);
+
+            if (result.success && result.url) {
+                return result.url;
+            } else {
+                alert(result.error || 'Error desconocido al subir archivo');
+                return null;
+            }
         } catch (error: any) {
             console.error(error);
-            alert(error.message || 'Error al subir el archivo');
+            alert(error.message || 'Error de conexión al subir');
             return null;
         } finally {
             setUploading(false);

@@ -52,32 +52,39 @@ export async function logout() {
 }
 
 export async function uploadAdMedia(formData: FormData) {
-    const file = formData.get('file') as File;
-    if (!file) throw new Error('No file uploaded');
+    try {
+        const file = formData.get('file') as File;
+        if (!file) return { success: false, error: 'No file uploaded' };
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
 
-    const ext = path.extname(file.name);
-    const fileName = `ads/${Date.now()}-${Math.random().toString(36).substring(7)}${ext}`;
+        const ext = path.extname(file.name);
+        // Sanitize filename to avoid special chars that might cause issues
+        const safeName = Math.random().toString(36).substring(7);
+        const fileName = `ads/${Date.now()}-${safeName}${ext}`;
 
-    const { error } = await supabase.storage
-        .from('MEDIA')
-        .upload(fileName, buffer, {
-            contentType: file.type,
-            upsert: false
-        });
+        const { error } = await supabase.storage
+            .from('MEDIA')
+            .upload(fileName, buffer, {
+                contentType: file.type,
+                upsert: false
+            });
 
-    if (error) {
-        console.error('Upload Error details:', error);
-        throw new Error(`Upload failed: ${error.message} (Code: ${error.statusCode || 'Unknown'})`);
+        if (error) {
+            console.error('Upload Error details:', error);
+            return { success: false, error: `Upload failed: ${error.message}` };
+        }
+
+        const { data: publicData } = supabase.storage
+            .from('MEDIA')
+            .getPublicUrl(fileName);
+
+        return { success: true, url: publicData.publicUrl };
+    } catch (err: any) {
+        console.error('Unexpected upload error:', err);
+        return { success: false, error: `Unexpected error: ${err.message}` };
     }
-
-    const { data: publicData } = supabase.storage
-        .from('MEDIA')
-        .getPublicUrl(fileName);
-
-    return publicData.publicUrl;
 }
 
 // User Actions
