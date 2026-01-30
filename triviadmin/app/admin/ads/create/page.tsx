@@ -53,25 +53,44 @@ export default function CreateAdPage() {
         setUrl(''); // Clear manual URL if set
     };
 
+    // Client-side upload to bypass Vercel server limit (4.5MB)
     const handleUpload = async () => {
         if (!selectedFile) return null;
 
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-
         try {
             setUploading(true);
-            const result = await uploadAdMedia(formData);
 
-            if (result.success && result.url) {
-                return result.url;
-            } else {
-                alert(result.error || 'Error desconocido al subir archivo');
-                return null;
+            // Dynamic import to avoid server-side issues
+            const { supabase } = await import('@/lib/supabaseClient');
+
+            const ext = selectedFile.name.split('.').pop();
+            const safeName = Math.random().toString(36).substring(7);
+            const fileName = `ads/${Date.now()}-${safeName}.${ext}`;
+
+            console.log('Starting client-side upload:', fileName);
+
+            const { error: uploadError } = await supabase.storage
+                .from('MEDIA')
+                .upload(fileName, selectedFile, {
+                    contentType: selectedFile.type,
+                    upsert: false
+                });
+
+            if (uploadError) {
+                console.error('Supabase Client Upload Error:', uploadError);
+                throw uploadError;
             }
+
+            const { data: publicData } = supabase.storage
+                .from('MEDIA')
+                .getPublicUrl(fileName);
+
+            console.log('Upload success, URL:', publicData.publicUrl);
+            return publicData.publicUrl;
+
         } catch (error: any) {
-            console.error(error);
-            alert(error.message || 'Error de conexión al subir');
+            console.error('Upload catch:', error);
+            alert(`Error al subir: ${error.message || 'Error desconocido'}`);
             return null;
         } finally {
             setUploading(false);
