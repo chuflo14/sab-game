@@ -2,23 +2,65 @@
 
 import { useState } from 'react';
 import { Scanner } from '@yudiel/react-qr-scanner';
-import { Scan, X } from 'lucide-react';
+import { Scan, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function RedeemPage() {
     const [token, setToken] = useState('');
     const [showScanner, setShowScanner] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState<{ success: boolean; message: string; data?: any } | null>(null);
 
     const handleScan = (result: any) => {
         if (result) {
-            // The library might return an array or object depending on version, 
-            // but usually result[0].rawValue for newer versions or just the string.
-            // Let's handle generic string or array structure lightly
             const value = result?.[0]?.rawValue || result?.text || result;
             if (value) {
                 setToken(value);
                 setShowScanner(false);
+                // Optional: Auto verify on scan? Maybe better to let user confirm.
             }
         }
+    };
+
+    const handleVerify = async () => {
+        if (!token.trim()) return;
+
+        setLoading(true);
+        setResult(null);
+
+        try {
+            const response = await fetch('/api/redeem', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: token.trim() }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setResult({ success: true, message: data.message || 'Canje exitoso', data: data.ticket });
+                toast.success('¡Premio canjeado correctamente!');
+            } else {
+                setResult({ success: false, message: data.error || 'Error al verificar' });
+                if (data.error === 'QR ya fue utilizado.') {
+                    toast.error('Este QR ya fue utilizado anteriormente.');
+                } else {
+                    toast.error(data.error || 'Error al canjear.');
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            setResult({ success: false, message: 'Error de conexión. Intente nuevamente.' });
+            toast.error('Error de conexión.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const reset = () => {
+        setToken('');
+        setResult(null);
+        setShowScanner(false);
     };
 
     return (
@@ -31,7 +73,7 @@ export default function RedeemPage() {
                 />
             </div>
 
-            <div className="relative z-10 w-full max-w-md bg-white/[0.03] backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden">
+            <div className="relative z-10 w-full max-w-md bg-white/[0.03] backdrop-blur-2xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden min-h-[500px] flex flex-col justify-center">
                 {/* Decorative Shine */}
                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl" />
 
@@ -42,7 +84,7 @@ export default function RedeemPage() {
                 </div>
 
                 {showScanner ? (
-                    <div className="space-y-6">
+                    <div className="space-y-6 animate-in fade-in zoom-in duration-300">
                         <div className="relative aspect-square w-full overflow-hidden rounded-2xl border-2 border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
                             <Scanner
                                 onScan={handleScan}
@@ -60,17 +102,53 @@ export default function RedeemPage() {
                             Cancelar Escaneo
                         </button>
                     </div>
+                ) : result ? (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-center">
+                        {result.success ? (
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mb-2">
+                                    <CheckCircle className="w-12 h-12 text-green-500" />
+                                </div>
+                                <h2 className="text-2xl font-black text-green-400 uppercase">¡Canje Exitoso!</h2>
+                                <p className="text-white/70">El premio ha sido registrado como entregado.</p>
+                                {result.data && (
+                                    <div className="bg-white/5 p-4 rounded-xl border border-white/10 w-full mt-2">
+                                        <p className="text-xs text-white/40 uppercase tracking-widest mb-1">ID Ticket</p>
+                                        <p className="font-mono text-sm">{result.data.token}</p>
+                                        <p className="text-xs text-white/40 uppercase tracking-widest mb-1 mt-3">Juego</p>
+                                        <p className="font-bold capitalize">{result.data.game_type}</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-2 text-red-500">
+                                    <AlertCircle className="w-12 h-12" />
+                                </div>
+                                <h2 className="text-2xl font-black text-red-400 uppercase">Error de Canje</h2>
+                                <p className="text-xl font-bold text-white">{result.message}</p>
+                                <p className="text-white/50 text-sm">Verifique el código e intente nuevamente.</p>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={reset}
+                            className="w-full py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 uppercase tracking-widest mt-4"
+                        >
+                            Nuevo Canje
+                        </button>
+                    </div>
                 ) : (
-                    <div className="space-y-8">
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="space-y-3">
                             <label className="block text-xs font-black text-white/40 uppercase tracking-[0.2em]">Ingresar Token de Premio</label>
-                            <div className="relative">
+                            <div className="relative group">
                                 <input
                                     type="text"
                                     value={token}
                                     onChange={(e) => setToken(e.target.value)}
                                     placeholder="ABCD-1234"
-                                    className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/20 focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500/50 outline-none transition-all text-2xl font-black tracking-widest text-center uppercase"
+                                    className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/20 focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500/50 outline-none transition-all text-2xl font-black tracking-widest text-center uppercase group-hover:bg-white/10"
                                 />
                             </div>
                         </div>
@@ -84,8 +162,19 @@ export default function RedeemPage() {
                                 <span className="uppercase tracking-wider text-sm">Escanear QR</span>
                             </button>
 
-                            <button className="w-full py-5 bg-yellow-500 hover:bg-yellow-400 text-black rounded-2xl font-black text-xl transition-all shadow-[0_10px_30px_rgba(234,179,8,0.3)] hover:shadow-[0_15px_40px_rgba(234,179,8,0.5)] hover:-translate-y-1 active:translate-y-0 uppercase tracking-widest">
-                                Verificar Token
+                            <button
+                                onClick={handleVerify}
+                                disabled={loading || !token}
+                                className="w-full py-5 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed text-black rounded-2xl font-black text-xl transition-all shadow-[0_10px_30px_rgba(234,179,8,0.3)] hover:shadow-[0_15px_40px_rgba(234,179,8,0.5)] hover:-translate-y-1 active:translate-y-0 uppercase tracking-widest flex items-center justify-center gap-2"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-6 h-6 animate-spin" />
+                                        Verificando...
+                                    </>
+                                ) : (
+                                    'Verificar Token'
+                                )}
                             </button>
                         </div>
 
