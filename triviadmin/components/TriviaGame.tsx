@@ -170,32 +170,32 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
             </div>
 
             <div className="relative z-10 w-full max-w-5xl px-8 flex flex-col items-center">
-                <div className="flex justify-between w-full mb-12 items-end">
-                    <div className="space-y-2">
-                        <span className="text-yellow-500 font-black text-xs uppercase tracking-[0.5em]">Trivia Riojana</span>
-                        <div className="flex items-center gap-4">
+                <div className="flex justify-between w-full mb-6 md:mb-12 items-end">
+                    <div className="space-y-1 md:space-y-2">
+                        <span className="text-yellow-500 font-black text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.5em]">Trivia Riojana</span>
+                        <div className="flex items-center gap-2 md:gap-4">
                             <span className="text-4xl md:text-6xl font-black tracking-tighter">{currentQuestionIndex + 1}</span>
-                            <div className="h-8 md:h-10 w-1 bg-yellow-500/30 rounded-full" />
-                            <span className="text-sm md:text-xl font-bold text-white/40 uppercase tracking-widest leading-none">Pregunta <br /> de {questions.length}</span>
+                            <div className="h-6 md:h-10 w-1 bg-yellow-500/30 rounded-full" />
+                            <span className="text-[10px] md:text-xl font-bold text-white/40 uppercase tracking-widest leading-none">Pregunta <br /> de {questions.length}</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-2">
-                        <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Tiempo restante</span>
-                        <div className={`text-6xl font-black tabular-nums transition-colors ${timeLeft <= 3 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+                    <div className="flex flex-col items-end gap-1 md:gap-2">
+                        <span className="text-[8px] md:text-[10px] font-black text-white/40 uppercase tracking-[0.2em] md:tracking-[0.3em]">Tiempo restante</span>
+                        <div className={`text-4xl md:text-6xl font-black tabular-nums transition-colors ${timeLeft <= 3 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
                             {timeLeft}s
                         </div>
                     </div>
                 </div>
 
-                <div className="w-full bg-white/[0.03] backdrop-blur-2xl p-12 rounded-[3.5rem] border border-white/10 shadow-2xl mb-12 text-center relative overflow-hidden">
+                <div className="w-full bg-white/[0.03] backdrop-blur-2xl p-6 md:p-12 rounded-3xl md:rounded-[3.5rem] border border-white/10 shadow-2xl mb-8 md:mb-12 text-center relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent opacity-50" />
-                    <h2 className="text-4xl md:text-5xl font-black leading-tight uppercase tracking-tight">
+                    <h2 className="text-2xl md:text-5xl font-black leading-tight uppercase tracking-tight">
                         {question.question}
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full">
                     {(['S', 'A', 'B'] as const).map((key) => {
                         const isCorrect = question.correctKey === key;
                         const isSelected = selectedAnswer === key;
@@ -215,13 +215,13 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
                             <button
                                 key={key}
                                 onClick={() => handleAnswer(key)}
-                                className={`group relative p-8 rounded-3xl border-2 transition-all duration-300 flex flex-col items-center gap-4 ${stateStyles}`}
+                                className={`group relative p-4 md:p-8 rounded-2xl md:rounded-3xl border-2 transition-all duration-300 flex flex-col items-center gap-2 md:gap-4 cursor-pointer select-none active:scale-95 ${stateStyles}`}
                             >
-                                <span className="absolute top-4 left-6 text-[10px] font-black opacity-30 uppercase tracking-[0.3em]">Opción</span>
-                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-4xl font-black transition-all ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`}>
+                                <span className="absolute top-2 md:top-4 left-4 md:left-6 text-[8px] md:text-[10px] font-black opacity-30 uppercase tracking-[0.2em] md:tracking-[0.3em]">Opción</span>
+                                <div className={`w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-4xl font-black transition-all ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`}>
                                     {key}
                                 </div>
-                                <span className="text-xl font-black uppercase tracking-tight text-center">
+                                <span className="text-sm md:text-xl font-black uppercase tracking-tight text-center">
                                     {question.options[key]}
                                 </span>
                             </button>

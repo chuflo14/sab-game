@@ -27,16 +27,16 @@ export default function GameResultOverlay({
                     {subtitle}
                 </div>
 
-                <h2 className="text-7xl font-black text-white mb-8 uppercase tracking-tighter drop-shadow-2xl leading-none">
+                <h2 className="text-4xl md:text-7xl font-black text-white mb-6 md:mb-8 uppercase tracking-tighter drop-shadow-2xl leading-none">
                     {title}
                 </h2>
 
                 {isWin ? (
-                    <div className="bg-yellow-500 text-black py-4 px-8 rounded-2xl font-black text-xl mb-6 shadow-[0_0_30px_rgba(234,179,8,0.4)] animate-bounce">
+                    <div className="bg-yellow-500 text-black py-3 md:py-4 px-6 md:px-8 rounded-xl md:rounded-2xl font-black text-lg md:text-xl mb-4 md:mb-6 shadow-[0_0_30px_rgba(234,179,8,0.4)] animate-bounce">
                         ¡FELICIDADES!
                     </div>
                 ) : (
-                    <div className="bg-white/5 text-white/60 py-4 px-8 rounded-2xl font-bold text-xl mb-6 border border-white/10">
+                    <div className="bg-white/5 text-white/60 py-3 md:py-4 px-6 md:px-8 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl mb-4 md:mb-6 border border-white/10">
                         ¡Inténtalo de nuevo!
                     </div>
                 )}

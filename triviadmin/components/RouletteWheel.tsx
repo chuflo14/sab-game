@@ -230,7 +230,8 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
                     ref={canvasRef}
                     width={500}
                     height={500}
-                    className="relative w-full h-full bg-white/5 rounded-full shadow-2xl backdrop-blur-sm border-4 md:border-8 border-white/10"
+                    onClick={spin}
+                    className="relative w-full h-full bg-white/5 rounded-full shadow-2xl backdrop-blur-sm border-4 md:border-8 border-white/10 cursor-pointer active:scale-[0.98] transition-transform"
                 />
             </div>
 
@@ -238,7 +239,7 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
                 <button
                     onClick={spin}
                     disabled={isSpinning || !!result}
-                    className={`w-full max-w-xs px-8 md:px-12 py-4 md:py-5 bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-yellow-500/20 transform transition-all active:scale-95 disabled:grayscale disabled:opacity-50 disabled:translate-y-0 hover:-translate-y-1 text-sm md:text-base ${isSpinning ? 'cursor-not-allowed' : ''}`}
+                    className={`w-full max-w-xs px-6 md:px-12 py-3 md:py-5 bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-black uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-xl md:rounded-2xl shadow-xl shadow-yellow-500/20 transform transition-all active:scale-95 disabled:grayscale disabled:opacity-50 disabled:translate-y-0 hover:-translate-y-1 text-xs md:text-base ${isSpinning ? 'cursor-not-allowed' : ''}`}
                 >
                     {isSpinning ? 'GIrando...' : result ? 'Fin del Juego' : 'Girar la Ruleta'}
                 </button>

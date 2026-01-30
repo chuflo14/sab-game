@@ -25,11 +25,15 @@ export default function InstructionsPage() {
             // Valid keys navigate immediately.
             // 20s timer runs.
 
+            console.log("InstructionsPage: Key down detected:", key);
             if (key === 'S') {
+                console.log("InstructionsPage: S key pressed, navigating to /play/trivia");
                 router.push('/play/pre-game?next=/play/trivia');
             } else if (key === 'A') {
+                console.log("InstructionsPage: A key pressed, navigating to /play/azar");
                 router.push('/play/pre-game?next=/play/azar');
             } else if (key === 'B') {
+                console.log("InstructionsPage: B key pressed, navigating to /play/suerte");
                 router.push('/play/pre-game?next=/play/suerte');
             }
         };
@@ -43,44 +47,62 @@ export default function InstructionsPage() {
     }, [router]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8 text-center space-y-12">
-            <h1 className="text-6xl font-black text-yellow-500 uppercase tracking-wider mb-8">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-6 md:p-8 text-center space-y-8 md:space-y-12">
+            <h1 className="text-4xl md:text-6xl font-black text-yellow-500 uppercase tracking-wider mb-4 md:mb-8 mt-4">
                 ¡Bienvenido a SAB GAME LR!
             </h1>
 
-            <div className="space-y-6 max-w-4xl">
-                <h2 className="text-4xl font-bold mb-8">Elige tu modo de juego:</h2>
+            <div className="space-y-4 md:space-y-6 max-w-4xl w-full">
+                <h2 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8">Elige tu modo de juego:</h2>
 
-                <div className="grid grid-cols-1 gap-6 text-2xl">
-                    <div className="p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors">
-                        <div>
-                            <span className="block text-4xl font-black text-blue-400 mb-1">Trivia Riojana</span>
-                            <span className="text-gray-400">El desafío mental con identidad local</span>
+                <div className="grid grid-cols-1 gap-4 md:gap-6 text-xl md:text-2xl">
+                    <button
+                        onClick={() => {
+                            console.log("Navigating to Trivia");
+                            router.push('/play/pre-game?next=/play/trivia');
+                        }}
+                        className="w-full p-4 md:p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors cursor-pointer"
+                    >
+                        <div className="min-w-0 pr-4">
+                            <span className="block text-2xl md:text-4xl font-black text-blue-400 mb-1 truncate">Trivia Riojana</span>
+                            <span className="text-xs md:text-gray-400 line-clamp-1 md:line-clamp-none">El desafío mental con identidad local</span>
                         </div>
-                        <div className="bg-blue-400 text-black px-6 py-2 rounded-xl font-black text-4xl shadow-[0_0_20px_rgba(59,130,246,0.3)]">S</div>
-                    </div>
+                        <div className="bg-blue-400 text-black px-4 py-1 md:px-6 md:py-2 rounded-xl font-black text-2xl md:text-4xl shadow-[0_0_20px_rgba(59,130,246,0.3)] shrink-0">S</div>
+                    </button>
 
-                    <div className="p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors">
-                        <div>
-                            <span className="block text-4xl font-black text-red-500 mb-1">La Ruleta del Chacho</span>
-                            <span className="text-gray-400">El azar puro con un toque divertido y nuestro</span>
+                    <button
+                        onClick={() => {
+                            console.log("Navigating to Azar");
+                            router.push('/play/pre-game?next=/play/azar');
+                        }}
+                        className="w-full p-4 md:p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors cursor-pointer"
+                    >
+                        <div className="min-w-0 pr-4">
+                            <span className="block text-2xl md:text-4xl font-black text-red-500 mb-1 truncate">La Ruleta del Chacho</span>
+                            <span className="text-xs md:text-gray-400 line-clamp-1 md:line-clamp-none">El azar puro con un toque divertido y nuestro</span>
                         </div>
-                        <div className="bg-red-500 text-white px-6 py-2 rounded-xl font-black text-4xl shadow-[0_0_20px_rgba(239,68,68,0.3)]">A</div>
-                    </div>
+                        <div className="bg-red-500 text-white px-4 py-1 md:px-6 md:py-2 rounded-xl font-black text-2xl md:text-4xl shadow-[0_0_20px_rgba(239,68,68,0.3)] shrink-0">A</div>
+                    </button>
 
-                    <div className="p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors">
-                        <div>
-                            <span className="block text-4xl font-black text-orange-500 mb-1">Dedo de Chango</span>
-                            <span className="text-gray-400">¡Inflá el globo lo más rápido posible!</span>
+                    <button
+                        onClick={() => {
+                            console.log("Navigating to Suerte");
+                            router.push('/play/pre-game?next=/play/suerte');
+                        }}
+                        className="w-full p-4 md:p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors cursor-pointer"
+                    >
+                        <div className="min-w-0 pr-4">
+                            <span className="block text-2xl md:text-4xl font-black text-orange-500 mb-1 truncate">Dedo de Chango</span>
+                            <span className="text-xs md:text-gray-400 line-clamp-1 md:line-clamp-none">¡Inflá el globo lo más rápido posible!</span>
                         </div>
-                        <div className="bg-orange-500 text-white px-6 py-2 rounded-xl font-black text-4xl shadow-[0_0_20px_rgba(249,115,22,0.3)]">B</div>
-                    </div>
+                        <div className="bg-orange-500 text-white px-4 py-1 md:px-6 md:py-2 rounded-xl font-black text-2xl md:text-4xl shadow-[0_0_20px_rgba(249,115,22,0.3)] shrink-0">B</div>
+                    </button>
                 </div>
             </div>
 
-            <div className="mt-12 p-6 bg-yellow-900/30 border border-yellow-600/50 rounded-xl max-w-3xl">
-                <h3 className="text-2xl font-bold text-yellow-400 mb-4">¡Importante!</h3>
-                <p className="text-xl leading-relaxed">
+            <div className="mt-8 md:mt-12 p-4 md:p-6 bg-yellow-900/30 border border-yellow-600/50 rounded-xl max-w-3xl w-full">
+                <h3 className="text-xl md:text-2xl font-bold text-yellow-400 mb-2 md:mb-4">¡Importante!</h3>
+                <p className="text-sm md:text-xl leading-relaxed">
                     Si ganas: Aparecerá un código QR durante 20 segundos.
                     <br />
                     <span className="font-bold text-white underline decoration-yellow-500 underline-offset-4">¡Tómale una foto rápido!</span>

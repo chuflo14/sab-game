@@ -45,7 +45,12 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
 
     // Navigation handler
     const handleStart = useCallback(() => {
-        if (cooldownTimeLeft > 0) return;
+        console.log("KioskLoop: handleStart called. Cooldown:", cooldownTimeLeft);
+        if (cooldownTimeLeft > 0) {
+            console.log("KioskLoop: Blocked by cooldown.");
+            return;
+        }
+        console.log("KioskLoop: Navigating to /play");
         router.push('/play');
     }, [cooldownTimeLeft, router]);
 
@@ -53,14 +58,20 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const key = e.key.toUpperCase();
+            console.log("KioskLoop: Key down detected:", key);
             // Strict key check for hardware buttons (S, A, B)
             if (['S', 'A', 'B'].includes(key)) {
+                console.log("KioskLoop: Valid key (S,A,B) detected, triggering start.");
                 handleStart();
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        console.log("KioskLoop: Keydown listener attached to window.");
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            console.log("KioskLoop: Keydown listener detached.");
+        };
     }, [handleStart]);
 
     // Ad rotation
@@ -128,14 +139,13 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                 <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                        key={currentAd.id} // Key to force re-render on change
+                        key={currentAd.id}
                         src={mediaSrc}
                         alt={currentAd.name || "Advertisement"}
-                        className="w-full h-full object-cover animate-in fade-in duration-1000"
+                        className="w-full h-full object-cover animate-in fade-in duration-1000 pointer-events-none"
                         onError={(e) => {
                             console.error("Error loading ad image:", mediaSrc);
                             e.currentTarget.style.display = 'none';
-                            // Find the error container and show it
                             const errorDiv = document.getElementById(`error-${currentAd.id}`);
                             if (errorDiv) errorDiv.style.display = 'flex';
                         }}
@@ -150,9 +160,9 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                 </>
             ) : (
                 <video
-                    key={currentAd.id} // Key to force reload on change
+                    key={currentAd.id}
                     src={mediaSrc}
-                    className="w-full h-full object-cover animate-in fade-in duration-1000"
+                    className="w-full h-full object-cover animate-in fade-in duration-1000 pointer-events-none"
                     autoPlay
                     muted
                     loop
@@ -163,22 +173,22 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
             {/* Touch to start overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 pointer-events-none" />
 
-            <div className="absolute bottom-10 left-0 right-0 text-center pointer-events-none space-y-2">
+            <div className="absolute bottom-6 md:bottom-10 left-0 right-0 text-center pointer-events-none space-y-4 px-4">
                 {cooldownTimeLeft > 0 ? (
                     <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
-                        <div className="flex items-center gap-4 bg-black/80 backdrop-blur-md px-8 py-4 rounded-3xl border border-white/10 shadow-2xl">
-                            <div className="text-4xl font-black text-red-500 tabular-nums w-16 text-center">
+                        <div className="flex items-center gap-3 md:gap-4 bg-black/80 backdrop-blur-md px-4 py-3 md:px-8 md:py-4 rounded-2xl md:rounded-3xl border border-white/10 shadow-2xl">
+                            <div className="text-2xl md:text-4xl font-black text-red-500 tabular-nums w-12 md:w-16 text-center">
                                 {cooldownTimeLeft}
                             </div>
-                            <div className="h-10 w-[1px] bg-white/20" />
+                            <div className="h-8 md:h-10 w-[1px] bg-white/20" />
                             <div className="text-left">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Siguiente Juego en</p>
-                                <p className="text-xs font-bold text-white uppercase tracking-widest">Espere por favor...</p>
+                                <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Siguiente Juego en</p>
+                                <p className="text-[10px] md:text-xs font-bold text-white uppercase tracking-widest">Espere por favor...</p>
                             </div>
                         </div>
                     </div>
                 ) : (
-                    <span className="inline-block px-6 py-2 bg-yellow-500 text-black font-black text-xl uppercase tracking-[0.2em] rounded-full animate-bounce shadow-lg shadow-yellow-500/20 transform group-hover:scale-110 transition-transform">
+                    <span className="inline-block px-4 py-2 md:px-10 md:py-4 bg-yellow-500 text-black font-black text-lg md:text-3xl uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-full animate-bounce shadow-lg shadow-yellow-500/40 transform group-hover:scale-105 transition-all">
                         Tocar para Jugar
                     </span>
                 )}

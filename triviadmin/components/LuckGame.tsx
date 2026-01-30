@@ -33,9 +33,10 @@ export default function LuckGame() {
             setConfig(configData);
 
             // Difficulty 1-10 mapped to target inflation
-            // 5 -> 80 + 200 = 280
+            // 5 -> 50 + 100 = 150 (Significant reduction from 280)
+            // 3 -> 50 + 60 = 110 (Significant reduction from 200)
             const diff = configData?.difficulty || 5;
-            setTargetInflation(80 + (diff * 40));
+            setTargetInflation(50 + (diff * 20));
             if (configData?.timeLimit) {
                 setTimeLeft(configData.timeLimit);
             }
@@ -74,13 +75,13 @@ export default function LuckGame() {
 
     const handleInflate = useCallback(() => {
         if (gameState !== 'playing' || isBurst) return;
-
+        console.log("LuckGame: handleInflate triggered. Current inflation:", inflation);
         setInflation(prev => prev + 1);
 
         // Trigger pump animation
         setIsPumping(true);
         setTimeout(() => setIsPumping(false), 100);
-    }, [gameState, isBurst]);
+    }, [gameState, isBurst, inflation]);
 
     const handleWin = useCallback(() => {
         if (hasGeneratedTicket.current) return;
@@ -139,10 +140,8 @@ export default function LuckGame() {
             if (gameState !== 'playing') return;
             const key = e.key.toUpperCase();
             if (['S', 'A', 'B'].includes(key)) {
-                if (key !== lastKey) {
-                    setLastKey(key);
-                    handleInflate();
-                }
+                setLastKey(key);
+                handleInflate();
             }
         };
 
@@ -166,7 +165,7 @@ export default function LuckGame() {
             {/* Game UI - Responsive Scaled Container */}
             <div className="relative w-full max-w-2xl h-[300px] md:h-[450px] flex flex-col items-center justify-end pb-12">
                 {/* Scaling Wrapper for Game Elements */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 scale-[0.6] md:scale-100 origin-bottom transition-transform duration-300 w-[600px] h-[450px] flex justify-center items-end">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 scale-[0.4] sm:scale-[0.6] md:scale-100 origin-bottom transition-transform duration-300 w-[600px] h-[450px] flex justify-center items-end">
                     <GameResultOverlay
                         isOpen={gameState === 'won' || gameState === 'lost'}
                         isWin={gameState === 'won'}
@@ -285,8 +284,16 @@ export default function LuckGame() {
             <div className="mt-4 md:mt-40 flex flex-col items-center gap-6 z-30">
                 <div className="flex gap-4">
                     {['S', 'A', 'B'].map(k => (
-                        <div key={k} className={`
-                            w-12 h-12 md:w-16 md:h-16 rounded-xl border-4 flex items-center justify-center text-xl md:text-2xl font-black transition-all
+                        <div
+                            key={k}
+                            onClick={() => {
+                                if (gameState === 'playing') {
+                                    setLastKey(k);
+                                    handleInflate();
+                                }
+                            }}
+                            className={`
+                            w-12 h-12 md:w-16 md:h-16 rounded-xl border-4 flex items-center justify-center text-xl md:text-2xl font-black transition-all cursor-pointer select-none active:scale-90
                             ${lastKey === k ? 'bg-yellow-500 border-white text-black scale-110' : 'bg-white/10 border-white/20 text-white'}
                         `}>
                             {k}
@@ -295,8 +302,8 @@ export default function LuckGame() {
                 </div>
 
                 <div className="flex flex-col items-center gap-2">
-                    <div className={`text-lg md:text-xl uppercase tracking-widest font-black text-center transition-colors drop-shadow-md ${gameState === 'lost' ? 'text-red-500' : 'text-zinc-300'}`}>
-                        ¡Alterna las teclas <span className="text-yellow-400 text-2xl mx-1">S, A, B</span> para inflar!
+                    <div className={`text-lg md:text-xl uppercase tracking-widest font-black text-center transition-colors ${gameState === 'lost' ? 'text-red-500' : 'text-zinc-300'}`}>
+                        ¡Pulsa <span className="text-yellow-400 text-2xl mx-1">S, A, B</span> repetidamente para inflar!
                     </div>
                 </div>
 

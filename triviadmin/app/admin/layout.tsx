@@ -123,9 +123,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <LayoutDashboard className="w-6 h-6" />
                         </button>
 
-                        <div>
-                            <h2 className="text-[10px] lg:text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Sección</h2>
-                            <h3 className="text-lg lg:text-2xl font-black text-slate-800 uppercase tracking-tight truncate max-w-[200px] lg:max-w-none">
+                        <div className="min-w-0">
+                            <h2 className="text-[8px] lg:text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Sección</h2>
+                            <h3 className="text-sm lg:text-2xl font-black text-slate-800 uppercase tracking-tight truncate max-w-[120px] sm:max-w-[200px] lg:max-w-none">
                                 {navItems.find(i => i.href === pathname)?.label || 'Gestión'}
                             </h3>
                         </div>
