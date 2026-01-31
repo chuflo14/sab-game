@@ -65,7 +65,7 @@ export default function CreateAdPage() {
 
             const ext = selectedFile.name.split('.').pop();
             const safeName = Math.random().toString(36).substring(7);
-            const fileName = `ads/${Date.now()}-${safeName}.${ext}`;
+            const fileName = `promos/${Date.now()}-${safeName}.${ext}`;
 
             console.log('Starting client-side upload:', fileName);
 

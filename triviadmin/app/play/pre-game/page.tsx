@@ -106,22 +106,6 @@ function PreGameContent() {
                         {timeLeft}
                     </div>
                 )}
-
-                <button
-                    onClick={handleFinish}
-                    className="text-white/50 hover:text-white border border-white/20 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest backdrop-blur-sm transition-colors hover:bg-white/10"
-                >
-                    Omitir
-                </button>
-            </div>
-
-            {/* Loading indicator for video buffering */}
-            <div className="absolute bottom-8 left-8">
-                <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
-                        {selectedAd.name || 'Publicidad'}
-                    </span>
-                </div>
             </div>
         </div>
     );
