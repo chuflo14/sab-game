@@ -110,7 +110,7 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
 
         const currentAd = sortedAds[currentIndex];
 
-        let duration = (currentAd.durationSec || 10) * 1000;
+        const duration = (currentAd.durationSec || 10) * 1000;
 
 
 

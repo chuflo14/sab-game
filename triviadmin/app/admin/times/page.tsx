@@ -9,7 +9,6 @@ import {
     CheckCircle2,
     Hourglass,
     Timer,
-    Zap,
     QrCode
 } from 'lucide-react';
 
