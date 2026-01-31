@@ -112,10 +112,7 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
 
         let duration = (currentAd.durationSec || 10) * 1000;
 
-        // Override for priority ads if global config exists
-        if (currentAd.priority && config.priorityAdDurationSeconds) {
-            duration = config.priorityAdDurationSeconds * 1000;
-        }
+
 
         const timer = setTimeout(() => {
             setCurrentIndex((prev) => (prev + 1) % sortedAds.length);

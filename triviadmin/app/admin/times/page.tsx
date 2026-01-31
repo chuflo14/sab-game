@@ -17,7 +17,7 @@ export default function TimesAdminPage() {
     const [config, setConfig] = useState<ChangoConfig | null>(null);
     const [cooldown, setCooldown] = useState(10);
     const [resultDuration, setResultDuration] = useState(1.5);
-    const [priorityAdDuration, setPriorityAdDuration] = useState(5);
+
     const [qrDuration, setQrDuration] = useState(20);
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -31,7 +31,7 @@ export default function TimesAdminPage() {
         setConfig(data);
         setCooldown(data.gameCooldownSeconds ?? 10);
         setResultDuration(data.resultDurationSeconds ?? 1.5);
-        setPriorityAdDuration(data.priorityAdDurationSeconds ?? 5);
+
         setQrDuration(data.qrDisplaySeconds ?? 20);
     };
 
@@ -44,7 +44,7 @@ export default function TimesAdminPage() {
             timeLimit: config.timeLimit,
             gameCooldownSeconds: cooldown,
             resultDurationSeconds: resultDuration,
-            priorityAdDurationSeconds: priorityAdDuration,
+
             qrDisplaySeconds: qrDuration
         });
         setIsSaving(false);
@@ -158,42 +158,7 @@ export default function TimesAdminPage() {
                     </div>
                 </div>
 
-                {/* Priority Ad Duration Card */}
-                <div className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-10 group col-span-1 md:col-span-2">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight leading-none mb-2">Publicidad Prioritaria</h4>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Duración de la publicidad mostrada al seleccionar un juego.</p>
-                        </div>
-                        <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:text-yellow-500 transition-colors">
-                            <Zap className="w-6 h-6" />
-                        </div>
-                    </div>
 
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-8">
-                            <div className="flex-1 space-y-6">
-                                <input
-                                    type="range"
-                                    min="3"
-                                    max="30"
-                                    step="1"
-                                    value={priorityAdDuration}
-                                    onChange={(e) => setPriorityAdDuration(parseInt(e.target.value))}
-                                    className="w-full h-3 bg-slate-100 rounded-full appearance-none cursor-pointer accent-yellow-500"
-                                />
-                                <div className="flex justify-between">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">3s (Rápido)</span>
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">30s (Lento)</span>
-                                </div>
-                            </div>
-                            <div className="w-24 h-24 bg-slate-900 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl">
-                                <span className="text-3xl font-black">{priorityAdDuration}</span>
-                                <span className="text-[8px] font-black uppercase tracking-widest opacity-40">Segundos</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* QR Display Duration Card */}
