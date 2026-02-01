@@ -262,9 +262,11 @@ export const updateWheelSegment = async (id: string, updates: Partial<WheelSegme
 
 // Chango DAL
 export const getChangoConfig = async (): Promise<ChangoConfig> => {
-    const { data, error } = await supabase.from('chango_config').select('*').single();
-    if (error) {
-        // Return default if missing
+    // Use RPC to bypass RLS
+    const { data: rawData, error } = await supabase.rpc('get_public_config').single();
+
+    if (error || !rawData) {
+        // Return default if missing or error
         return {
             id: 'default',
             difficulty: 3,
@@ -272,6 +274,10 @@ export const getChangoConfig = async (): Promise<ChangoConfig> => {
             updatedAt: new Date()
         } as ChangoConfig;
     }
+
+    // Cast rawData to unknown then to a type with snake_case properties
+    const data = rawData as any;
+
     return {
         ...data,
         timeLimit: data.time_limit,
