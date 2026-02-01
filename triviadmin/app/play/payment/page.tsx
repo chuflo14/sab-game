@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { QrCode, Smartphone, ChevronRight, Loader2 } from 'lucide-react';
+import { Smartphone, ChevronRight, Loader2 } from 'lucide-react';
 import ReactQRCode from 'react-qr-code';
 import { fetchChangoConfig } from '@/lib/actions';
 

@@ -13,14 +13,18 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _body = await request.json();
         // Allow overriding amount via body for testing, but ideally fetch from DB
         let amount = 1000;
 
         // Fetch price from DB using RPC to bypass RLS issues
-        const { data: config } = await supabase
+        const { data } = await supabase
             .rpc('get_public_config')
             .single();
+
+        // Cast to unknown first if needed, or just access safely
+        const config = data as { game_price: number } | null;
 
         if (config?.game_price) {
             amount = config.game_price;
