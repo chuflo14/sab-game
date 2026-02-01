@@ -17,11 +17,9 @@ export async function POST(request: NextRequest) {
         // Allow overriding amount via body for testing, but ideally fetch from DB
         let amount = 1000;
 
-        // Fetch price from DB
+        // Fetch price from DB using RPC to bypass RLS issues
         const { data: config } = await supabase
-            .from('chango_config')
-            .select('game_price')
-            .eq('id', 'default')
+            .rpc('get_public_config')
             .single();
 
         if (config?.game_price) {
