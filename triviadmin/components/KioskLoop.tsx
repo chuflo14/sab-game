@@ -67,7 +67,10 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
             console.log("KioskLoop: Blocked by cooldown.");
             return;
         }
-        console.log("KioskLoop: Navigating to /play");
+        console.log("KioskLoop: Navigating...");
+
+
+        console.log("KioskLoop: Navigating to /play (Menu)");
         router.push('/play');
     }, [cooldownTimeLeft, router]);
 

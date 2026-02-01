@@ -13,7 +13,8 @@ import {
     Gamepad2,
     CircleEllipsis,
     LogOut,
-    Clock
+    Clock,
+    Flame
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -23,10 +24,11 @@ const navItems = [
     { label: 'Publicidad', href: '/admin/ads', icon: MonitorPlay },
     { label: 'Trivia', href: '/admin/questions', icon: Gamepad2 },
     { label: 'Ruleta', href: '/admin/wheel', icon: CircleEllipsis },
-    { label: 'Globo (Chango)', href: '/admin/chango', icon: Settings },
+    { label: 'Globo (Chango)', href: '/admin/chango', icon: Flame },
     { label: 'Tiendas', href: '/admin/stores', icon: Store },
     { label: 'Máquinas', href: '/admin/machines', icon: Cpu },
     { label: 'Tiempos', href: '/admin/times', icon: Clock },
+    { label: 'Configuración', href: '/admin/settings', icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

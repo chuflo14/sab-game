@@ -18,6 +18,8 @@ export default function TimesAdminPage() {
     const [resultDuration, setResultDuration] = useState(1.5);
 
     const [qrDuration, setQrDuration] = useState(20);
+    const [paymentTimeout, setPaymentTimeout] = useState(60);
+    const [paymentSuccess, setPaymentSuccess] = useState(3);
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -32,6 +34,8 @@ export default function TimesAdminPage() {
         setResultDuration(data.resultDurationSeconds ?? 1.5);
 
         setQrDuration(data.qrDisplaySeconds ?? 20);
+        setPaymentTimeout(data.paymentTimeoutSeconds ?? 60);
+        setPaymentSuccess(data.paymentSuccessSeconds ?? 3);
     };
 
     const handleSave = async () => {
@@ -44,7 +48,9 @@ export default function TimesAdminPage() {
             gameCooldownSeconds: cooldown,
             resultDurationSeconds: resultDuration,
 
-            qrDisplaySeconds: qrDuration
+            qrDisplaySeconds: qrDuration,
+            paymentTimeoutSeconds: paymentTimeout,
+            paymentSuccessSeconds: paymentSuccess
         });
         setIsSaving(false);
         setShowSuccess(true);
@@ -196,6 +202,84 @@ export default function TimesAdminPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Payment Timeout and Success Duration Group */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                {/* Payment Timeout Card */}
+                <div className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-10 group">
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight leading-none mb-2">Tiempo de Espera de Pago</h4>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Tiempo máximo en pantalla de QR antes de cancelar.</p>
+                        </div>
+                        <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:text-red-500 transition-colors">
+                            <QrCode className="w-6 h-6" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-8">
+                            <div className="flex-1 space-y-6">
+                                <input
+                                    type="range"
+                                    min="30"
+                                    max="300"
+                                    step="10"
+                                    value={paymentTimeout}
+                                    onChange={(e) => setPaymentTimeout(parseInt(e.target.value))}
+                                    className="w-full h-3 bg-slate-100 rounded-full appearance-none cursor-pointer accent-red-500"
+                                />
+                                <div className="flex justify-between">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">30s</span>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">300s (5m)</span>
+                                </div>
+                            </div>
+                            <div className="w-24 h-24 bg-slate-900 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl">
+                                <span className="text-3xl font-black">{paymentTimeout}</span>
+                                <span className="text-[8px] font-black uppercase tracking-widest opacity-40">Segundos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Payment Success Duration Card */}
+                <div className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-10 group">
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight leading-none mb-2">Mensaje de Pago Exitoso</h4>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Duración del cartel de &quot;¡Pago Exitoso!&quot;.</p>
+                        </div>
+                        <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:text-green-500 transition-colors">
+                            <CheckCircle2 className="w-6 h-6" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-8">
+                            <div className="flex-1 space-y-6">
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="10"
+                                    step="1"
+                                    value={paymentSuccess}
+                                    onChange={(e) => setPaymentSuccess(parseInt(e.target.value))}
+                                    className="w-full h-3 bg-slate-100 rounded-full appearance-none cursor-pointer accent-green-500"
+                                />
+                                <div className="flex justify-between">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">1s (Rápido)</span>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">10s (Lento)</span>
+                                </div>
+                            </div>
+                            <div className="w-24 h-24 bg-slate-900 rounded-[2rem] flex flex-col items-center justify-center text-white shadow-xl">
+                                <span className="text-3xl font-black">{paymentSuccess}</span>
+                                <span className="text-[8px] font-black uppercase tracking-widest opacity-40">Segundos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 }

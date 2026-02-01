@@ -1,0 +1,85 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { supabase } from '@/lib/supabaseClient'; // Ensure you have a server-safe client or use createClient here if needed
+
+// Initialize Mercado Pago
+// NOTE: Ideally use server-side environmental variables only for Access Token
+const client = new MercadoPagoConfig({
+    accessToken: process.env.MP_ACCESS_TOKEN || '',
+    options: { timeout: 5000 }
+});
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json();
+        // Allow overriding amount via body for testing, but ideally fetch from DB
+        let amount = 1000;
+
+        // Fetch price from DB
+        const { data: config } = await supabase
+            .from('chango_config')
+            .select('game_price')
+            .eq('id', 'default')
+            .single();
+
+        if (config?.game_price) {
+            amount = config.game_price;
+        }
+
+        console.log(`Creating payment preference for amount: ${amount}`);
+
+        const externalReference = `game-${Date.now()}`;
+
+        const preference = new Preference(client);
+
+        const result = await preference.create({
+            body: {
+                items: [
+                    {
+                        id: 'game-credit',
+                        title: 'Ficha de Juego - SAB Game',
+                        quantity: 1,
+                        unit_price: Number(amount),
+                    }
+                ],
+                // We don't strictly need back_urls for a kiosk, but good practice
+                back_urls: {
+                    success: 'https://sabgame.com/success', // Dummy URLs since we poll
+                    failure: 'https://sabgame.com/failure',
+                    pending: 'https://sabgame.com/pending',
+                },
+                // IMPORTANT: External reference to track safely if needed
+                external_reference: externalReference,
+                expires: true,
+                expiration_date_from: new Date().toISOString(),
+                expiration_date_to: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 min expiration
+            }
+        });
+
+        if (!result.id) {
+            throw new Error('Failed to create preference');
+        }
+
+        return NextResponse.json({
+            id: result.id,
+            init_point: result.init_point,
+            sandbox_init_point: result.sandbox_init_point,
+            external_reference: externalReference,
+            amount: amount, // Return the actual amount used
+        });
+    } catch (error: any) {
+        console.error('Error creating payment preference:', error);
+
+        // Extract MP specific error
+        const status = error.status || 500;
+        const message = error.message || 'Internal Server Error';
+        const cause = error.cause || error.code || 'UNKNOWN_ERROR';
+
+        return NextResponse.json(
+            { error: message, code: cause, details: error },
+            { status: status }
+        );
+    }
+}

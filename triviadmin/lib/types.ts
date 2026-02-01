@@ -65,6 +65,10 @@ export interface ChangoConfig {
     resultDurationSeconds?: number; // Duration of result screen
     priorityAdDurationSeconds?: number; // Duration of priority ad (interstitial)
     qrDisplaySeconds?: number; // Duration of QR display on win
+    game_price?: number; // Price of the game credit
+    enable_payments?: boolean; // Enable/Disable payments
+    paymentTimeoutSeconds?: number; // Timeout for payment screen
+    paymentSuccessSeconds?: number; // Duration of success message
     updatedAt: Date;
 }
 

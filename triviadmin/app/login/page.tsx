@@ -24,14 +24,13 @@ function LoginForm() {
             const result = await authenticateUser(username, pin);
 
             if (result.success) {
-                // Intelligent redirect based on role
-                if (result.role === 'ADMIN') {
-                    window.location.href = '/admin';
-                } else if (result.role === 'REDEEMER') {
-                    window.location.href = '/redeem';
-                } else {
-                    window.location.href = next;
-                }
+                const ROLE_REDIRECTS: Record<string, string> = {
+                    'ADMIN': '/admin',
+                    'REDEEMER': '/redeem',
+                };
+
+                const targetPath = ROLE_REDIRECTS[result.role as string] || next;
+                window.location.href = targetPath;
             } else {
                 setError(result.message || 'Error de acceso');
             }

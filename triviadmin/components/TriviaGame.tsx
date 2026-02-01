@@ -121,16 +121,19 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
 
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    handleGameOver();
-                    return 0;
-                }
+                if (prev <= 0) return 0;
                 return prev - 1;
             });
         }, 1000);
         return () => clearInterval(timer);
-    }, [gameState, currentQuestionIndex, handleGameOver]);
+    }, [gameState]);
+
+    // Monitor time left for game over
+    useEffect(() => {
+        if (timeLeft === 0 && gameState === 'playing') { // Fix: Check logic to correctly trigger game over
+            handleGameOver();
+        }
+    }, [timeLeft, gameState, handleGameOver]);
 
     useEffect(() => {
         if (gameState !== 'playing') return;

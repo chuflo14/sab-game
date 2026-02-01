@@ -279,6 +279,8 @@ export const getChangoConfig = async (): Promise<ChangoConfig> => {
         resultDurationSeconds: data.result_duration_seconds,
         priorityAdDurationSeconds: data.priority_ad_duration_seconds,
         qrDisplaySeconds: data.qr_display_seconds,
+        paymentTimeoutSeconds: data.payment_timeout_seconds,
+        paymentSuccessSeconds: data.payment_success_seconds,
         updatedAt: new Date(data.updated_at)
     } as ChangoConfig;
 };
@@ -306,6 +308,14 @@ export const updateChangoConfig = async (updates: Partial<ChangoConfig>): Promis
         dbUpdates.qr_display_seconds = updates.qrDisplaySeconds;
         delete dbUpdates.qrDisplaySeconds;
     }
+    if (updates.paymentTimeoutSeconds !== undefined) {
+        dbUpdates.payment_timeout_seconds = updates.paymentTimeoutSeconds;
+        delete dbUpdates.paymentTimeoutSeconds;
+    }
+    if (updates.paymentSuccessSeconds !== undefined) {
+        dbUpdates.payment_success_seconds = updates.paymentSuccessSeconds;
+        delete dbUpdates.paymentSuccessSeconds;
+    }
 
     const { data, error } = await supabase.from('chango_config').update(dbUpdates).eq('id', 'default').select().single();
     if (error) throw error;
@@ -316,6 +326,8 @@ export const updateChangoConfig = async (updates: Partial<ChangoConfig>): Promis
         resultDurationSeconds: data.result_duration_seconds,
         priorityAdDurationSeconds: data.priority_ad_duration_seconds,
         qrDisplaySeconds: data.qr_display_seconds,
+        paymentTimeoutSeconds: data.payment_timeout_seconds,
+        paymentSuccessSeconds: data.payment_success_seconds,
         updatedAt: new Date(data.updated_at)
     } as ChangoConfig;
 };

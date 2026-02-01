@@ -1,10 +1,35 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+
+
+import { fetchChangoConfig } from '@/lib/actions';
 
 export default function InstructionsPage() {
     const router = useRouter();
+    const [paymentsEnabled, setPaymentsEnabled] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        fetchChangoConfig().then(config => {
+            setPaymentsEnabled(config?.enable_payments !== false);
+        });
+    }, []);
+
+    const handleGameSelect = (nextRoute: string) => {
+        // If loading, default to payment enabled for safety, or wait. 
+        // Let's safe fail to payment flow if unsure, or block. 
+        // If null, we might want to block interaction or default to true.
+        const enabled = paymentsEnabled !== false; // Default true if null/undefined
+
+        console.log(`Game Select: ${nextRoute}, Payment Enabled: ${enabled}`);
+
+        if (enabled) {
+            router.push(`/play/payment?next=${encodeURIComponent(nextRoute)}`);
+        } else {
+            router.push(nextRoute);
+        }
+    };
 
     useEffect(() => {
         // Timeout to return to home if inactive
@@ -15,26 +40,16 @@ export default function InstructionsPage() {
         const handleKeyDown = (e: KeyboardEvent) => {
             const key = e.key.toUpperCase();
 
-            // Reset timeout on interaction (optional, but requirement says "si no se presiona ninguna tecla")
-            // Actually strictly reading: "si no se presiona ninguna tecla durante 20 segundos" - imply from start of page load? 
-            // Usually idle timer resets. But "volver automáticamente" suggests a hard limit or idle limit.
-            // Let's assume hard limit from page load for simplicity unless interaction happens?
-            // "Timeout: si en /play no se presiona ninguna tecla durante 20 segundos, volver automáticamente a /."
-            // I'll treat it as an idle timer that resets on valid input, but here valid input navigates away.
-            // If they press invalid keys, should we reset? Let's stick to the simple flow:
-            // Valid keys navigate immediately.
-            // 20s timer runs.
-
             console.log("InstructionsPage: Key down detected:", key);
             if (key === 'S') {
-                console.log("InstructionsPage: S key pressed, navigating to /play/trivia");
-                router.push('/play/pre-game?next=/play/trivia');
+                console.log("InstructionsPage: S key pressed");
+                handleGameSelect('/play/pre-game?next=/play/trivia');
             } else if (key === 'A') {
-                console.log("InstructionsPage: A key pressed, navigating to /play/azar");
-                router.push('/play/pre-game?next=/play/azar');
+                console.log("InstructionsPage: A key pressed");
+                handleGameSelect('/play/pre-game?next=/play/azar');
             } else if (key === 'B') {
-                console.log("InstructionsPage: B key pressed, navigating to /play/suerte");
-                router.push('/play/pre-game?next=/play/suerte');
+                console.log("InstructionsPage: B key pressed");
+                handleGameSelect('/play/pre-game?next=/play/suerte');
             }
         };
 
@@ -44,7 +59,7 @@ export default function InstructionsPage() {
             clearTimeout(timeout);
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [router]);
+    }, [router, paymentsEnabled]); // Add paymentsEnabled dependency
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-6 md:p-8 text-center space-y-8 md:space-y-12">
@@ -57,10 +72,7 @@ export default function InstructionsPage() {
 
                 <div className="grid grid-cols-1 gap-4 md:gap-6 text-xl md:text-2xl">
                     <button
-                        onClick={() => {
-                            console.log("Navigating to Trivia");
-                            router.push('/play/pre-game?next=/play/trivia');
-                        }}
+                        onClick={() => handleGameSelect('/play/pre-game?next=/play/trivia')}
                         className="w-full p-4 md:p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors cursor-pointer"
                     >
                         <div className="min-w-0 pr-4">
@@ -71,10 +83,7 @@ export default function InstructionsPage() {
                     </button>
 
                     <button
-                        onClick={() => {
-                            console.log("Navigating to Azar");
-                            router.push('/play/pre-game?next=/play/azar');
-                        }}
+                        onClick={() => handleGameSelect('/play/pre-game?next=/play/azar')}
                         className="w-full p-4 md:p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors cursor-pointer"
                     >
                         <div className="min-w-0 pr-4">
@@ -85,10 +94,7 @@ export default function InstructionsPage() {
                     </button>
 
                     <button
-                        onClick={() => {
-                            console.log("Navigating to Suerte");
-                            router.push('/play/pre-game?next=/play/suerte');
-                        }}
+                        onClick={() => handleGameSelect('/play/pre-game?next=/play/suerte')}
                         className="w-full p-4 md:p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors cursor-pointer"
                     >
                         <div className="min-w-0 pr-4">
@@ -111,23 +117,16 @@ export default function InstructionsPage() {
                 </p>
             </div>
 
-            {/* Admin / Redeem Footer */}
             <div className="mt-auto pt-12 pb-4 flex gap-8 opacity-20 hover:opacity-100 transition-opacity duration-500">
                 <button
-                    onClick={() => router.push('/login?next=/admin')}
+                    onClick={() => router.push('/login')}
                     className="px-6 py-2 border border-white/10 rounded-full hover:bg-white/5 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2"
                 >
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    Acceso Administrativo
-                </button>
-                <button
-                    onClick={() => router.push('/login?next=/redeem')}
-                    className="px-6 py-2 border border-white/10 rounded-full hover:bg-white/5 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2"
-                >
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    Centro de Canje
+                    <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                    Acceso Restringido
                 </button>
             </div>
         </div>
     );
 }
+
