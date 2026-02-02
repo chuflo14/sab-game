@@ -20,7 +20,9 @@ export async function GET(request: NextRequest) {
     try {
 
         if (externalReference) {
-            console.log(`Checking status for ref: ${externalReference}`);
+            const token = process.env.MP_ACCESS_TOKEN || '';
+            console.log(`DEBUG: Checking status for ref: ${externalReference}`);
+            console.log(`DEBUG: Token being used starts with: ${token.substring(0, 10)}... (Length: ${token.length})`);
 
             const payment = new Payment(client);
 
