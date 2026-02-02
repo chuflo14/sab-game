@@ -79,7 +79,7 @@ function PaymentContent() {
 
         const checkStatus = async () => {
             try {
-                const res = await fetch(`/api/payment/status?external_reference=${externalRef}`);
+                const res = await fetch(`/api/payment/status?external_reference=${externalRef}`, { cache: 'no-store' });
                 const data = await res.json();
 
                 if (data.status === 'approved') {

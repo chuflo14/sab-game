@@ -24,14 +24,13 @@ export async function GET(request: NextRequest) {
 
             const payment = new Payment(client);
 
-            // Search with broader criteria
+            // Search with broader criteria (Unfiltered status)
             const searchOptions = {
                 options: {
                     criteria: 'desc' as const,
-                    begin_date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // Look back 2 hours
+                    begin_date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Look back 24 hours
                     end_date: new Date().toISOString(),
-                    external_reference: externalReference,
-                    status: 'approved'
+                    external_reference: externalReference
                 }
             };
 
@@ -43,8 +42,14 @@ export async function GET(request: NextRequest) {
 
             if (results.results && results.results.length > 0) {
                 const pay = results.results[0];
-                console.log(`Approved Payment Found: ${pay.id}`);
-                return NextResponse.json({ status: 'approved', payment_id: pay.id });
+                console.log(`Payment Found: ${pay.id} | Status: ${pay.status} | Detail: ${pay.status_detail}`);
+
+                if (pay.status === 'approved') {
+                    return NextResponse.json(
+                        { status: 'approved', payment_id: pay.id },
+                        { headers: { 'Cache-Control': 'no-store, max-age=0' } }
+                    );
+                }
             }
         }
 
