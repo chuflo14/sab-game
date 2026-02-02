@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
         let amount = 1000;
 
         // Fetch price from DB using Admin Client + JSON RPC for maximum security/reliability
+        /* 
         try {
             const supabaseAdmin = getServiceSupabase();
             const { data: jsonData, error: dbError } = await supabaseAdmin
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
             console.warn('Failed to fetch payment config from DB, using default price.', dbErr);
             // Fallback to default amount (1000)
         }
+        */
 
         console.log(`Creating payment preference for amount: ${amount}`);
 
