@@ -8,10 +8,10 @@ const withPWA = withPWAInit({
   workboxOptions: {
     disableDevLogs: true,
     runtimeCaching: [
-      // Cache Supabase/Storage Media Files (Aggressive)
+      // Cache Supabase/Storage Media Files (Robust)
       {
         urlPattern: /^https:\/\/.*\/storage\/v1\/object\/public\/.*$/,
-        handler: 'CacheFirst',
+        handler: 'StaleWhileRevalidate',
         options: {
           cacheName: 'supabase-media-cache',
           expiration: {

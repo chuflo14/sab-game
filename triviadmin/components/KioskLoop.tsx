@@ -172,6 +172,7 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                         key={currentAd.id}
                         src={mediaSrc}
                         alt={currentAd.name || "Advertisement"}
+                        crossOrigin="anonymous"
                         className="w-full h-full object-cover animate-in fade-in duration-1000 pointer-events-none"
                         onError={(e) => {
                             console.error("Error loading ad image:", mediaSrc);
@@ -192,6 +193,7 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                 <video
                     key={currentAd.id}
                     src={mediaSrc}
+                    crossOrigin="anonymous"
                     className="w-full h-full object-cover animate-in fade-in duration-1000 pointer-events-none"
                     autoPlay
                     // muted removed to allow audio
