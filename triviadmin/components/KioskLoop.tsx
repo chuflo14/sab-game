@@ -229,7 +229,7 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                         </div>
                     </div>
                 ) : (
-                    <span className="inline-block px-4 py-2 md:px-10 md:py-4 bg-yellow-500 text-black font-black text-lg md:text-3xl uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-full animate-bounce shadow-lg shadow-yellow-500/40 transform group-hover:scale-105 transition-all">
+                    <span className="inline-block px-8 py-4 md:px-14 md:py-6 bg-yellow-500 text-black font-black text-2xl md:text-5xl uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-full animate-bounce shadow-lg shadow-yellow-500/40 transform group-hover:scale-105 transition-all">
                         Tocar para Jugar
                     </span>
                 )}

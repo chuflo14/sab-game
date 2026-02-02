@@ -67,41 +67,41 @@ export default function InstructionsPage() {
                 ¡Bienvenido a SAB GAME LR!
             </h1>
 
-            <div className="space-y-4 md:space-y-6 max-w-4xl w-full">
-                <h2 className="text-2xl md:text-4xl font-bold mb-4 md:mb-8">Elige tu modo de juego:</h2>
+            <div className="flex-1 flex flex-col justify-center w-full max-w-4xl space-y-8 md:space-y-12">
+                <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-8 drop-shadow-lg">Elige tu modo de juego:</h2>
 
-                <div className="grid grid-cols-1 gap-4 md:gap-6 text-xl md:text-2xl">
+                <div className="flex flex-col gap-6 md:gap-8 text-xl md:text-2xl">
                     <button
                         onClick={() => handleGameSelect('/play/pre-game?next=/play/trivia')}
-                        className="w-full p-4 md:p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors cursor-pointer"
+                        className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
                     >
                         <div className="min-w-0 pr-4">
-                            <span className="block text-2xl md:text-4xl font-black text-blue-400 mb-1 truncate">Trivia Riojana</span>
-                            <span className="text-xs md:text-gray-400 line-clamp-1 md:line-clamp-none">El desafío mental con identidad local</span>
+                            <span className="block text-3xl md:text-5xl font-black text-blue-400 mb-2 truncate drop-shadow-md">Trivia Riojana</span>
+                            <span className="text-sm md:text-xl text-gray-300 font-medium">El desafío mental con identidad local</span>
                         </div>
-                        <div className="bg-blue-400 text-black px-4 py-1 md:px-6 md:py-2 rounded-xl font-black text-2xl md:text-4xl shadow-[0_0_20px_rgba(59,130,246,0.3)] shrink-0">S</div>
+                        <div className="bg-blue-400 text-black w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(59,130,246,0.4)] shrink-0">S</div>
                     </button>
 
                     <button
                         onClick={() => handleGameSelect('/play/pre-game?next=/play/azar')}
-                        className="w-full p-4 md:p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors cursor-pointer"
+                        className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
                     >
                         <div className="min-w-0 pr-4">
-                            <span className="block text-2xl md:text-4xl font-black text-red-500 mb-1 truncate">La Ruleta del Chacho</span>
-                            <span className="text-xs md:text-gray-400 line-clamp-1 md:line-clamp-none">El azar puro con un toque divertido y nuestro</span>
+                            <span className="block text-3xl md:text-5xl font-black text-red-500 mb-2 truncate drop-shadow-md">La Ruleta</span>
+                            <span className="text-sm md:text-xl text-gray-300 font-medium">El azar puro con un toque divertido</span>
                         </div>
-                        <div className="bg-red-500 text-white px-4 py-1 md:px-6 md:py-2 rounded-xl font-black text-2xl md:text-4xl shadow-[0_0_20px_rgba(239,68,68,0.3)] shrink-0">A</div>
+                        <div className="bg-red-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(239,68,68,0.4)] shrink-0">A</div>
                     </button>
 
                     <button
                         onClick={() => handleGameSelect('/play/pre-game?next=/play/suerte')}
-                        className="w-full p-4 md:p-6 border border-white/20 rounded-2xl bg-white/5 flex items-center justify-between text-left group hover:bg-white/10 transition-colors cursor-pointer"
+                        className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
                     >
                         <div className="min-w-0 pr-4">
-                            <span className="block text-2xl md:text-4xl font-black text-orange-500 mb-1 truncate">Dedo de Chango</span>
-                            <span className="text-xs md:text-gray-400 line-clamp-1 md:line-clamp-none">¡Inflá el globo lo más rápido posible!</span>
+                            <span className="block text-3xl md:text-5xl font-black text-orange-500 mb-2 truncate drop-shadow-md">Dedo de Chango</span>
+                            <span className="text-sm md:text-xl text-gray-300 font-medium">¡Inflá el globo lo más rápido posible!</span>
                         </div>
-                        <div className="bg-orange-500 text-white px-4 py-1 md:px-6 md:py-2 rounded-xl font-black text-2xl md:text-4xl shadow-[0_0_20px_rgba(249,115,22,0.3)] shrink-0">B</div>
+                        <div className="bg-orange-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(249,115,22,0.4)] shrink-0">B</div>
                     </button>
                 </div>
             </div>
