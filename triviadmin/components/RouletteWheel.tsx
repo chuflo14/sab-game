@@ -224,12 +224,12 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
                 statusMessage={result?.prizeId ? 'Generando tu ticket premiado...' : '¡Inténtalo en otra oportunidad!'}
             />
 
-            <div className="relative group w-[300px] h-[300px] md:w-[500px] md:h-[500px] transition-all duration-300">
+            <div className="relative group w-full max-w-[600px] aspect-square transition-all duration-300">
                 <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500 to-amber-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                 <canvas
                     ref={canvasRef}
-                    width={500}
-                    height={500}
+                    width={800} // Increased resolution
+                    height={800}
                     onClick={spin}
                     className="relative w-full h-full bg-white/5 rounded-full shadow-2xl backdrop-blur-sm border-4 md:border-8 border-white/10 cursor-pointer active:scale-[0.98] transition-transform"
                 />
@@ -239,9 +239,9 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
                 <button
                     onClick={spin}
                     disabled={isSpinning || !!result}
-                    className={`w-full max-w-xs px-6 md:px-12 py-3 md:py-5 bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-black uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-xl md:rounded-2xl shadow-xl shadow-yellow-500/20 transform transition-all active:scale-95 disabled:grayscale disabled:opacity-50 disabled:translate-y-0 hover:-translate-y-1 text-xs md:text-base ${isSpinning ? 'cursor-not-allowed' : ''}`}
+                    className={`w-full max-w-sm px-8 py-6 md:px-12 md:py-8 bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-black uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-2xl md:rounded-3xl shadow-xl shadow-yellow-500/20 transform transition-all active:scale-95 disabled:grayscale disabled:opacity-50 disabled:translate-y-0 hover:-translate-y-1 text-xl md:text-3xl ${isSpinning ? 'cursor-not-allowed' : ''}`}
                 >
-                    {isSpinning ? 'GIrando...' : result ? 'Fin del Juego' : 'Girar la Ruleta'}
+                    {isSpinning ? 'GIRANDO...' : result ? 'FIN DEL JUEGO' : 'GIRAR'}
                 </button>
 
                 {!isSpinning && !result && (

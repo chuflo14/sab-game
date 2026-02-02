@@ -198,7 +198,7 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full">
+                <div className="flex flex-col gap-6 w-full max-w-2xl">
                     {(['S', 'A', 'B'] as const).map((key) => {
                         const isCorrect = question.correctKey === key;
                         const isSelected = selectedAnswer === key;
@@ -218,15 +218,16 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
                             <button
                                 key={key}
                                 onClick={() => handleAnswer(key)}
-                                className={`group relative p-4 md:p-8 rounded-2xl md:rounded-3xl border-2 transition-all duration-300 flex flex-col items-center gap-2 md:gap-4 cursor-pointer select-none active:scale-95 ${stateStyles}`}
+                                className={`group relative p-6 md:p-8 rounded-[2rem] border-2 transition-all duration-300 flex items-center justify-between gap-4 cursor-pointer select-none active:scale-95 ${stateStyles}`}
                             >
-                                <span className="absolute top-2 md:top-4 left-4 md:left-6 text-[8px] md:text-[10px] font-black opacity-30 uppercase tracking-[0.2em] md:tracking-[0.3em]">Opción</span>
-                                <div className={`w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center text-2xl md:text-4xl font-black transition-all ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`}>
-                                    {key}
+                                <div className="flex items-center gap-6 text-left">
+                                    <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-3xl md:text-5xl font-black transition-all bg-white/10 ${isSelected ? 'scale-110 bg-white/20' : 'group-hover:scale-105'}`}>
+                                        {key}
+                                    </div>
+                                    <span className="text-2xl md:text-4xl font-black uppercase tracking-tight leading-none">
+                                        {question.options[key]}
+                                    </span>
                                 </div>
-                                <span className="text-sm md:text-xl font-black uppercase tracking-tight text-center">
-                                    {question.options[key]}
-                                </span>
                             </button>
                         );
                     })}

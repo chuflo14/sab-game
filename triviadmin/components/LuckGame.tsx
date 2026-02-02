@@ -282,7 +282,7 @@ export default function LuckGame() {
 
             {/* Controls Info */}
             <div className="mt-4 md:mt-40 flex flex-col items-center gap-6 z-30">
-                <div className="flex gap-4">
+                <div className="flex gap-6 md:gap-8">
                     {['S', 'A', 'B'].map(k => (
                         <div
                             key={k}
@@ -293,8 +293,8 @@ export default function LuckGame() {
                                 }
                             }}
                             className={`
-                            w-12 h-12 md:w-16 md:h-16 rounded-xl border-4 flex items-center justify-center text-xl md:text-2xl font-black transition-all cursor-pointer select-none active:scale-90
-                            ${lastKey === k ? 'bg-yellow-500 border-white text-black scale-110' : 'bg-white/10 border-white/20 text-white'}
+                            w-20 h-20 md:w-28 md:h-28 rounded-2xl md:rounded-3xl border-4 flex items-center justify-center text-4xl md:text-6xl font-black transition-all cursor-pointer select-none active:scale-90 shadow-lg
+                            ${lastKey === k ? 'bg-yellow-500 border-white text-black scale-110 shadow-yellow-500/50' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}
                         `}>
                             {k}
                         </div>
