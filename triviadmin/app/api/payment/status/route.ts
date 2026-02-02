@@ -17,41 +17,34 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        // Search for payments related to this preference
-        // In a real robust system, we would use Webhooks to update our DB and check DB.
-        // But for "polling" against API for a single kiosk session, we can search payments.
-
-        // However, `preference_id` is not directly searchable in `payment.search` easily without external_reference.
-        // Wait: The preference ID is what we gave the frontend.
-        // It's better if the frontend tracks "external_reference" OR we use the preference ID to look up our local DB if we saved it.
-        // Strategy: We will just search for the MOST RECENT approved payment for our integration to keep it dead simple for now?
-        // NO, that's risky.
-
-        // Better Strategy:
-        // 1. The Preference was created with `external_reference`.
-        // 2. We should ideally pass that `external_reference` to the frontend or return it.
-        // 3. Frontend sends `external_reference` to check status.
-
-        // Let's modify this to accept `external_reference` instead of `id` (pref id).
-
         const externalReference = searchParams.get('external_reference');
 
         if (externalReference) {
+            console.log(`Checking status for ref: ${externalReference}`);
+
             const payment = new Payment(client);
-            const results = await payment.search({
+
+            // Search with broader criteria
+            const searchOptions = {
                 options: {
                     criteria: 'desc',
-                    sort: 'date_created',
-                    range: 'date_created',
-                    begin_date: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // Look back 15 mins only
+                    begin_date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // Look back 2 hours
                     end_date: new Date().toISOString(),
                     external_reference: externalReference,
-                    status: 'approved' // Only care about approved
+                    status: 'approved'
                 }
-            });
+            };
+
+            console.log('Search options:', JSON.stringify(searchOptions));
+
+            const results = await payment.search(searchOptions);
+
+            console.log(`Found ${results.results?.length || 0} results`);
 
             if (results.results && results.results.length > 0) {
-                return NextResponse.json({ status: 'approved', payment_id: results.results[0].id });
+                const pay = results.results[0];
+                console.log(`Approved Payment Found: ${pay.id}`);
+                return NextResponse.json({ status: 'approved', payment_id: pay.id });
             }
         }
 
