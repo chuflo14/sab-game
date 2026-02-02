@@ -153,68 +153,66 @@ function PaymentContent() {
                     <p className="text-xl text-white/70">Redirigiendo a los juegos...</p>
                 </div>
             ) : (
-                <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div className="flex flex-col items-center justify-between h-full max-h-[90vh] w-full max-w-lg py-8 animate-in fade-in zoom-in duration-500 relative z-10">
 
-                    {/* Left Side: Explainer */}
-                    <div className="space-y-8 order-2 md:order-1">
-                        <div>
-                            <h1 className="text-4xl md:text-6xl font-black uppercase tracking-wider leading-tight mb-4">
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                                    Para Jugar
-                                </span>
-                                <br />
+                    {/* TOP: Header */}
+                    <div className="text-center space-y-4">
+                        <h1 className="text-5xl md:text-7xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                            Para Jugar
+                        </h1>
+                        <div className="flex items-center justify-center gap-3 text-white/80">
+                            <Smartphone className="w-8 h-8 text-blue-400" />
+                            <h2 className="text-2xl md:text-3xl font-bold tracking-wider uppercase">
                                 Escanea el QR
-                            </h1>
-                            <p className="text-xl text-white/60 leading-relaxed">
-                                Solo aceptamos pagos con Mercado Pago.
-                                <br />
-                                {status === 'loading' ? (
-                                    <span className="text-white/50 text-sm animate-pulse">Cargando precio...</span>
-                                ) : (
-                                    <span className="text-white font-bold">Valor de la ficha: ${amount.toLocaleString('es-AR')}</span>
-                                )}
-                            </p>
+                            </h2>
                         </div>
-
-                        <div className="flex flex-col gap-4">
-                            <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-                                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                    <Smartphone className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <p className="font-bold text-lg">Abre Mercado Pago</p>
-                                    <p className="text-sm text-white/50">Escanea el QR para pagar</p>
-                                </div>
-                            </div>
-                        </div>
-                        {/* Hidden Dev Bypass removed. Use secret gesture if needed or rely on error screen fallback. */}
                     </div>
 
-                    {/* Right Side: QR Display */}
-                    <div className="flex justify-center order-1 md:order-2">
-                        <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-[2.5rem] blur-xl opacity-50 transition-opacity" />
-                            <div className="relative bg-white p-6 rounded-[2rem] shadow-2xl min-w-[350px] min-h-[450px] flex flex-col items-center justify-center gap-6">
+                    {/* CENTER: QR Code */}
+                    <div className="relative group my-4">
+                        {/* Glow Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-[2.5rem] blur-2xl opacity-60 animate-pulse" />
 
-                                {status === 'loading' ? (
-                                    <div className="flex flex-col items-center gap-4 py-20">
-                                        <Loader2 className="w-12 h-12 text-slate-300 animate-spin" />
-                                        <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Generando QR...</p>
+                        {/* QR Card */}
+                        <div className="relative bg-white p-6 rounded-[2.5rem] shadow-2xl flex flex-col items-center justify-center gap-4 border-4 border-white/10 w-[380px] h-[480px]">
+
+                            {status === 'loading' ? (
+                                <div className="flex flex-col items-center gap-6">
+                                    <Loader2 className="w-16 h-16 text-slate-300 animate-spin" />
+                                    <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">Generando QR...</p>
+                                </div>
+                            ) : paymentUrl ? (
+                                <>
+                                    <div className="bg-white p-2 rounded-xl">
+                                        <ReactQRCode value={paymentUrl} size={300} />
                                     </div>
-                                ) : paymentUrl ? (
-                                    <>
-                                        <div className="bg-white p-2 rounded-xl">
-                                            <ReactQRCode value={paymentUrl} size={256} />
-                                        </div>
-                                        <div className="flex flex-col items-center text-slate-800">
-                                            <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Total a Pagar</p>
-                                            <p className="text-5xl font-black text-slate-900">${amount.toLocaleString('es-AR')}</p>
-                                        </div>
-                                    </>
-                                ) : null}
-
-                            </div>
+                                    <div className="w-full h-px bg-slate-200" />
+                                    <div className="flex items-center gap-2 text-slate-500">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                        <span className="text-xs font-bold uppercase tracking-widest">Mercado Pago</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="text-red-500 font-bold text-center">No se pudo cargar el QR</p>
+                            )}
                         </div>
+                    </div>
+
+                    {/* BOTTOM: Price and Info */}
+                    <div className="text-center space-y-4 bg-black/40 p-6 rounded-3xl border border-white/10 backdrop-blur-md w-full">
+                        <div>
+                            <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-1">Valor de la Ficha</p>
+                            {status === 'loading' ? (
+                                <div className="h-10 w-32 bg-white/10 rounded animate-pulse mx-auto" />
+                            ) : (
+                                <p className="text-5xl font-black text-white drop-shadow-lg">
+                                    ${amount.toLocaleString('es-AR')}
+                                </p>
+                            )}
+                        </div>
+                        <p className="text-white/40 text-sm max-w-xs mx-auto leading-relaxed">
+                            Al pagar, se acreditará un crédito para jugar inmediatamente.
+                        </p>
                     </div>
 
                 </div>
