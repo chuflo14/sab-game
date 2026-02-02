@@ -30,8 +30,6 @@ export async function GET(request: NextRequest) {
             const searchOptions = {
                 options: {
                     criteria: 'desc' as const,
-                    begin_date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // Look back 24 hours
-                    end_date: new Date().toISOString(),
                     external_reference: externalReference
                 }
             };
