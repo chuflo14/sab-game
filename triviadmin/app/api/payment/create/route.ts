@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
-import { supabase } from '@/lib/supabaseClient'; // Ensure you have a server-safe client or use createClient here if needed
+import { getServiceSupabase } from '@/lib/supabaseClient';
 
 // Initialize Mercado Pago
 // NOTE: Ideally use server-side environmental variables only for Access Token
@@ -18,8 +18,9 @@ export async function POST(request: NextRequest) {
         // Allow overriding amount via body for testing, but ideally fetch from DB
         let amount = 1000;
 
-        // Fetch price from DB using JSON RPC to bypass RLS issues
-        const { data: jsonData } = await supabase
+        // Fetch price from DB using Admin Client + JSON RPC for maximum security/reliability
+        const supabaseAdmin = getServiceSupabase();
+        const { data: jsonData } = await supabaseAdmin
             .rpc('get_payment_config_json')
             .single();
 
