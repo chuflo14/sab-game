@@ -22,9 +22,7 @@ export default function SuertePage() {
             </div>
 
             {/* Bottom Decoration */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/20 uppercase tracking-[0.5em] text-sm">
-                SAB GAME • LUCK SYSTEM
-            </div>
+
         </div>
     );
 }
