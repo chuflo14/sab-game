@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
-import { getServiceSupabase } from '@/lib/supabaseClient';
+// import { getServiceSupabase } from '@/lib/supabaseClient';
 
 // Initialize Mercado Pago
 // NOTE: Ideally use server-side environmental variables only for Access Token
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const _body = await request.json();
         // Allow overriding amount via body for testing, but ideally fetch from DB
-        let amount = 1000;
+        const amount = 1000;
 
         // Fetch price from DB using Admin Client + JSON RPC for maximum security/reliability
         /* 
