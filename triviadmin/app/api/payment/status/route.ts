@@ -43,17 +43,17 @@ export async function GET(request: NextRequest) {
             if (results.results && results.results.length === 0) {
                 console.log('DEBUG: No results found with External Ref. Trying broad search...');
                 try {
+                    const tokenPrefix = token.substring(0, 10);
                     const broadOptions = {
                         options: {
                             criteria: 'desc' as const,
                             sort: 'date_created' as const,
-                            begin_date: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-                            end_date: new Date().toISOString(),
-                            limit: 5
+                            limit: 10
                         }
                     };
                     const broadResults = await payment.search(broadOptions);
-                    console.log(`DEBUG: Broad Search Found ${broadResults.results?.length || 0} payments`);
+                    console.log(`DEBUG: Broad Search (${tokenPrefix}...) Found ${broadResults.results?.length || 0} payments. Top 1 ID: ${broadResults.results?.[0]?.id || 'none'}`);
+
                     broadResults.results?.forEach(p => {
                         console.log(`DEBUG: PayID: ${p.id} | Status: ${p.status} | Ref: ${p.external_reference} | Date: ${p.date_created}`);
                     });
