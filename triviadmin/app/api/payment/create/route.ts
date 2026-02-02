@@ -19,16 +19,23 @@ export async function POST(request: NextRequest) {
         let amount = 1000;
 
         // Fetch price from DB using Admin Client + JSON RPC for maximum security/reliability
-        const supabaseAdmin = getServiceSupabase();
-        const { data: jsonData } = await supabaseAdmin
-            .rpc('get_payment_config_json')
-            .single();
+        try {
+            const supabaseAdmin = getServiceSupabase();
+            const { data: jsonData, error: dbError } = await supabaseAdmin
+                .rpc('get_payment_config_json')
+                .single();
 
-        // Cast to unknown first if needed, or just access safely
-        const config = jsonData as { game_price: number } | null;
+            if (dbError) throw dbError;
 
-        if (config?.game_price) {
-            amount = config.game_price;
+            // Cast to unknown first if needed, or just access safely
+            const config = jsonData as { game_price: number } | null;
+
+            if (config?.game_price) {
+                amount = config.game_price;
+            }
+        } catch (dbErr) {
+            console.warn('Failed to fetch payment config from DB, using default price.', dbErr);
+            // Fallback to default amount (1000)
         }
 
         console.log(`Creating payment preference for amount: ${amount}`);
