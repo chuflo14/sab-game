@@ -16,22 +16,26 @@ export async function POST(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const _body = await request.json();
         // Allow overriding amount via body for testing, but ideally fetch from DB
-        let amount = 1000;
+        // Allow overriding amount via body for testing, but ideally fetch from DB
 
-        // Fetch price from DB using Supabase RPC for maximum security/reliability
-        // Fetch price from DB using Supabase RPC for maximum security/reliability
+        let amount = 500;
+
+        console.error('DEBUG: Entering Payment Route');
+
+        // TEMPORARILY DISABLED DB FETCH TO UNBLOCK
+        /*
         try {
-            console.log('Attempting RPC call...');
+            console.error('DEBUG: Attempting RPC call...');
             const { data: jsonData, error: dbError } = await supabase
                 .rpc('get_payment_config_json')
                 .single();
 
             if (dbError) {
-                console.warn('RPC returned error object:', dbError);
+                console.error('DEBUG: RPC returned error object:', dbError);
                 throw dbError;
             }
 
-            console.log('RPC success:', jsonData);
+            console.error('DEBUG: RPC success:', jsonData);
 
             // Cast to unknown first if needed, or just access safely
             const config = jsonData as { game_price: number } | null;
@@ -40,9 +44,11 @@ export async function POST(request: NextRequest) {
                 amount = config.game_price;
             }
         } catch (dbErr) {
-            console.warn('CAUGHT inner DB Error:', dbErr);
+            console.error('DEBUG: CAUGHT inner DB Error:', dbErr);
             // Fallback to default amount (1000)
         }
+        */
+        console.error('DEBUG: Using hardcoded amount:', amount);
 
         console.log(`Creating payment preference for amount: ${amount}`);
 
