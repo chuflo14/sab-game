@@ -66,9 +66,9 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
             ctx.save();
             ctx.rotate(startAngle + angleStep / 2);
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 20px sans-serif';
+            ctx.font = 'bold 48px sans-serif'; // Increased font size from 20px
             ctx.textAlign = 'right';
-            ctx.fillText(segment.label.toUpperCase(), radius - 40, 10);
+            ctx.fillText(segment.label.toUpperCase(), radius - 60, 15); // Adjusted offset
             ctx.restore();
         });
 
