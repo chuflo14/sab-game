@@ -11,13 +11,13 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const preferenceId = searchParams.get('id');
+    const externalReference = searchParams.get('external_reference');
 
-    if (!preferenceId) {
-        return NextResponse.json({ error: 'Missing preference id' }, { status: 400 });
+    if (!preferenceId && !externalReference) {
+        return NextResponse.json({ error: 'Missing id or external_reference' }, { status: 400 });
     }
 
     try {
-        const externalReference = searchParams.get('external_reference');
 
         if (externalReference) {
             console.log(`Checking status for ref: ${externalReference}`);
