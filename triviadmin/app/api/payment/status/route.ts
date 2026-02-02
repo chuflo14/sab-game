@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
 
                                 console.log(`DEBUG: Checking Loose Match. Last Pay: ${diffMinutes} min ago.`);
 
-                                if (diffMinutes < 60) { // Accept payment from last 60 mins
+                                if (diffMinutes < 2) { // Accept payment from last 2 mins (Strict security)
                                     console.log('DEBUG: USING LOOSE MATCH! (Ref mismatch overridden)');
                                     results.results = [mostRecent];
                                 }
