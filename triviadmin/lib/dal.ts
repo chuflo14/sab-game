@@ -262,10 +262,10 @@ export const updateWheelSegment = async (id: string, updates: Partial<WheelSegme
 
 // Chango DAL
 export const getChangoConfig = async (): Promise<ChangoConfig> => {
-    // Use RPC to bypass RLS
-    const { data: rawData, error } = await supabase.rpc('get_public_config').single();
+    // Use JSON RPC to bypass RLS completely (returns json, not table row)
+    const { data: jsonData, error } = await supabase.rpc('get_payment_config_json').single();
 
-    if (error || !rawData) {
+    if (error || !jsonData) {
         // Return default if missing or error
         return {
             id: 'default',
@@ -275,8 +275,7 @@ export const getChangoConfig = async (): Promise<ChangoConfig> => {
         } as ChangoConfig;
     }
 
-    // Cast rawData to unknown then to a type with snake_case properties
-    const data = rawData as any;
+    const data = jsonData as any;
 
     return {
         ...data,

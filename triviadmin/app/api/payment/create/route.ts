@@ -18,13 +18,13 @@ export async function POST(request: NextRequest) {
         // Allow overriding amount via body for testing, but ideally fetch from DB
         let amount = 1000;
 
-        // Fetch price from DB using RPC to bypass RLS issues
-        const { data } = await supabase
-            .rpc('get_public_config')
+        // Fetch price from DB using JSON RPC to bypass RLS issues
+        const { data: jsonData } = await supabase
+            .rpc('get_payment_config_json')
             .single();
 
         // Cast to unknown first if needed, or just access safely
-        const config = data as { game_price: number } | null;
+        const config = jsonData as { game_price: number } | null;
 
         if (config?.game_price) {
             amount = config.game_price;
