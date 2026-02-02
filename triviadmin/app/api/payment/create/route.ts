@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
-// import { getServiceSupabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 // Initialize Mercado Pago
 // NOTE: Ideally use server-side environmental variables only for Access Token
@@ -16,17 +16,22 @@ export async function POST(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const _body = await request.json();
         // Allow overriding amount via body for testing, but ideally fetch from DB
-        const amount = 1000;
+        let amount = 1000;
 
-        // Fetch price from DB using Admin Client + JSON RPC for maximum security/reliability
-        /* 
+        // Fetch price from DB using Supabase RPC for maximum security/reliability
+        // Fetch price from DB using Supabase RPC for maximum security/reliability
         try {
-            const supabaseAdmin = getServiceSupabase();
-            const { data: jsonData, error: dbError } = await supabaseAdmin
+            console.log('Attempting RPC call...');
+            const { data: jsonData, error: dbError } = await supabase
                 .rpc('get_payment_config_json')
                 .single();
 
-            if (dbError) throw dbError;
+            if (dbError) {
+                console.warn('RPC returned error object:', dbError);
+                throw dbError;
+            }
+
+            console.log('RPC success:', jsonData);
 
             // Cast to unknown first if needed, or just access safely
             const config = jsonData as { game_price: number } | null;
@@ -35,10 +40,9 @@ export async function POST(request: NextRequest) {
                 amount = config.game_price;
             }
         } catch (dbErr) {
-            console.warn('Failed to fetch payment config from DB, using default price.', dbErr);
+            console.warn('CAUGHT inner DB Error:', dbErr);
             // Fallback to default amount (1000)
         }
-        */
 
         console.log(`Creating payment preference for amount: ${amount}`);
 
