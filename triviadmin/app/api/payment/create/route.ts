@@ -18,37 +18,46 @@ export async function POST(request: NextRequest) {
         // Allow overriding amount via body for testing, but ideally fetch from DB
         // Allow overriding amount via body for testing, but ideally fetch from DB
 
-        const amount = 500;
+        let amount = 1000;
 
         console.error('DEBUG: Entering Payment Route');
 
-        // TEMPORARILY DISABLED DB FETCH TO UNBLOCK
-        /*
+        // Initialize Supabase client
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+        console.log('DEBUG: Supabase Config:', {
+            hasUrl: !!supabaseUrl,
+            hasKey: !!supabaseKey,
+            startUrl: supabaseUrl ? supabaseUrl.substring(0, 10) : 'none'
+        });
+
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
         try {
-            console.error('DEBUG: Attempting RPC call...');
+            console.log('DEBUG: Attempting RPC call to get_payment_config_json...');
             const { data: jsonData, error: dbError } = await supabase
                 .rpc('get_payment_config_json')
                 .single();
 
             if (dbError) {
                 console.error('DEBUG: RPC returned error object:', dbError);
-                throw dbError;
-            }
+                // Don't throw, just log. We will use default amount.
+            } else {
+                console.log('DEBUG: RPC success:', jsonData);
 
-            console.error('DEBUG: RPC success:', jsonData);
-
-            // Cast to unknown first if needed, or just access safely
-            const config = jsonData as { game_price: number } | null;
-
-            if (config?.game_price) {
-                amount = config.game_price;
+                // Safe cast and check
+                const config = jsonData as { game_price: number } | null;
+                if (config && typeof config.game_price === 'number') {
+                    amount = config.game_price;
+                    console.log(`DEBUG: Updated amount from DB: ${amount}`);
+                }
             }
         } catch (dbErr) {
             console.error('DEBUG: CAUGHT inner DB Error:', dbErr);
-            // Fallback to default amount (1000)
+            // Fallback to default amount (500 or 1000) will happen automatically since 'amount' is already init
         }
-        */
-        console.error('DEBUG: Using hardcoded amount:', amount);
 
         console.log(`Creating payment preference for amount: ${amount}`);
 

@@ -36,11 +36,11 @@ export async function GET(request: NextRequest) {
                 }
             };
 
-            console.log('Search options:', JSON.stringify(searchOptions));
+            console.log('Search options:', JSON.stringify(searchOptions, null, 2));
 
             const results = await payment.search(searchOptions);
 
-            console.log(`Found ${results.results?.length || 0} results`);
+            console.log(`DEBUG: Payment Search found ${results.results?.length || 0} results for ref: ${externalReference}`);
 
             if (results.results && results.results.length === 0) {
                 console.log('DEBUG: No results found with External Ref. Trying broad search...');
