@@ -65,15 +65,15 @@ export default function ResultDisplay({ ticket, store, config }: ResultDisplayPr
             </div>
 
             {store ? (
-                <div className="bg-neutral-900 border border-neutral-800 p-4 md:p-6 rounded-xl max-w-lg w-full mb-6 md:mb-8">
-                    <h2 className="text-xs md:text-sm font-bold text-gray-400 mb-2 md:mb-4 uppercase tracking-wider">Retira en:</h2>
-                    <p className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">{store.name}</p>
-                    <p className="text-lg md:text-xl text-gray-400 mb-4">{store.address}</p>
+                <div className="bg-neutral-900 border border-neutral-800 p-6 md:p-10 rounded-[2rem] max-w-2xl w-full mb-8 md:mb-12">
+                    <h2 className="text-sm md:text-xl font-bold text-gray-400 mb-4 md:mb-6 uppercase tracking-wider">Retira tu premio en:</h2>
+                    <p className="text-3xl md:text-5xl font-black text-white mb-2 md:mb-4">{store.name}</p>
+                    <p className="text-xl md:text-3xl text-gray-300 font-medium mb-6">{store.address}</p>
 
                     <div className="flex gap-4 justify-center">
-                        <div className="flex items-center gap-2 text-green-400 bg-green-900/20 px-4 py-2 rounded-full border border-green-900/50 text-xs md:text-base">
+                        <div className="flex items-center gap-3 text-green-400 bg-green-900/20 px-6 py-3 rounded-full border border-green-900/50 text-sm md:text-2xl">
                             <span>WhatsApp:</span>
-                            <span className="font-mono font-bold">{store.whatsapp}</span>
+                            <span className="font-mono font-bold tracking-wider">{store.whatsapp}</span>
                         </div>
                     </div>
                 </div>
