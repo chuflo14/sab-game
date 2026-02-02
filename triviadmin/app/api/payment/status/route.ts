@@ -40,6 +40,28 @@ export async function GET(request: NextRequest) {
 
             console.log(`Found ${results.results?.length || 0} results`);
 
+            if (results.results && results.results.length === 0) {
+                console.log('DEBUG: No results found with External Ref. Trying broad search...');
+                try {
+                    const broadOptions = {
+                        options: {
+                            criteria: 'desc' as const,
+                            sort: 'date_created' as const,
+                            begin_date: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+                            end_date: new Date().toISOString(),
+                            limit: 5
+                        }
+                    };
+                    const broadResults = await payment.search(broadOptions);
+                    console.log(`DEBUG: Broad Search Found ${broadResults.results?.length || 0} payments`);
+                    broadResults.results?.forEach(p => {
+                        console.log(`DEBUG: PayID: ${p.id} | Status: ${p.status} | Ref: ${p.external_reference} | Date: ${p.date_created}`);
+                    });
+                } catch (err) {
+                    console.error('DEBUG: Broad search failed', err);
+                }
+            }
+
             if (results.results && results.results.length > 0) {
                 const pay = results.results[0];
                 console.log(`Payment Found: ${pay.id} | Status: ${pay.status} | Detail: ${pay.status_detail}`);
