@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@supabase/supabase-js": "^2.93.3",
     "@yudiel/react-qr-scanner": "^2.5.1",
     "class-variance-authority": "^0.7.1",
