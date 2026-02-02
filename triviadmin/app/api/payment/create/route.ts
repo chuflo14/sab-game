@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
-import { supabase } from '@/lib/supabaseClient';
+// import { supabase } from '@/lib/supabaseClient';
 
 // Initialize Mercado Pago
 // NOTE: Ideally use server-side environmental variables only for Access Token
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
         // Allow overriding amount via body for testing, but ideally fetch from DB
         // Allow overriding amount via body for testing, but ideally fetch from DB
 
-        let amount = 500;
+        const amount = 500;
 
         console.error('DEBUG: Entering Payment Route');
 
