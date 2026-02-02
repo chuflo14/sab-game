@@ -58,6 +58,17 @@ export async function GET(request: NextRequest) {
                     broadResults.results?.forEach(p => {
                         console.log(`DEBUG: PayID: ${p.id} | Status: ${p.status} | Ref: ${p.external_reference} | Date: ${p.date_created}`);
                     });
+
+                    // FALLBACK: If specific search failed but broad search found our ref, use it!
+                    if (results.results.length === 0 && broadResults.results) {
+                        const foundInBroad = broadResults.results.find(p => p.external_reference === externalReference);
+                        if (foundInBroad) {
+                            console.log('DEBUG: Found payment in Broad Search fallback!');
+                            // Overwrite results to use this one
+                            results.results = [foundInBroad];
+                        }
+                    }
+
                 } catch (err) {
                     console.error('DEBUG: Broad search failed', err);
                 }
