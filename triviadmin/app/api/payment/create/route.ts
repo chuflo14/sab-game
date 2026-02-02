@@ -3,9 +3,9 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 // import { supabase } from '@/lib/supabaseClient';
 
 // Initialize Mercado Pago
-// NOTE: Ideally use server-side environmental variables only for Access Token
 const client = new MercadoPagoConfig({
-    accessToken: process.env.MP_ACCESS_TOKEN || '',
+    // TEMPORARY FIX: Hardcoding token because Vercel Env Var is stuck on TEST
+    accessToken: 'APP_USR-4952804291016557-013110-1256f9a32dedbfed3a290fbc6713704b-24029138',
     options: { timeout: 5000 }
 });
 
