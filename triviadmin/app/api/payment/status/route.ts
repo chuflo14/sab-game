@@ -59,13 +59,28 @@ export async function GET(request: NextRequest) {
                         console.log(`DEBUG: PayID: ${p.id} | Status: ${p.status} | Ref: ${p.external_reference} | Date: ${p.date_created}`);
                     });
 
-                    // FALLBACK: If specific search failed but broad search found our ref, use it!
+                    // FALLBACK 1: Match by External Ref in Broad Search
                     if (results.results.length === 0 && broadResults.results) {
                         const foundInBroad = broadResults.results.find(p => p.external_reference === externalReference);
                         if (foundInBroad) {
-                            console.log('DEBUG: Found payment in Broad Search fallback!');
-                            // Overwrite results to use this one
+                            console.log('DEBUG: Found payment in Broad Search fallback (Ref Match)!');
                             results.results = [foundInBroad];
+                        } else {
+                            // FALLBACK 2: Loose Matching (Panic Mode)
+                            // If we have NO results, but we found a VERY RECENT approved payment, take it.
+                            const mostRecent = broadResults.results[0];
+                            if (mostRecent && mostRecent.status === 'approved') {
+                                const payDate = new Date(mostRecent.date_created!);
+                                const now = new Date();
+                                const diffMinutes = (now.getTime() - payDate.getTime()) / 1000 / 60;
+
+                                console.log(`DEBUG: Checking Loose Match. Last Pay: ${diffMinutes} min ago.`);
+
+                                if (diffMinutes < 20) { // Accept payment from last 20 mins
+                                    console.log('DEBUG: USING LOOSE MATCH! (Ref mismatch overridden)');
+                                    results.results = [mostRecent];
+                                }
+                            }
                         }
                     }
 
