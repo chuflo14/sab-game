@@ -55,11 +55,13 @@ function PaymentContent() {
                 const data = await res.json();
 
                 if (res.ok && data.init_point && data.external_reference) {
+                    console.log('DEBUG: Payment created', { id: data.id, ref: data.external_reference });
                     setPaymentUrl(data.init_point);
                     setExternalRef(data.external_reference);
                     if (data.amount) setAmount(data.amount);
                     setStatus('scanning');
                 } else {
+                    console.error('DEBUG: Payment creation failed data:', data);
                     const errorMsg = data.error || 'Error al generar el pago.';
                     const errorCode = data.code ? ` (${data.code})` : '';
                     setError(`${errorMsg}${errorCode} - Verifica tu cuenta de Mercado Pago.`);
@@ -78,6 +80,7 @@ function PaymentContent() {
         if (!externalRef || status === 'approved') return;
 
         const checkStatus = async () => {
+            console.log('DEBUG: Polling status for ref:', externalRef);
             try {
                 const res = await fetch(`/api/payment/status?external_reference=${externalRef}`, { cache: 'no-store' });
                 const data = await res.json();
