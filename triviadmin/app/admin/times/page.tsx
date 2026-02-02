@@ -67,21 +67,21 @@ export default function TimesAdminPage() {
 
     return (
         <div className="space-y-10 pb-20 max-w-5xl mx-auto">
-            <div className="flex justify-between items-center bg-white p-10 rounded-[2.5rem] border border-slate-200">
-                <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-blue-500 rounded-3xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                        <Clock className="text-white w-8 h-8" />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 gap-6 md:gap-0">
+                <div className="flex items-center gap-4 md:gap-6">
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-500 rounded-2xl md:rounded-3xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
+                        <Clock className="text-white w-6 h-6 md:w-8 md:h-8" />
                     </div>
                     <div>
-                        <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Tiempos del Sistema</h3>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Configuración global de duraciones y pausas</p>
+                        <h3 className="text-xl md:text-2xl font-black text-slate-800 uppercase tracking-tight">Tiempos del Sistema</h3>
+                        <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Configuración global de duraciones y pausas</p>
                     </div>
                 </div>
 
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className={`px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-3 transition-all shadow-xl active:scale-95 ${showSuccess ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-black text-white shadow-black/20 hover:bg-slate-800'}`}
+                    className={`w-full md:w-auto px-6 md:px-10 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all shadow-xl active:scale-95 ${showSuccess ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-black text-white shadow-black/20 hover:bg-slate-800'}`}
                 >
                     {isSaving ? <Clock className="w-4 h-4 animate-spin" /> : showSuccess ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
                     {isSaving ? 'Guardando...' : showSuccess ? '¡Guardado!' : 'Guardar Cambios'}
