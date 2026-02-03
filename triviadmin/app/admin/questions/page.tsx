@@ -1,31 +1,49 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchQuestions, updateQuestionAction, deleteQuestionAction } from '@/lib/actions';
-import { TriviaQuestion } from '@/lib/types';
+import { fetchQuestions, updateQuestionAction, deleteQuestionAction, fetchChangoConfig, updateChangoConfigAction } from '@/lib/actions';
+import { TriviaQuestion, ChangoConfig } from '@/lib/types';
 import Link from 'next/link';
+import MusicUploadButton from '@/components/admin/MusicUploadButton';
 import {
     Plus,
     HelpCircle,
     Brain,
     Trash2,
     Edit2,
-    Check
+    Check,
+    Music
 } from 'lucide-react';
 
 export default function QuestionsAdminPage() {
     const [questions, setQuestions] = useState<TriviaQuestion[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [config, setConfig] = useState<ChangoConfig | null>(null);
 
     useEffect(() => {
-        loadQuestions();
+        loadData();
     }, []);
 
-    const loadQuestions = async () => {
+    const loadData = async () => {
         setIsLoading(true);
+        const [questionsData, configData] = await Promise.all([
+            fetchQuestions(),
+            fetchChangoConfig()
+        ]);
+        setQuestions(questionsData);
+        setConfig(configData);
+        setIsLoading(false);
+    };
+
+    const updateConfig = async (key: keyof ChangoConfig, value: any) => {
+        const newData = { [key]: value };
+        setConfig(prev => prev ? { ...prev, ...newData } : null);
+        await updateChangoConfigAction(newData);
+    };
+
+    const loadQuestions = async () => {
         const data = await fetchQuestions();
         setQuestions(data);
-        setIsLoading(false);
     };
 
     const handleDelete = async (id: string) => {
@@ -142,6 +160,27 @@ export default function QuestionsAdminPage() {
                 <div className="p-6 bg-white/5 rounded-3xl border border-white/10 text-center min-w-[150px] relative z-10">
                     <p className="text-5xl font-black text-white leading-none">{questions.length}</p>
                     <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mt-2 px-1 leading-tight">Total Desafíos</p>
+                </div>
+            </div>
+
+            {/* Music Configuration */}
+            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600">
+                        <Music className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">Música de Fondo</h4>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Ambienta el juego de Trivia</p>
+                    </div>
+                </div>
+
+                <div className="max-w-md">
+                    <MusicUploadButton
+                        currentUrl={config?.trivia_music_url}
+                        onUpload={(url) => updateConfig('trivia_music_url', url)}
+                        label="Subir Música Trivia"
+                    />
                 </div>
             </div>
         </div>

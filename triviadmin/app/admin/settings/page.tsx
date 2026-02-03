@@ -25,12 +25,15 @@ export default function SettingsAdminPage() {
     const loadConfig = async () => {
         const data = await fetchChangoConfig();
         setConfig(data);
-        if (data.game_price !== undefined) {
-            setPrice(data.game_price);
-        }
-        if (data.enable_payments !== undefined) {
-            setEnablePayments(data.enable_payments);
-        }
+        setPrice(data.game_price || 1000);
+        setEnablePayments(data.enable_payments ?? true);
+    };
+
+    const updateConfig = async (key: keyof ChangoConfig, value: any) => {
+        const newData = { [key]: value };
+        // Optimistic update
+        setConfig(prev => prev ? { ...prev, ...newData } : null);
+        await updateChangoConfigAction(newData);
     };
 
     const handleSave = async () => {
@@ -42,7 +45,6 @@ export default function SettingsAdminPage() {
         setIsSaving(false);
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
-        loadConfig();
     };
 
     if (!config) return (
@@ -54,6 +56,7 @@ export default function SettingsAdminPage() {
 
     return (
         <div className="space-y-10 pb-20 max-w-5xl mx-auto">
+            {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 gap-6 md:gap-0">
                 <div className="flex items-center gap-4 md:gap-6">
                     <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-800 rounded-2xl md:rounded-3xl flex items-center justify-center shadow-lg shadow-slate-800/20 shrink-0">

@@ -1,10 +1,15 @@
 import LuckGame from '@/components/LuckGame';
+import { fetchChangoConfig } from '@/lib/actions';
+import BackgroundMusic from '@/components/BackgroundMusic';
 
 export const dynamic = 'force-dynamic';
 
-export default function SuertePage() {
+export default async function SuertePage() {
+    const config = await fetchChangoConfig();
+
     return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
+            <BackgroundMusic src={config?.chango_music_url} />
             {/* Background Effects */}
             <div className="absolute inset-0 opacity-30 pointer-events-none"
                 style={{ backgroundImage: 'radial-gradient(circle at center, #3b82f6 0%, transparent 70%)' }}

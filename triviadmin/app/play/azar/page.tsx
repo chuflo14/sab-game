@@ -1,14 +1,17 @@
-import { fetchRouletteSegments } from '@/lib/actions';
+import { fetchRouletteSegments, fetchChangoConfig } from '@/lib/actions';
 import RouletteWheel from '@/components/RouletteWheel';
+import BackgroundMusic from '@/components/BackgroundMusic';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AzarPage() {
     const allSegments = await fetchRouletteSegments();
     const activeSegments = allSegments.filter(s => s.active);
+    const config = await fetchChangoConfig();
 
     return (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden">
+            <BackgroundMusic src={config?.ruleta_music_url} />
             {/* Premium Background Effects */}
             <div className="absolute inset-0 z-0">
                 <div

@@ -11,8 +11,10 @@ import {
     Timer,
     Sparkles,
     CheckCircle2,
-    Settings2
+    Settings2,
+    Music
 } from 'lucide-react';
+import MusicUploadButton from '@/components/admin/MusicUploadButton';
 
 export default function ChangoAdminPage() {
     const [config, setConfig] = useState<ChangoConfig | null>(null);
@@ -155,38 +157,63 @@ export default function ChangoAdminPage() {
                 </div>
 
                 {/* Info Card */}
-                <div className="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
-                    <Sparkles className="absolute -bottom-10 -right-10 w-48 h-48 text-white/5 group-hover:scale-110 transition-transform duration-700" />
+                <div className="space-y-10">
+                    <div className="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+                        <Sparkles className="absolute -bottom-10 -right-10 w-48 h-48 text-white/5 group-hover:scale-110 transition-transform duration-700" />
 
-                    <h4 className="text-xl font-black uppercase tracking-tight mb-8 relative z-10">Mecánica del Juego</h4>
+                        <h4 className="text-xl font-black uppercase tracking-tight mb-8 relative z-10">Mecánica del Juego</h4>
 
-                    <div className="space-y-8 relative z-10">
-                        <div className="flex items-center gap-6">
-                            <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
-                                <Timer className="text-orange-400 w-7 h-7" />
+                        <div className="space-y-8 relative z-10">
+                            <div className="flex items-center gap-6">
+                                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
+                                    <Timer className="text-orange-400 w-7 h-7" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-black uppercase tracking-widest">Ritmo de Juego</p>
+                                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">El globo mantiene su tamaño si el usuario descansa</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-sm font-black uppercase tracking-widest">Ritmo de Juego</p>
-                                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">El globo mantiene su tamaño si el usuario descansa</p>
+
+                            <div className="flex items-center gap-6">
+                                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
+                                    <Settings2 className="text-blue-400 w-7 h-7" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-black uppercase tracking-widest">Calibración en Tiempo Real</p>
+                                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Cambios aplicados instantáneamente</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-6">
-                            <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
-                                <Settings2 className="text-blue-400 w-7 h-7" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-black uppercase tracking-widest">Calibración en Tiempo Real</p>
-                                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Cambios aplicados instantáneamente</p>
-                            </div>
+                        <div className="mt-12 pt-10 border-t border-white/10">
+                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Última actualización</p>
+                            <p className="text-xs font-bold text-white/60 uppercase tracking-widest mt-1">
+                                {new Date(config.updatedAt).toLocaleString()}
+                            </p>
                         </div>
                     </div>
 
-                    <div className="mt-12 pt-10 border-t border-white/10">
-                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Última actualización</p>
-                        <p className="text-xs font-bold text-white/60 uppercase tracking-widest mt-1">
-                            {new Date(config.updatedAt).toLocaleString()}
-                        </p>
+                    {/* Music Configuration */}
+                    <div className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600">
+                                <Music className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">Música de Fondo</h4>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Ambienta el juego del Globo</p>
+                            </div>
+                        </div>
+
+                        <MusicUploadButton
+                            currentUrl={config?.chango_music_url}
+                            onUpload={async (url) => {
+                                const newData = { chango_music_url: url };
+                                setConfig(prev => prev ? { ...prev, ...newData } : null);
+                                await updateChangoConfigAction(newData);
+                            }}
+                            label="Subir Música Chango"
+                        />
                     </div>
                 </div>
             </div>

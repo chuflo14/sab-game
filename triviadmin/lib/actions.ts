@@ -90,6 +90,48 @@ export async function uploadAdMedia(formData: FormData) {
     }
 }
 
+export async function uploadMusic(formData: FormData) {
+    try {
+        const file = formData.get('file') as File;
+        if (!file) return { success: false, error: 'No file uploaded' };
+
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        const ext = path.extname(file.name);
+        // Only allow audio extensions if needed, or just trust the admin
+        // Let's safe fail if not audio
+        if (!file.type.startsWith('audio/') && ext !== '.mp3') {
+            // Basic check, though skipping strictly since sometimes mime types are missed
+            // console.warn('Uploaded file may not be audio:', file.type);
+        }
+
+        const safeName = Math.random().toString(36).substring(7);
+        const fileName = `music/${Date.now()}-${safeName}${ext}`;
+
+        const { error } = await supabase.storage
+            .from('MEDIA') // Reuse MEDIA bucket
+            .upload(fileName, buffer, {
+                contentType: file.type || 'audio/mpeg',
+                upsert: false
+            });
+
+        if (error) {
+            console.error('Music Upload Error details:', error);
+            return { success: false, error: `Upload failed: ${error.message}` };
+        }
+
+        const { data: publicData } = supabase.storage
+            .from('MEDIA')
+            .getPublicUrl(fileName);
+
+        return { success: true, url: publicData.publicUrl };
+    } catch (err: any) {
+        console.error('Unexpected music upload error:', err);
+        return { success: false, error: `Unexpected error: ${err.message}` };
+    }
+}
+
 // User Actions
 export async function fetchUsers() {
     return await dal.getUsers();

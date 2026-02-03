@@ -74,6 +74,9 @@ export interface ChangoConfig {
     enable_payments?: boolean; // Enable/Disable payments
     paymentTimeoutSeconds?: number; // Timeout for payment screen
     paymentSuccessSeconds?: number; // Duration of success message
+    trivia_music_url?: string;
+    ruleta_music_url?: string;
+    chango_music_url?: string;
     updatedAt: Date;
 }
 
