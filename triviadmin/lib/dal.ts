@@ -145,14 +145,23 @@ export const deleteQuestion = async (id: string): Promise<void> => {
 };
 
 // Machines DAL
+// Machines DAL
 export const getMachines = async (): Promise<Machine[]> => {
     const { data, error } = await supabase.from('machines').select('*');
     if (error) throw error;
-    return data.map((m: any) => ({ ...m, isOperational: m.is_operational, lastSeenAt: new Date(m.last_seen_at) })) as Machine[];
+    return data.map((m: any) => ({ ...m, short_id: m.short_id, isOperational: m.is_operational, lastSeenAt: new Date(m.last_seen_at) })) as Machine[];
 };
+
+export const getMachineByShortId = async (shortId: string): Promise<Machine | undefined> => {
+    const { data, error } = await supabase.from('machines').select('*').eq('short_id', shortId).single();
+    if (error) return undefined;
+    return { ...data, short_id: data.short_id, isOperational: data.is_operational, lastSeenAt: new Date(data.last_seen_at) } as Machine;
+};
+
 export const addMachine = async (m: Machine): Promise<Machine> => {
     const dbM = {
         id: m.id,
+        short_id: m.short_id,
         name: m.name,
         location: m.location,
         is_operational: m.isOperational,
@@ -160,7 +169,7 @@ export const addMachine = async (m: Machine): Promise<Machine> => {
     };
     const { data, error } = await supabase.from('machines').insert(dbM).select().single();
     if (error) throw error;
-    return { ...data, isOperational: data.is_operational, lastSeenAt: new Date(data.last_seen_at) } as Machine;
+    return { ...data, short_id: data.short_id, isOperational: data.is_operational, lastSeenAt: new Date(data.last_seen_at) } as Machine;
 };
 export const updateMachine = async (id: string, updates: Partial<Machine>): Promise<Machine | undefined> => {
     const dbUpdates: any = { ...updates };
@@ -172,9 +181,14 @@ export const updateMachine = async (id: string, updates: Partial<Machine>): Prom
         dbUpdates.last_seen_at = updates.lastSeenAt;
         delete dbUpdates.lastSeenAt;
     }
+    if (updates.short_id !== undefined) {
+        dbUpdates.short_id = updates.short_id;
+        // Keep key as is since it matches column name if I didn't enforce camelCase for it. 
+        // Actually types.ts has short_id (snake_case in interface? No, let's check types.ts again).
+    }
     const { data, error } = await supabase.from('machines').update(dbUpdates).eq('id', id).select().single();
     if (error) return undefined;
-    return { ...data, isOperational: data.is_operational, lastSeenAt: new Date(data.last_seen_at) } as Machine;
+    return { ...data, short_id: data.short_id, isOperational: data.is_operational, lastSeenAt: new Date(data.last_seen_at) } as Machine;
 };
 export const deleteMachine = async (id: string): Promise<void> => {
     const { error } = await supabase.from('machines').delete().eq('id', id);

@@ -12,6 +12,7 @@ export interface User {
 
 export interface Machine {
     id: string;
+    short_id?: string; // User-friendly ID for setup
     name: string;
     location?: string;
     isOperational: boolean;

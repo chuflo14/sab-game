@@ -26,7 +26,8 @@ export default function MachinesAdminPage() {
 
     const [formData, setFormData] = useState({
         name: '',
-        location: ''
+        location: '',
+        short_id: ''
     });
 
     useEffect(() => {
@@ -40,9 +41,14 @@ export default function MachinesAdminPage() {
         setIsLoading(false);
     };
 
+    const generateCode = () => {
+        // Simple random 4 digit code
+        return 'K' + Math.floor(100 + Math.random() * 9000);
+    }
+
     const openCreateModal = () => {
         setEditingMachineId(null);
-        setFormData({ name: '', location: '' });
+        setFormData({ name: '', location: '', short_id: generateCode() });
         setIsModalOpen(true);
     };
 
@@ -50,7 +56,8 @@ export default function MachinesAdminPage() {
         setEditingMachineId(machine.id);
         setFormData({
             name: machine.name,
-            location: machine.location || ''
+            location: machine.location || '',
+            short_id: machine.short_id || ''
         });
         setIsModalOpen(true);
     };
@@ -63,7 +70,8 @@ export default function MachinesAdminPage() {
         if (editingMachineId) {
             await updateMachineAction(editingMachineId, {
                 name: formData.name,
-                location: formData.location || undefined
+                location: formData.location || undefined,
+                short_id: formData.short_id || undefined
             });
         } else {
             const newMachine: Machine = {
@@ -71,7 +79,8 @@ export default function MachinesAdminPage() {
                 name: formData.name,
                 location: formData.location || 'Sin ubicación',
                 isOperational: true,
-                lastSeenAt: new Date()
+                lastSeenAt: new Date(),
+                short_id: formData.short_id || generateCode()
             };
             await createMachine(newMachine);
         }
@@ -138,20 +147,10 @@ export default function MachinesAdminPage() {
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
                                             <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">{m.name}</h4>
-                                            <button
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(m.id);
-                                                    alert('ID copiado al portapapeles');
-                                                }}
-                                                className="p-1 text-slate-300 hover:text-indigo-500 transition-colors"
-                                                title="Copiar ID"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                            </button>
+
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            {/* Show ID in small text for reference */}
-                                            <span className="text-[9px] font-mono text-slate-300 bg-slate-100 px-1 rounded truncate max-w-[100px] block" title={m.id}>{m.id}</span>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">ID: {m.short_id || m.id.substring(0, 6) + '...'}</span>
                                         </div>
 
                                         <div className="flex items-center gap-2 mt-2">
@@ -245,15 +244,27 @@ export default function MachinesAdminPage() {
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Ubicación Física</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Ej: Hall Central - Ala Norte"
-                                        value={formData.location}
-                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all uppercase"
-                                    />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Código (ID Corto)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ej: K01"
+                                            value={formData.short_id}
+                                            onChange={(e) => setFormData({ ...formData, short_id: e.target.value.toUpperCase() })}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all uppercase"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Ubicación Física</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ej: Hall Central"
+                                            value={formData.location}
+                                            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all uppercase"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="pt-4 flex gap-4">

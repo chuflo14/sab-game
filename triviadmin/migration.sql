@@ -38,6 +38,9 @@ INSERT INTO public.questions (id, question, options, correct_key, active) VALUES
 INSERT INTO public.machines (id, name, location, is_operational, last_seen_at) VALUES
 ('ec6315df-9caa-438c-9864-2813118a7e53', 'Terminal K-2', 'Nueva Ubicación', TRUE, '2026-01-29T10:12:28.308Z');
 
+-- Add short_id for easier setup
+-- ALTER TABLE public.machines ADD COLUMN IF NOT EXISTS short_id TEXT UNIQUE;
+
 -- Chango Config
 INSERT INTO public.chango_config (id, difficulty, time_limit, game_cooldown_seconds, result_duration_seconds, priority_ad_duration_seconds, qr_display_seconds, updated_at) VALUES
 ('default', 3, 20, 25, 1.5, 5, 10, '2026-01-29T16:27:36.754Z');

@@ -213,6 +213,9 @@ export async function fetchRandomQuestions(limit: number) {
 export async function fetchMachines() {
     return await dal.getMachines();
 }
+export async function getMachineByShortIdAction(code: string) {
+    return await dal.getMachineByShortId(code);
+}
 export async function createMachine(data: Machine) {
     const newM = await dal.addMachine(data);
     revalidatePath('/admin/machines');
