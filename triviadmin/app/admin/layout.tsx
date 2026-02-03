@@ -14,7 +14,8 @@ import {
     CircleEllipsis,
     LogOut,
     Clock,
-    Flame
+    Flame,
+    Music
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ const navItems = [
     { label: 'Trivia', href: '/admin/questions', icon: Gamepad2 },
     { label: 'Ruleta', href: '/admin/wheel', icon: CircleEllipsis },
     { label: 'Globo (Chango)', href: '/admin/chango', icon: Flame },
+    { label: 'Música', href: '/admin/music', icon: Music },
     { label: 'Tiendas', href: '/admin/stores', icon: Store },
     { label: 'Máquinas', href: '/admin/machines', icon: Cpu },
     { label: 'Tiempos', href: '/admin/times', icon: Clock },

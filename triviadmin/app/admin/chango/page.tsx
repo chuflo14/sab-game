@@ -11,10 +11,8 @@ import {
     Timer,
     Sparkles,
     CheckCircle2,
-    Settings2,
-    Music
+    Settings2
 } from 'lucide-react';
-import MusicUploadButton from '@/components/admin/MusicUploadButton';
 
 export default function ChangoAdminPage() {
     const [config, setConfig] = useState<ChangoConfig | null>(null);
@@ -193,28 +191,7 @@ export default function ChangoAdminPage() {
                         </div>
                     </div>
 
-                    {/* Music Configuration */}
-                    <div className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-6">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600">
-                                <Music className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">Música de Fondo</h4>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Ambienta el juego del Globo</p>
-                            </div>
-                        </div>
 
-                        <MusicUploadButton
-                            currentUrl={config?.chango_music_url}
-                            onUpload={async (url) => {
-                                const newData = { chango_music_url: url };
-                                setConfig(prev => prev ? { ...prev, ...newData } : null);
-                                await updateChangoConfigAction(newData);
-                            }}
-                            label="Subir Música Chango"
-                        />
-                    </div>
                 </div>
             </div>
         </div>

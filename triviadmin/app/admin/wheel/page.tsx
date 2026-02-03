@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchWheelSegments, bulkUpdateWheelSegmentsAction, fetchPrizes, fetchStores, fetchChangoConfig, updateChangoConfigAction } from '@/lib/actions';
-import { WheelSegment, Prize, Store, ChangoConfig } from '@/lib/types';
-import MusicUploadButton from '@/components/admin/MusicUploadButton';
+import { fetchWheelSegments, bulkUpdateWheelSegmentsAction, fetchPrizes, fetchStores } from '@/lib/actions';
+import { WheelSegment, Prize, Store } from '@/lib/types';
 import {
     CircleEllipsis,
     RefreshCw,
@@ -12,8 +11,7 @@ import {
     Trophy,
     Palette,
     Check,
-    Store as StoreIcon,
-    Music
+    Store as StoreIcon
 } from 'lucide-react';
 
 const MINIMALIST_PALETTE = [
@@ -27,7 +25,6 @@ export default function WheelAdminPage() {
     const [prizes, setPrizes] = useState<Prize[]>([]);
     const [stores, setStores] = useState<Store[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [config, setConfig] = useState<ChangoConfig | null>(null);
 
     useEffect(() => {
         loadData();
@@ -35,25 +32,19 @@ export default function WheelAdminPage() {
 
     const loadData = async () => {
         setIsLoading(true);
-        const [segData, prizeData, storeData, configData] = await Promise.all([
+        const [segData, prizeData, storeData] = await Promise.all([
             fetchWheelSegments(),
             fetchPrizes(),
-            fetchStores(),
-            fetchChangoConfig()
+            fetchStores()
         ]);
         const segmentsTyped = (segData as WheelSegment[]).sort((a, b) => a.slotIndex - b.slotIndex);
         setSegments(segmentsTyped);
         setPrizes(prizeData);
         setStores(storeData);
-        setConfig(configData);
         setIsLoading(false);
     };
 
-    const updateConfig = async (key: keyof ChangoConfig, value: any) => {
-        const newData = { [key]: value };
-        setConfig(prev => prev ? { ...prev, ...newData } : null);
-        await updateChangoConfigAction(newData);
-    };
+
 
     const handleUpdateSegment = async (id: string, updates: Partial<WheelSegment>) => {
         // Optimistic update for simple fields
@@ -276,26 +267,7 @@ export default function WheelAdminPage() {
                 </div>
             )}
 
-            {/* Music Configuration */}
-            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600">
-                        <Music className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">Música de Fondo</h4>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Ambienta el juego de Ruleta</p>
-                    </div>
-                </div>
 
-                <div className="max-w-md">
-                    <MusicUploadButton
-                        currentUrl={config?.ruleta_music_url}
-                        onUpload={(url) => updateConfig('ruleta_music_url', url)}
-                        label="Subir Música Ruleta"
-                    />
-                </div>
-            </div>
         </div>
     );
 }
