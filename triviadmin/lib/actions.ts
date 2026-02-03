@@ -214,7 +214,10 @@ export async function fetchMachines() {
     return await dal.getMachines();
 }
 export async function getMachineByShortIdAction(code: string) {
-    return await dal.getMachineByShortId(code);
+    console.log('getMachineByShortIdAction called with:', code);
+    const m = await dal.getMachineByShortId(code);
+    console.log('getMachineByShortIdAction result:', m);
+    return m;
 }
 export async function createMachine(data: Machine) {
     const newM = await dal.addMachine(data);

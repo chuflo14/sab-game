@@ -46,8 +46,8 @@ export default function SetupPage() {
                 }
             }
         } catch (error) {
-            console.error(error);
-            toast.error('Error al verificar código');
+            console.error("Setup Page Error:", error);
+            toast.error('Error al verificar código - Revisa la consola');
         } finally {
             setIsLoading(false);
         }
