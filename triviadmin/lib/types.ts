@@ -17,6 +17,7 @@ export interface Machine {
     location?: string;
     isOperational: boolean;
     lastSeenAt?: Date;
+    games_counter?: number; // Running total of games since last reset
 }
 
 export interface AdMedia {

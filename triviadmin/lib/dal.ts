@@ -149,13 +149,37 @@ export const deleteQuestion = async (id: string): Promise<void> => {
 export const getMachines = async (): Promise<Machine[]> => {
     const { data, error } = await supabase.from('machines').select('*');
     if (error) throw error;
-    return data.map((m: any) => ({ ...m, short_id: m.short_id, isOperational: m.is_operational, lastSeenAt: new Date(m.last_seen_at) })) as Machine[];
+    return data.map((m: any) => ({
+        ...m,
+        short_id: m.short_id,
+        isOperational: m.is_operational,
+        lastSeenAt: new Date(m.last_seen_at),
+        games_counter: m.games_counter || 0
+    })) as Machine[];
+};
+
+export const getMachineById = async (id: string): Promise<Machine | undefined> => {
+    const { data, error } = await supabase.from('machines').select('*').eq('id', id).single();
+    if (error) return undefined;
+    return {
+        ...data,
+        short_id: data.short_id,
+        isOperational: data.is_operational,
+        lastSeenAt: new Date(data.last_seen_at),
+        games_counter: data.games_counter || 0
+    } as Machine;
 };
 
 export const getMachineByShortId = async (shortId: string): Promise<Machine | undefined> => {
     const { data, error } = await supabase.from('machines').select('*').eq('short_id', shortId).single();
     if (error) return undefined;
-    return { ...data, short_id: data.short_id, isOperational: data.is_operational, lastSeenAt: new Date(data.last_seen_at) } as Machine;
+    return {
+        ...data,
+        short_id: data.short_id,
+        isOperational: data.is_operational,
+        lastSeenAt: new Date(data.last_seen_at),
+        games_counter: data.games_counter || 0
+    } as Machine;
 };
 
 export const addMachine = async (m: Machine): Promise<Machine> => {
@@ -165,11 +189,18 @@ export const addMachine = async (m: Machine): Promise<Machine> => {
         name: m.name,
         location: m.location,
         is_operational: m.isOperational,
-        last_seen_at: m.lastSeenAt
+        last_seen_at: m.lastSeenAt,
+        games_counter: m.games_counter || 0
     };
     const { data, error } = await supabase.from('machines').insert(dbM).select().single();
     if (error) throw error;
-    return { ...data, short_id: data.short_id, isOperational: data.is_operational, lastSeenAt: new Date(data.last_seen_at) } as Machine;
+    return {
+        ...data,
+        short_id: data.short_id,
+        isOperational: data.is_operational,
+        lastSeenAt: new Date(data.last_seen_at),
+        games_counter: data.games_counter || 0
+    } as Machine;
 };
 export const updateMachine = async (id: string, updates: Partial<Machine>): Promise<Machine | undefined> => {
     const dbUpdates: any = { ...updates };
@@ -181,14 +212,20 @@ export const updateMachine = async (id: string, updates: Partial<Machine>): Prom
         dbUpdates.last_seen_at = updates.lastSeenAt;
         delete dbUpdates.lastSeenAt;
     }
-    if (updates.short_id !== undefined) {
-        dbUpdates.short_id = updates.short_id;
-        // Keep key as is since it matches column name if I didn't enforce camelCase for it. 
-        // Actually types.ts has short_id (snake_case in interface? No, let's check types.ts again).
+    if (updates.games_counter !== undefined) {
+        dbUpdates.games_counter = updates.games_counter;
+        delete dbUpdates.gamesCounter; // Just in case
     }
+    // short_id handled automatically if present in updates object key match
     const { data, error } = await supabase.from('machines').update(dbUpdates).eq('id', id).select().single();
     if (error) return undefined;
-    return { ...data, short_id: data.short_id, isOperational: data.is_operational, lastSeenAt: new Date(data.last_seen_at) } as Machine;
+    return {
+        ...data,
+        short_id: data.short_id,
+        isOperational: data.is_operational,
+        lastSeenAt: new Date(data.last_seen_at),
+        games_counter: data.games_counter || 0
+    } as Machine;
 };
 export const deleteMachine = async (id: string): Promise<void> => {
     const { error } = await supabase.from('machines').delete().eq('id', id);

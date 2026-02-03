@@ -426,5 +426,27 @@ export async function logGameEvent(event: Omit<GameEvent, 'id'>) {
         ...event,
         id: crypto.randomUUID(),
     };
-    return await dal.addGameEvent(newEvent);
+
+    // 1. Log the event
+    const logged = await dal.addGameEvent(newEvent);
+
+    // 2. Increment machine counter if applicable
+    if (event.machineId) {
+        try {
+            const m = await dal.getMachineById(event.machineId);
+            if (m) {
+                await dal.updateMachine(m.id, { games_counter: (m.games_counter || 0) + 1 });
+            }
+        } catch (err) {
+            console.error('Failed to increment machine counter:', err);
+            // Don't fail the whole request just for the counter
+        }
+    }
+
+    return logged;
+}
+
+export async function resetMachineCounterAction(machineId: string) {
+    await dal.updateMachine(machineId, { games_counter: 0 });
+    revalidatePath('/admin/machines');
 }

@@ -12,7 +12,8 @@ import {
     MapPin,
     AlertTriangle,
     Edit3,
-    X
+    X,
+    RotateCcw
 } from 'lucide-react';
 
 export default function MachinesAdminPage() {
@@ -166,9 +167,29 @@ export default function MachinesAdminPage() {
                                         <MapPin className="text-slate-400 w-4 h-4" />
                                         <p className="text-xs font-bold text-slate-600 uppercase tracking-wide">{m.location || 'SIN UBICACIÓN'}</p>
                                     </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <Activity className="text-slate-400 w-4 h-4" />
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                S. Actual: <span className="text-indigo-600 text-sm">{m.games_counter || 0}</span>
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={async () => {
+                                                if (confirm('¿Reiniciar contador de partidas para esta máquina?')) {
+                                                    const { resetMachineCounterAction } = await import('@/lib/actions');
+                                                    await resetMachineCounterAction(m.id);
+                                                    loadMachines();
+                                                }
+                                            }}
+                                            className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 transition-colors"
+                                            title="Reiniciar Contador"
+                                        >
+                                            <RotateCcw className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
                                     <div className="flex items-center gap-3">
-                                        <Activity className="text-slate-400 w-4 h-4" />
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                        <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest ml-7">
                                             Ping: {m.lastSeenAt ? new Date(m.lastSeenAt).toLocaleTimeString() : 'NUNCA'}
                                         </p>
                                     </div>
