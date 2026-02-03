@@ -46,9 +46,12 @@ export async function authenticateUser(username: string, pin: string) {
     return { success: false, message: 'Credenciales inválidas o usuario inactivo' };
 }
 
+import { redirect } from 'next/navigation';
+
 export async function logout() {
     const cookieStore = await cookies();
     cookieStore.delete('sb_session');
+    redirect('/login');
 }
 
 export async function uploadAdMedia(formData: FormData) {
