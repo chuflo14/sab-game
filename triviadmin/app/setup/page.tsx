@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, AlertTriangle, Monitor } from 'lucide-react';
+import { Save, Monitor } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function SetupPage() {

@@ -201,7 +201,6 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
                 gameType: 'ruleta',
                 startedAt: gameStartTime.current,
                 finishedAt: new Date(),
-                finishedAt: new Date(),
                 result: 'LOSE',
                 machineId: localStorage.getItem('MACHINE_ID') || undefined
             });

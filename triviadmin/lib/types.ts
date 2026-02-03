@@ -1,11 +1,14 @@
 export type GameType = 'trivia' | 'ruleta' | 'chango';
 
-id: string;
-username: string;
-pin ?: string;
-role: 'ADMIN' | 'REDEEMER' | 'KIOSK' | 'ALIADO';
-active: boolean;
-machineIds ?: string[]; // Allowed machines for ALIADO role
+
+export interface User {
+    id: string;
+    username: string;
+    pin?: string;
+    role: 'ADMIN' | 'REDEEMER' | 'KIOSK' | 'ALIADO';
+    active: boolean;
+    machineIds?: string[]; // Allowed machines for ALIADO role
+}
 
 export interface Machine {
     id: string;

@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { getUsers, getMachines } from '@/lib/dal';
 import { getAliadoStats } from '@/lib/actions';
 import {
-    LayoutDashboard,
     MonitorSmartphone,
     Gamepad2,
     DollarSign,
