@@ -16,17 +16,39 @@ import {
 export const getUsers = async (): Promise<User[]> => {
     const { data, error } = await supabase.from('users').select('*');
     if (error) throw error;
-    return data as User[];
+    // Map snake_case to camelCase
+    return data.map((u: any) => ({
+        ...u,
+        machineIds: u.machine_ids || []
+    })) as User[];
 };
 export const addUser = async (user: User): Promise<User> => {
-    const { data, error } = await supabase.from('users').insert(user).select().single();
+    const dbUser = {
+        ...user,
+        machine_ids: user.machineIds // Map to snake_case
+    };
+    delete (dbUser as any).machineIds;
+
+    const { data, error } = await supabase.from('users').insert(dbUser).select().single();
     if (error) throw error;
-    return data as User;
+    return {
+        ...data,
+        machineIds: data.machine_ids || []
+    } as User;
 };
 export const updateUser = async (id: string, updates: Partial<User>): Promise<User | undefined> => {
-    const { data, error } = await supabase.from('users').update(updates).eq('id', id).select().single();
+    const dbUpdates: any = { ...updates };
+    if (updates.machineIds) {
+        dbUpdates.machine_ids = updates.machineIds;
+        delete dbUpdates.machineIds;
+    }
+
+    const { data, error } = await supabase.from('users').update(dbUpdates).eq('id', id).select().single();
     if (error) return undefined;
-    return data as User;
+    return {
+        ...data,
+        machineIds: data.machine_ids || []
+    } as User;
 };
 export const deleteUser = async (id: string): Promise<void> => {
     const { error } = await supabase.from('users').delete().eq('id', id);
@@ -38,7 +60,12 @@ export const getAds = async (): Promise<AdMedia[]> => {
     const { data, error } = await supabase.from('ads').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     // Map snake_case created_at to camelCase createdAt for types compatibility
-    return data.map((a: any) => ({ ...a, durationSec: a.duration_sec, createdAt: new Date(a.created_at) })) as AdMedia[];
+    return data.map((a: any) => ({
+        ...a,
+        durationSec: a.duration_sec,
+        createdAt: new Date(a.created_at),
+        machineIds: a.machine_ids || []
+    })) as AdMedia[];
 };
 export const addAd = async (ad: AdMedia): Promise<AdMedia> => {
     const dbAd = {
@@ -49,11 +76,17 @@ export const addAd = async (ad: AdMedia): Promise<AdMedia> => {
         duration_sec: ad.durationSec,
         priority: ad.priority,
         active: ad.active,
-        created_at: ad.createdAt
+        created_at: ad.createdAt,
+        machine_ids: ad.machineIds
     };
     const { data, error } = await supabase.from('ads').insert(dbAd).select().single();
     if (error) throw error;
-    return { ...ad, durationSec: data.duration_sec, createdAt: new Date(data.created_at) };
+    return {
+        ...ad,
+        durationSec: data.duration_sec,
+        createdAt: new Date(data.created_at),
+        machineIds: data.machine_ids
+    };
 };
 export const updateAd = async (id: string, updates: Partial<AdMedia>): Promise<AdMedia | undefined> => {
     const dbUpdates: any = { ...updates };
@@ -62,13 +95,21 @@ export const updateAd = async (id: string, updates: Partial<AdMedia>): Promise<A
         delete dbUpdates.durationSec;
     }
     if (updates.createdAt !== undefined) {
-        dbUpdates.created_at = updates.createdAt;
         delete dbUpdates.createdAt;
+    }
+    if (updates.machineIds !== undefined) {
+        dbUpdates.machine_ids = updates.machineIds;
+        delete dbUpdates.machineIds;
     }
 
     const { data, error } = await supabase.from('ads').update(dbUpdates).eq('id', id).select().single();
     if (error) return undefined;
-    return { ...data, durationSec: data.duration_sec, createdAt: new Date(data.created_at) } as AdMedia;
+    return {
+        ...data,
+        durationSec: data.duration_sec,
+        createdAt: new Date(data.created_at),
+        machineIds: data.machine_ids
+    } as AdMedia;
 };
 export const deleteAd = async (id: string): Promise<void> => {
     const { error } = await supabase.from('ads').delete().eq('id', id);

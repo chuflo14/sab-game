@@ -2,7 +2,8 @@
 
 import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchUsers, updateUserAction } from '@/lib/actions';
+import { fetchUsers, updateUserAction, fetchMachines } from '@/lib/actions';
+import { Machine } from '@/lib/types';
 import {
     UserPlus,
     ArrowLeft,
@@ -23,7 +24,13 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
     // Form state
     const [username, setUsername] = useState('');
     const [pin, setPin] = useState('');
-    const [role, setRole] = useState<'ADMIN' | 'REDEEMER'>('REDEEMER');
+    const [role, setRole] = useState<'ADMIN' | 'REDEEMER' | 'ALIADO'>('REDEEMER');
+    const [machines, setMachines] = useState<Machine[]>([]);
+    const [selectedMachineIds, setSelectedMachineIds] = useState<string[]>([]);
+
+    useEffect(() => {
+        fetchMachines().then(setMachines);
+    }, []);
 
     const loadUser = useCallback(async () => {
         setIsLoading(true);
@@ -33,7 +40,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
         if (user) {
             setUsername(user.username);
             setPin(user.pin || '');
-            setRole(user.role as 'ADMIN' | 'REDEEMER');
+            setRole(user.role as 'ADMIN' | 'REDEEMER' | 'ALIADO');
+            setSelectedMachineIds(user.machineIds || []);
         } else {
             router.push('/admin/users');
         }
@@ -56,7 +64,8 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
             await updateUserAction(id, {
                 username,
                 pin,
-                role
+                role,
+                machineIds: role === 'ALIADO' ? selectedMachineIds : undefined // Update or clear
             });
             router.push('/admin/users');
         } catch (error) {
@@ -170,8 +179,70 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                                     </p>
                                 </div>
                             </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setRole('ALIADO')}
+                                className={`p-6 rounded-[2rem] border-2 transition-all flex items-start gap-4 text-left ${role === 'ALIADO' ? 'border-green-500 bg-green-50/50' : 'border-slate-100 bg-slate-50 hover:border-slate-200'}`}
+                            >
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors shrink-0 ${role === 'ALIADO' ? 'bg-green-500 text-white' : 'bg-white text-slate-300 border border-slate-200'}`}>
+                                    <UserIcon className="w-5 h-5" />
+                                </div>
+                                <div className="space-y-1">
+                                    <span className={`block font-black uppercase tracking-tight ${role === 'ALIADO' ? 'text-slate-800' : 'text-slate-500'}`}>Aliado</span>
+                                    <p className="text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-wide">
+                                        Socio comercial. Solo ve estadísticas de sus kioscos asignados.
+                                    </p>
+                                </div>
+                            </button>
                         </div>
                     </div>
+
+                    {role === 'ALIADO' && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div className="flex items-center gap-4 mb-2">
+                                <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-600">
+                                    <ShieldCheck className="w-5 h-5" />
+                                </div>
+                                <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Asignar Kioscos</h3>
+                            </div>
+
+                            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Selecciona los kioscos visibles para este Aliado:</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {machines.map(m => {
+                                        const isSelected = selectedMachineIds.includes(m.id);
+                                        return (
+                                            <button
+                                                key={m.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    if (isSelected) {
+                                                        setSelectedMachineIds(prev => prev.filter(id => id !== m.id));
+                                                    } else {
+                                                        setSelectedMachineIds(prev => [...prev, m.id]);
+                                                    }
+                                                }}
+                                                className={`p-4 rounded-xl border text-left transition-all flex items-center justify-between ${isSelected
+                                                    ? 'bg-green-500 border-green-500 text-white shadow-lg shadow-green-500/20'
+                                                    : 'bg-white border-slate-200 text-slate-600 hover:border-green-300'
+                                                    }`}
+                                            >
+                                                <div>
+                                                    <div className="text-xs font-black uppercase tracking-tight truncate">{m.name}</div>
+                                                    <div className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${isSelected ? 'text-green-100' : 'text-slate-400'}`}>
+                                                        {m.location || 'Sin Ubicación'}
+                                                    </div>
+                                                </div>
+                                                {isSelected && <div className="w-2 h-2 rounded-full bg-white animate-pulse" />}
+                                            </button>
+                                        );
+                                    })}
+                                    {machines.length === 0 && <p className="text-xs text-slate-400 col-span-full">No hay máquinas registradas.</p>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="pt-6 border-t border-slate-100">
                         <button

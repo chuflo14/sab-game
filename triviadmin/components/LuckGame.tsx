@@ -60,7 +60,8 @@ export default function LuckGame() {
                 gameType: 'chango',
                 startedAt: gameStartTime.current,
                 finishedAt: new Date(),
-                result: 'LOSE'
+                result: 'LOSE',
+                machineId: localStorage.getItem('MACHINE_ID') || undefined
             });
             setTimeout(() => router.push('/'), (config?.resultDurationSeconds || 1.5) * 1000);
             return;
@@ -107,7 +108,8 @@ export default function LuckGame() {
                         startedAt: gameStartTime.current,
                         finishedAt: new Date(),
                         result: 'WIN',
-                        ticketId: ticket.id
+                        ticketId: ticket.id,
+                        machineId: localStorage.getItem('MACHINE_ID') || undefined
                     });
                     return ticket;
                 } catch (e) {

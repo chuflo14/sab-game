@@ -186,7 +186,8 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
                     startedAt: gameStartTime.current,
                     finishedAt: new Date(),
                     result: 'WIN',
-                    ticketId: ticket.id
+                    ticketId: ticket.id,
+                    machineId: localStorage.getItem('MACHINE_ID') || undefined
                 });
                 return ticket;
             })();
@@ -200,7 +201,9 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
                 gameType: 'ruleta',
                 startedAt: gameStartTime.current,
                 finishedAt: new Date(),
-                result: 'LOSE'
+                finishedAt: new Date(),
+                result: 'LOSE',
+                machineId: localStorage.getItem('MACHINE_ID') || undefined
             });
             setTimeout(() => {
                 router.push('/');

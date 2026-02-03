@@ -42,7 +42,8 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
             gameType: 'trivia',
             startedAt: gameStartTime.current,
             finishedAt: new Date(),
-            result: 'LOSE'
+            result: 'LOSE',
+            machineId: localStorage.getItem('MACHINE_ID') || undefined
         });
         const cooldownSec = config?.gameCooldownSeconds || 0;
         if (cooldownSec > 0) {
@@ -66,7 +67,8 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
                         startedAt: gameStartTime.current,
                         finishedAt: new Date(),
                         result: 'WIN',
-                        ticketId: ticket.id
+                        ticketId: ticket.id,
+                        machineId: localStorage.getItem('MACHINE_ID') || undefined
                     });
                     return ticket;
                 }

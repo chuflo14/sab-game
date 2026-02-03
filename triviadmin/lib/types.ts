@@ -1,12 +1,11 @@
 export type GameType = 'trivia' | 'ruleta' | 'chango';
 
-export interface User {
-    id: string;
-    username: string;
-    pin?: string;
-    role: 'ADMIN' | 'REDEEMER' | 'KIOSK';
-    active: boolean;
-}
+id: string;
+username: string;
+pin ?: string;
+role: 'ADMIN' | 'REDEEMER' | 'KIOSK' | 'ALIADO';
+active: boolean;
+machineIds ?: string[]; // Allowed machines for ALIADO role
 
 export interface Machine {
     id: string;
@@ -25,6 +24,7 @@ export interface AdMedia {
     priority: boolean;
     active: boolean;
     createdAt: Date;
+    machineIds?: string[]; // IDs of machines this ad should target. Empty = All
 }
 
 export interface TriviaQuestion {

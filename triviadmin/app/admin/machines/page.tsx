@@ -136,8 +136,25 @@ export default function MachinesAdminPage() {
                                         <Cpu className="w-8 h-8" />
                                     </div>
                                     <div>
-                                        <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none mb-1">{m.name}</h4>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">{m.name}</h4>
+                                            <button
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(m.id);
+                                                    alert('ID copiado al portapapeles');
+                                                }}
+                                                className="p-1 text-slate-300 hover:text-indigo-500 transition-colors"
+                                                title="Copiar ID"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                            </button>
+                                        </div>
                                         <div className="flex items-center gap-2">
+                                            {/* Show ID in small text for reference */}
+                                            <span className="text-[9px] font-mono text-slate-300 bg-slate-100 px-1 rounded truncate max-w-[100px] block" title={m.id}>{m.id}</span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 mt-2">
                                             <span className={`text-[10px] font-black uppercase tracking-widest ${m.isOperational ? 'text-green-600' : 'text-red-500'}`}>
                                                 {m.isOperational ? 'OPERATIVA' : 'FUERA DE SERVICIO'}
                                             </span>

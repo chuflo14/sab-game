@@ -2,8 +2,8 @@
 
 import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAds, updateAdAction } from '@/lib/actions';
-import { AdMedia } from '@/lib/types';
+import { fetchAds, updateAdAction, fetchMachines } from '@/lib/actions';
+import { AdMedia, Machine } from '@/lib/types';
 import {
     ArrowLeft,
     Save,
@@ -24,6 +24,12 @@ export default function EditAdPage({ params }: { params: Promise<{ id: string }>
     const [name, setName] = useState('');
     const [durationSec, setDurationSec] = useState(10);
     const [priority, setPriority] = useState(false);
+    const [machines, setMachines] = useState<Machine[]>([]);
+    const [selectedMachineIds, setSelectedMachineIds] = useState<string[]>([]);
+
+    useEffect(() => {
+        fetchMachines().then(setMachines);
+    }, []);
 
     const loadAd = useCallback(async () => {
         setIsLoading(true);
@@ -35,6 +41,7 @@ export default function EditAdPage({ params }: { params: Promise<{ id: string }>
             setName(found.name || '');
             setDurationSec(found.durationSec);
             setPriority(found.priority);
+            setSelectedMachineIds(found.machineIds || []);
         } else {
             router.push('/admin/ads');
         }
@@ -59,7 +66,8 @@ export default function EditAdPage({ params }: { params: Promise<{ id: string }>
             await updateAdAction(id, {
                 name,
                 durationSec,
-                priority
+                priority,
+                machineIds: selectedMachineIds.length > 0 ? selectedMachineIds : [] // Send empty array if none selected to clear previous
             });
             router.push('/admin/ads');
         } catch (error) {
@@ -148,6 +156,47 @@ export default function EditAdPage({ params }: { params: Promise<{ id: string }>
                             <span className={`text-[10px] font-black uppercase tracking-widest ${priority ? 'text-yellow-600' : 'text-slate-400'}`}>Prioridad</span>
                         </button>
                     </div>
+                </div>
+
+                {/* Machine Targeting */}
+                <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl space-y-4">
+                    <div>
+                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Segmentación por Kiosco</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                            {selectedMachineIds.length === 0 ? "Se mostrará en TODOS los Kioscos" : `Se mostrará en ${selectedMachineIds.length} Kiosco(s)`}
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {machines.map(m => {
+                            const isSelected = selectedMachineIds.includes(m.id);
+                            return (
+                                <button
+                                    key={m.id}
+                                    type="button"
+                                    onClick={() => {
+                                        if (isSelected) {
+                                            setSelectedMachineIds(prev => prev.filter(id => id !== m.id));
+                                        } else {
+                                            setSelectedMachineIds(prev => [...prev, m.id]);
+                                        }
+                                    }}
+                                    className={`p-3 rounded-xl border text-left transition-all ${isSelected
+                                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-indigo-300'
+                                        }`}
+                                >
+                                    <div className="text-xs font-black uppercase tracking-tight truncate">{m.name}</div>
+                                    <div className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${isSelected ? 'text-indigo-200' : 'text-slate-400'}`}>
+                                        {m.location || 'Sin Ubicación'}
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {machines.length === 0 && (
+                        <p className="text-xs text-slate-400 italic">No hay kioscos registrados aún.</p>
+                    )}
                 </div>
 
                 <button

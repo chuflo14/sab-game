@@ -27,6 +27,7 @@ function LoginForm() {
                 const ROLE_REDIRECTS: Record<string, string> = {
                     'ADMIN': '/admin',
                     'REDEEMER': '/redeem',
+                    'ALIADO': '/aliado', // Redirect for Aliados
                 };
 
                 const targetPath = ROLE_REDIRECTS[result.role as string] || next;

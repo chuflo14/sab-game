@@ -106,6 +106,50 @@ export async function deleteUserAction(id: string) {
     revalidatePath('/admin/users');
 }
 
+// Stats Actions
+export async function getAliadoStats(machineIds: string[]) {
+    if (!machineIds || machineIds.length === 0) return [];
+
+    const config = await dal.getChangoConfig();
+    const gamePrice = config.game_price || 0;
+
+    const stats = await Promise.all(machineIds.map(async (mId) => {
+        // Fetch only game_type to minimize data transfer
+        const { data, error } = await supabase
+            .from('game_events')
+            .select('game_type')
+            .eq('machine_id', mId);
+
+        if (error) {
+            console.error(`Error fetching games for machine ${mId}:`, error);
+            return {
+                machineId: mId,
+                triviaCount: 0,
+                ruletaCount: 0,
+                changoCount: 0,
+                totalPlays: 0,
+                totalRevenue: 0
+            };
+        }
+
+        const triviaCount = data.filter((g: any) => g.game_type === 'trivia').length;
+        const ruletaCount = data.filter((g: any) => g.game_type === 'ruleta').length;
+        const changoCount = data.filter((g: any) => g.game_type === 'chango').length;
+        const totalPlays = data.length;
+
+        return {
+            machineId: mId,
+            triviaCount,
+            ruletaCount,
+            changoCount,
+            totalPlays,
+            totalRevenue: totalPlays * gamePrice
+        };
+    }));
+
+    return stats;
+}
+
 // Ad Actions
 export async function fetchAds() {
     return await dal.getAds();

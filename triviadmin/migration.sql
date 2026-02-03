@@ -3,6 +3,14 @@ INSERT INTO public.users (id, username, pin, role, active) VALUES
 ('1', 'Sant', '1521', 'ADMIN', TRUE),
 ('1d4ba327-1f89-43d7-b358-d744be8ab948', 'canje', '12234', 'REDEEMER', TRUE);
 
+('1d4ba327-1f89-43d7-b358-d744be8ab948', 'canje', '12234', 'REDEEMER', TRUE);
+
+-- Add machine_ids to users (ALIADO role support)
+-- ALTER TABLE public.users ADD COLUMN IF NOT EXISTS machine_ids TEXT[];
+-- Update Check Constraint for Role
+-- ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_role_check;
+-- ALTER TABLE public.users ADD CONSTRAINT users_role_check CHECK (role = ANY (ARRAY['ADMIN'::text, 'REDEEMER'::text, 'KIOSK'::text, 'ALIADO'::text]));
+
 -- Stores
 INSERT INTO public.stores (id, name, address, whatsapp, probability, active) VALUES
 ('da643310-bd95-4fd0-afc3-1a0a1ec9f03c', 'Sansol', 'Av Angelelli N°18', '3804802554', 50, TRUE),

@@ -30,17 +30,27 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
         }
     }, []);
 
-    // Sort ads: Priority true first, then others.
+    const [cooldownTimeLeft, setCooldownTimeLeft] = useState(0);
+    const [isDebug, setIsDebug] = useState(false);
+    const [currentMachineId, setCurrentMachineId] = useState<string | null>(null);
+
+    // Sort and Filter ads (Moved after state declaration to use currentMachineId)
     const sortedAds = useMemo(() => {
-        return [...ads].sort((a, b) => {
+        const filtered = ads.filter(ad => {
+            // Show if no specific targeting
+            if (!ad.machineIds || ad.machineIds.length === 0) return true;
+            // Show if machine ID matches
+            if (currentMachineId && ad.machineIds.includes(currentMachineId)) return true;
+            return false;
+        });
+
+        return [...filtered].sort((a, b) => {
             if (a.priority === b.priority) return 0;
             return a.priority ? -1 : 1;
         });
-    }, [ads]);
+    }, [ads, currentMachineId]);
 
-    const [cooldownTimeLeft, setCooldownTimeLeft] = useState(0);
-
-    // Check cooldown on mount and interval
+    // Check for reset or set query param
     useEffect(() => {
         const checkCooldown = () => {
             const until = localStorage.getItem('game_cooldown_until');
@@ -54,6 +64,42 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                 }
             }
         };
+
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const setMachineId = params.get('set_machine_id');
+            const reset = params.get('reset');
+            const debugParam = params.get('debug');
+
+            if (debugParam === 'true') {
+                setIsDebug(true);
+            }
+
+            if (setMachineId) {
+                localStorage.setItem('MACHINE_ID', setMachineId);
+                console.log(`Machine ID set to: ${setMachineId}`);
+                setCurrentMachineId(setMachineId); // Update state
+
+                // Remove param from URL without reload
+                const newUrl = window.location.pathname + (debugParam === 'true' ? '?debug=true' : '');
+                window.history.replaceState({}, '', newUrl);
+            } else if (reset === 'true') {
+                localStorage.removeItem('MACHINE_ID');
+                console.log('Machine ID cleared');
+                setCurrentMachineId(null); // Update state
+
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, '', newUrl);
+            } else {
+                // Initialize from Storage if no param
+                setCurrentMachineId(localStorage.getItem('MACHINE_ID'));
+            }
+
+            const currentId = localStorage.getItem('MACHINE_ID');
+            if (currentId) {
+                console.log("Current Machine ID:", currentId);
+            }
+        }
 
         checkCooldown(); // Initial check
         const timer = setInterval(checkCooldown, 1000);
@@ -215,6 +261,28 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
 
             {/* Touch to start overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 pointer-events-none" />
+
+            {/* DEBUG OVERLAY - Only visible if ?debug=true in URL */}
+            {isDebug && (
+                <div className="absolute top-20 left-4 z-50 bg-black/80 backdrop-blur-md p-4 rounded-xl border border-red-500/30 text-xs font-mono text-green-400 max-w-sm pointer-events-none">
+                    <p className="text-white font-bold mb-2 border-b border-white/20 pb-1">DEBUG MODE</p>
+                    <p>Machine ID: <span className="text-yellow-400">{localStorage.getItem('MACHINE_ID') || 'NONE (Global)'}</span></p>
+                    <p>Total Ads: {ads.length}</p>
+                    <p>Filtered Ads: {sortedAds.length}</p>
+                    <div className="mt-2 space-y-1">
+                        {ads.map(ad => {
+                            const myId = localStorage.getItem('MACHINE_ID');
+                            const isMatch = !ad.machineIds || ad.machineIds.length === 0 || (myId && ad.machineIds.includes(myId));
+                            return (
+                                <div key={ad.id} className={isMatch ? 'text-green-500' : 'text-red-500 opacity-50'}>
+                                    [{isMatch ? 'SHOW' : 'HIDE'}] {ad.name || 'Unnamed'}
+                                    {ad.machineIds && ad.machineIds.length > 0 ? ` (Targeted: ${ad.machineIds.length})` : ' (Global)'}
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
 
             <div className="absolute bottom-6 md:bottom-10 left-0 right-0 text-center pointer-events-none space-y-4 px-4">
                 {cooldownTimeLeft > 0 ? (
