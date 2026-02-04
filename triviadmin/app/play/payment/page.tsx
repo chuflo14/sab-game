@@ -42,6 +42,10 @@ function PaymentContent() {
         console.log('PaymentPage: Starting timeout timer:', config.timeout);
         const timer = setTimeout(() => {
             console.log('PaymentPage: Timeout reached, redirecting to home');
+            const mId = localStorage.getItem('MACHINE_ID');
+            if (mId) {
+                sendJoystickEvent(mId, { type: 'TIMEOUT' });
+            }
             router.push('/');
         }, config.timeout * 1000);
 

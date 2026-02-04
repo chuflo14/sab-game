@@ -10,7 +10,7 @@ export default function JoystickPage() {
     const machineId = params.machine_id;
     const mid = Array.isArray(machineId) ? machineId[0] : machineId;
 
-    const [status, setStatus] = useState<'READY' | 'PAYING' | 'PLAYING' | 'WAITING' | 'GAME_OVER'>('WAITING');
+    const [status, setStatus] = useState<'READY' | 'PAYING' | 'PLAYING' | 'WAITING' | 'GAME_OVER' | 'TIMEOUT'>('WAITING');
     const [gameType, setGameType] = useState<'TRIVIA' | 'RULETA' | 'CHANGO' | 'MENU'>('MENU');
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
@@ -50,6 +50,12 @@ export default function JoystickPage() {
                     setIsConnected(false); // Disconnect logic visual only for now, forces user to leave or refresh
                     setStatus('WAITING'); // Or keep as GAME_OVER for a "Thank you" screen
                 }, 2000);
+            } else if (payload.type === 'TIMEOUT') {
+                setStatus('TIMEOUT');
+                setTimeout(() => {
+                    setIsConnected(false);
+                    setStatus('WAITING');
+                }, 3000);
             }
         });
 
@@ -118,6 +124,17 @@ export default function JoystickPage() {
                 <h1 className="text-3xl font-black text-white uppercase tracking-widest mb-2">¡Partida Finalizada!</h1>
                 <p className="text-gray-400">Gracias por participar.</p>
                 <div className="mt-8 text-xs text-slate-700 uppercase tracking-[0.2em] font-bold">Desconectando joystick...</div>
+            </div>
+        )
+    }
+
+    if (status === 'TIMEOUT') {
+        return (
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-4 text-center animate-in fade-in duration-700">
+                <div className="text-6xl mb-4">⏳</div>
+                <h1 className="text-3xl font-black text-red-500 uppercase tracking-widest mb-2">¡Tiempo Agotado!</h1>
+                <p className="text-gray-400">Se ha excedido el tiempo de espera para el pago.</p>
+                <div className="mt-8 text-xs text-slate-700 uppercase tracking-[0.2em] font-bold">Desconectando...</div>
             </div>
         )
     }

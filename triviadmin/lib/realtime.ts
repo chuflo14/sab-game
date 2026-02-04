@@ -4,7 +4,8 @@ export type JoystickEvent =
     | { type: 'START' }
     | { type: 'KEYDOWN'; key: string }
     | { type: 'STATE_CHANGE'; state: 'READY' | 'PAYING' | 'PLAYING' | 'WAITING'; game?: 'TRIVIA' | 'RULETA' | 'CHANGO' | 'MENU' }
-    | { type: 'GAME_OVER' };
+    | { type: 'GAME_OVER' }
+    | { type: 'TIMEOUT' };
 
 export const subscribeToJoystick = (machineId: string, onEvent: (payload: JoystickEvent) => void) => {
     const channel = supabase.channel(`joystick:${machineId}`, {
