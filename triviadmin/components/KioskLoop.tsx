@@ -199,17 +199,17 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
     }, []);
 
     // Helper to bypass static cache for local uploads and force refresh
-    const getMediaUrl = useCallback((url: string) => {
+    const getMediaUrl = useCallback((url: string, forceFresh = false) => {
         if (!clientSideTimestamp) return url;
 
         const separator = url.includes('?') ? '&' : '?';
 
         if (url.startsWith('/media/')) {
-            return `/api/ad-image?path=${encodeURIComponent(url)}&t=${clientSideTimestamp}`;
+            return `/api/ad-image?path=${encodeURIComponent(url)}${forceFresh ? `&t=${clientSideTimestamp}` : ''}`;
         }
 
-        // Ensure remote URLs also get cache busted if needed, or if we suspect CDN caching issues
-        return `${url}${separator}t=${clientSideTimestamp}`;
+        // Only add timestamp if explicitly forced, otherwise let the Service Worker/Browser cache handle it
+        return forceFresh ? `${url}${separator}t=${clientSideTimestamp}` : url;
     }, [clientSideTimestamp]);
 
     if (sortedAds.length === 0) {
@@ -266,6 +266,7 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                         // muted removed to allow audio
                         loop
                         playsInline
+                        preload="auto"
                         onError={(e) => {
                             console.error("Error loading ad video:", mediaSrc);
                             const video = e.currentTarget;
@@ -282,6 +283,47 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                         <p className="text-xs font-mono bg-black/50 p-2 rounded max-w-lg break-all">{currentAd.url}</p>
                     </div>
                 </>
+            )}
+
+            {/* PRE-CACHE NEXT MEDIA */}
+            {sortedAds.length > 1 && (
+                <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+                    {(() => {
+                        const nextIndex = (currentIndex + 1) % sortedAds.length;
+                        const nextAd = sortedAds[nextIndex];
+                        const nextSrc = getMediaUrl(nextAd.url);
+
+                        if (nextAd.type === 'video') {
+                            return (
+                                <video
+                                    key={`preload-${nextAd.id}`}
+                                    src={nextSrc}
+                                    preload="auto"
+                                    muted
+                                    crossOrigin="anonymous"
+                                />
+                            );
+                        } else {
+                            return (
+                                <img
+                                    key={`preload-${nextAd.id}`}
+                                    src={nextSrc}
+                                    crossOrigin="anonymous"
+                                    alt="preload"
+                                />
+                            );
+                        }
+                    })()}
+                    {/* Pre-cache one more ahead to be safe */}
+                    {sortedAds.length > 2 && (() => {
+                        const farIndex = (currentIndex + 2) % sortedAds.length;
+                        const farAd = sortedAds[farIndex];
+                        const farSrc = getMediaUrl(farAd.url);
+                        return farAd.type === 'video' ?
+                            <video key={`preload-far-${farAd.id}`} src={farSrc} preload="auto" muted crossOrigin="anonymous" /> :
+                            <img key={`preload-far-${farAd.id}`} src={farSrc} crossOrigin="anonymous" alt="preload" />;
+                    })()}
+                </div>
             )}
 
             {/* Fullscreen Toggle Button */}

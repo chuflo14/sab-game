@@ -499,8 +499,8 @@ export async function resetMachineCounterAction(machineId: string) {
 export async function updateMachineHeartbeat(machineId: string) {
     try {
         await dal.updateMachine(machineId, { lastSeenAt: new Date() });
-        // Optional: you could revalidate admin/machines but it's better to let it poll or refresh manually
     } catch (err) {
-        console.error('Failed to update machine heartbeat:', err);
+        // Silently log error to avoid interrupting kiosk flow
+        console.warn('Machine heartbeat update failed (likely network issue):', err);
     }
 }

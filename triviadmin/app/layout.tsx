@@ -37,6 +37,24 @@ export default function RootLayout({
           </ConnectivityProvider>
         </main>
         <Toaster position="top-center" richColors />
+        <footer>
+          <p className="text-center py-4 text-xs opacity-50">&copy; 2025 SAB Game. Todos los derechos reservados.</p>
+        </footer>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+                        if ('serviceWorker' in navigator) {
+                            window.addEventListener('load', function() {
+                                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                                }, function(err) {
+                                    console.log('ServiceWorker registration failed: ', err);
+                                });
+                            });
+                        }
+                        `,
+          }}
+        />
       </body>
     </html>
   );
