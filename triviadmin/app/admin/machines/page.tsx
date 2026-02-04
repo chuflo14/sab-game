@@ -13,9 +13,6 @@ import {
     AlertTriangle,
     Edit3,
     X,
-    RotateCcw,
-    Wifi,
-    WifiOff,
     Smartphone
 } from 'lucide-react';
 
@@ -32,7 +29,8 @@ export default function MachinesAdminPage() {
         name: '',
         location: '',
         short_id: '',
-        qr_enabled: true
+        qr_enabled: true,
+        tokenPrice: 1000
     });
 
     useEffect(() => {
@@ -47,13 +45,12 @@ export default function MachinesAdminPage() {
     };
 
     const generateCode = () => {
-        // Simple random 4 digit code
         return 'K' + Math.floor(100 + Math.random() * 9000);
     }
 
     const openCreateModal = () => {
         setEditingMachineId(null);
-        setFormData({ name: '', location: '', short_id: generateCode(), qr_enabled: true });
+        setFormData({ name: '', location: '', short_id: generateCode(), qr_enabled: true, tokenPrice: 1000 });
         setIsModalOpen(true);
     };
 
@@ -63,7 +60,8 @@ export default function MachinesAdminPage() {
             name: machine.name,
             location: machine.location || '',
             short_id: machine.short_id || '',
-            qr_enabled: machine.qr_enabled !== false
+            qr_enabled: machine.qr_enabled !== false,
+            tokenPrice: machine.tokenPrice || 1000
         });
         setIsModalOpen(true);
     };
@@ -78,7 +76,8 @@ export default function MachinesAdminPage() {
                 name: formData.name,
                 location: formData.location || undefined,
                 short_id: formData.short_id || undefined,
-                qr_enabled: formData.qr_enabled
+                qr_enabled: formData.qr_enabled,
+                tokenPrice: formData.tokenPrice
             });
         } else {
             const newMachine: Machine = {
@@ -87,6 +86,7 @@ export default function MachinesAdminPage() {
                 location: formData.location || 'Sin ubicación',
                 isOperational: true,
                 qr_enabled: formData.qr_enabled,
+                tokenPrice: formData.tokenPrice,
                 lastSeenAt: new Date(),
                 short_id: formData.short_id || generateCode()
             };
@@ -98,14 +98,12 @@ export default function MachinesAdminPage() {
         loadMachines();
     };
 
-
     const handleDeleteMachine = async (id: string) => {
         const { deleteMachineAction } = await import('@/lib/actions');
         await deleteMachineAction(id);
         setShowDeleteConfirm(null);
         loadMachines();
     };
-
 
     const toggleStatus = async (machine: Machine) => {
         await updateMachineAction(machine.id, { isOperational: !machine.isOperational });
@@ -118,273 +116,270 @@ export default function MachinesAdminPage() {
     };
 
     return (
-        <div className="space-y-8 pb-20">
-            <div className="flex justify-between items-center bg-white p-8 rounded-[2rem] border border-slate-200">
-                <div>
-                    <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Terminales Kiosco</h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Monitoreo y gestión de unidades físicas</p>
+        <div className="space-y-6 md:space-y-10 pb-20 px-4 md:px-0">
+            {/* Header section with responsive layout */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-200 shadow-sm gap-4 md:gap-0">
+                <div className="space-y-1">
+                    <h3 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight">Terminales Kiosco</h3>
+                    <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Monitoreo en tiempo real y gestión de red</p>
                 </div>
                 <button
                     onClick={openCreateModal}
-                    className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-black/20 active:scale-95"
+                    className="w-full md:w-auto bg-slate-900 hover:bg-black text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-3 transition-all shadow-xl shadow-slate-200 active:scale-95"
                 >
                     <Plus className="w-4 h-4" />
-                    Registrar Terminal
+                    Nueva Terminal
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Main grid for machine cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {isLoading ? (
                     Array(3).fill(0).map((_, i) => (
-                        <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-slate-200 animate-pulse space-y-6">
-                            <div className="w-16 h-16 bg-slate-100 rounded-2xl" />
-                            <div className="h-4 bg-slate-100 rounded w-1/2" />
-                            <div className="h-20 bg-slate-50 rounded-2xl" />
+                        <div key={i} className="bg-white p-8 rounded-[2rem] border border-slate-100 animate-pulse space-y-6 shadow-sm">
+                            <div className="flex justify-between items-start">
+                                <div className="w-14 h-14 bg-slate-50 rounded-2xl" />
+                                <div className="w-20 h-6 bg-slate-50 rounded-full" />
+                            </div>
+                            <div className="space-y-3">
+                                <div className="h-4 bg-slate-50 rounded w-2/3" />
+                                <div className="h-3 bg-slate-50 rounded w-1/3" />
+                            </div>
+                            <div className="h-24 bg-slate-50/50 rounded-2xl" />
                         </div>
                     ))
                 ) : machines.length === 0 ? (
-                    <div className="col-span-full p-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">
-                        No hay máquinas registradas
+                    <div className="col-span-full py-24 text-center">
+                        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+                            <Cpu className="w-10 h-10" />
+                        </div>
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">No hay terminales registradas en el sistema</p>
                     </div>
                 ) : (
                     machines.map((m) => {
-                        const isOnline = m.lastSeenAt && (Date.now() - new Date(m.lastSeenAt).getTime() < 120000); // 2 minutes threshold
+                        const isOnline = m.lastSeenAt && (Date.now() - new Date(m.lastSeenAt).getTime() < 120000);
 
                         return (
-                            <div key={m.id} className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 group relative">
-                                {/* Operational Status Dot */}
-                                <div className={`absolute top-8 right-8 w-3 h-3 rounded-full ${isOnline ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse'}`} />
-
-                                <div className="p-10 space-y-8">
-                                    <div className="space-y-4">
-                                        <div className={`w-16 h-16 rounded-3xl flex items-center justify-center border transition-colors ${m.isOperational ? 'bg-green-500/10 border-green-500/20 text-green-600' : 'bg-red-500/10 border-red-500/20 text-red-600'}`}>
-                                            <Cpu className="w-8 h-8" />
+                            <div key={m.id} className="bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden flex flex-col h-full group">
+                                {/* Card Header with Status and Icon */}
+                                <div className="p-8 pb-4">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className={`p-4 rounded-2xl transition-all duration-300 ${m.isOperational ? 'bg-indigo-50 text-indigo-600' : 'bg-red-50 text-red-500'}`}>
+                                            <Cpu className="w-6 h-6" />
                                         </div>
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">{m.name}</h4>
-
-                                            </div>
-                                            <div className="flex items-center gap-2 mt-2">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">ID: {m.short_id || m.id.substring(0, 6) + '...'}</span>
-                                            </div>
-
-                                            <div className="flex flex-col gap-1 mt-2">
-                                                <div className="flex items-center gap-1.5">
-                                                    {isOnline ? <Wifi className="w-3 h-3 text-green-500" /> : <WifiOff className="w-3 h-3 text-red-500" />}
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest ${isOnline ? 'text-green-600' : 'text-red-500'}`}>
-                                                        {isOnline ? 'ONLINE' : 'OFFLINE'}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-1.5">
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${m.qr_enabled !== false ? 'bg-amber-500' : 'bg-slate-300'}`} />
-                                                    <span className={`text-[9px] font-bold uppercase tracking-widest ${m.qr_enabled !== false ? 'text-slate-600' : 'text-slate-400'}`}>
-                                                        {m.qr_enabled !== false ? 'PAGOS QR ACTIVOS' : 'PAGOS QR INACTIVOS'}
-                                                    </span>
-                                                </div>
-                                            </div>
+                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-widest ${isOnline ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-500'}`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                                            {isOnline ? 'Online' : 'Offline'}
                                         </div>
                                     </div>
 
-                                    <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-100 group-hover:bg-white transition-colors">
-                                        <div className="flex items-center gap-3">
-                                            <MapPin className="text-slate-400 w-4 h-4" />
-                                            <p className="text-xs font-bold text-slate-600 uppercase tracking-wide">{m.location || 'SIN UBICACIÓN'}</p>
+                                    <div className="space-y-1">
+                                        <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight truncate leading-none">{m.name}</h4>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">ID: {m.short_id || '---'}</span>
+                                            <span className="w-1 h-1 bg-slate-200 rounded-full" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-indigo-500">VALOR FICHA: ${m.tokenPrice || 1000}</span>
                                         </div>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <Activity className="text-slate-400 w-4 h-4" />
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                                    S. Actual: <span className="text-indigo-600 text-sm">{m.games_counter || 0}</span>
-                                                </p>
-                                            </div>
-                                            <button
-                                                onClick={async () => {
-                                                    if (confirm('¿Reiniciar contador de partidas para esta máquina?')) {
-                                                        const { resetMachineCounterAction } = await import('@/lib/actions');
-                                                        await resetMachineCounterAction(m.id);
-                                                        loadMachines();
-                                                    }
-                                                }}
-                                                className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 transition-colors"
-                                                title="Reiniciar Contador"
-                                            >
-                                                <RotateCcw className="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Information Block */}
+                                <div className="px-8 py-6 space-y-4">
+                                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
                                         <div className="flex items-center gap-3">
-                                            <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest ml-7">
-                                                Ping: {m.lastSeenAt ? new Date(m.lastSeenAt).toLocaleTimeString() : 'NUNCA'}
-                                            </p>
+                                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                                            <span className="truncate max-w-[120px]">{m.location || 'Sin ubicación'}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Activity className="w-3.5 h-3.5 text-slate-400" />
+                                            <span className="text-slate-900 font-black">{m.games_counter || 0}</span>
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-3 pt-4 border-t border-slate-100">
-                                        <button
-                                            onClick={() => openEditModal(m)}
-                                            className="p-3 bg-slate-100 text-slate-400 hover:text-slate-900 rounded-xl transition-all border border-slate-200/50"
-                                            title="Editar"
-                                        >
-                                            <Edit3 className="w-4 h-4" />
-                                        </button>
+                                    {/* Action Row - Toggle QR (Sleek pill style) */}
+                                    <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-slate-200 bg-white group-hover:bg-slate-50/30 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <Smartphone className={`w-4 h-4 ${m.qr_enabled !== false ? 'text-amber-500' : 'text-slate-400'}`} />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">PAGOS QR</span>
+                                        </div>
                                         <button
                                             onClick={() => toggleQr(m)}
-                                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${m.qr_enabled !== false ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-500/20' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                                            className={`relative w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${m.qr_enabled !== false ? 'bg-amber-500' : 'bg-slate-200'}`}
                                         >
-                                            <Smartphone className="w-3.5 h-3.5" />
-                                            QR {m.qr_enabled !== false ? 'ON' : 'OFF'}
-                                        </button>
-                                        <button
-                                            onClick={() => toggleStatus(m)}
-                                            className={`flex-[1.5] py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${m.isOperational ? 'bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white' : 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20'}`}
-                                        >
-                                            <Power className="w-3.5 h-3.5" />
-                                            {m.isOperational ? 'Apagar' : 'Encender'}
-                                        </button>
-                                        <button
-                                            onClick={() => setShowDeleteConfirm(m.id)}
-                                            className="p-3 bg-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all border border-slate-200/50"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
+                                            <div className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-300 ${m.qr_enabled !== false ? 'translate-x-6' : 'translate-x-0'}`} />
                                         </button>
                                     </div>
-
-                                    {!m.isOperational && (
-                                        <div className="flex items-center gap-3 p-3 bg-red-50 rounded-2xl border border-red-100">
-                                            <AlertTriangle className="text-red-500 w-4 h-4" />
-                                            <p className="text-[9px] font-black text-red-600 uppercase tracking-widest leading-tight">Acción requerida: La unidad no responde</p>
-                                        </div>
-                                    )}
                                 </div>
+
+                                {/* Card Footer Actions */}
+                                <div className="mt-auto p-4 md:p-6 bg-slate-50/50 flex gap-2 md:gap-3 border-t border-slate-50 group-hover:bg-slate-50 transition-colors">
+                                    <button
+                                        onClick={() => openEditModal(m)}
+                                        className="flex-1 py-3 md:py-4 bg-white hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-xl transition-all border border-slate-100 flex items-center justify-center font-black text-[9px] uppercase tracking-widest gap-2 shadow-sm"
+                                    >
+                                        <Edit3 className="w-3.5 h-3.5" />
+                                        <span className="hidden md:inline">Configurar</span>
+                                    </button>
+                                    <button
+                                        onClick={() => toggleStatus(m)}
+                                        className={`flex-[1.5] py-3 md:py-4 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95 ${m.isOperational ? 'bg-white text-slate-400 hover:text-red-500 border border-slate-100' : 'bg-green-500 text-white shadow-lg shadow-green-500/20'}`}
+                                    >
+                                        <Power className="w-3.5 h-3.5" />
+                                        {m.isOperational ? 'Apagar' : 'Encender'}
+                                    </button>
+                                    <button
+                                        onClick={() => setShowDeleteConfirm(m.id)}
+                                        className="p-3 md:p-4 bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-xl border border-slate-100 shadow-sm"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+
+                                {!m.isOperational && (
+                                    <div className="absolute top-0 right-0 p-2">
+                                        <div className="bg-red-500 text-white text-[8px] font-black uppercase py-1 px-4 rounded-bl-xl shadow-lg animate-pulse">
+                                            Fuera de Servicio
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         );
                     })
                 )}
             </div>
 
-            {/* Create Method Modal */}
-            {
-                isModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                        <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                            <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">
-                                        {editingMachineId ? 'Editar Terminal' : 'Nuevo Terminal'}
-                                    </h3>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                                        {editingMachineId ? 'Modifica los datos del punto de acceso' : 'Registra un nuevo punto de acceso físico'}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="p-3 hover:bg-slate-200 rounded-2xl transition-colors text-slate-400"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
+            {/* Modal - Modern Design */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-500">
+                    <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-3xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-500">
+                        <div className="p-8 md:p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
+                            <div className="space-y-1">
+                                <h3 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">
+                                    {editingMachineId ? 'Ajustar Terminal' : 'Registrar Terminal'}
+                                </h3>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{editingMachineId ? 'ID: ' + editingMachineId.slice(0, 8) : 'Configura los parámetros de red'}</p>
                             </div>
+                            <button onClick={() => setIsModalOpen(false)} className="p-3 hover:bg-slate-100 rounded-2xl transition-colors text-slate-400">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
 
-                            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                        <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-6 md:space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Identificador / Nombre</label>
+                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-2">Nombre / Ref</label>
+                                    <div className="relative group">
+                                        <input
+                                            required
+                                            type="text"
+                                            placeholder="Ej: Sab K-05"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all uppercase placeholder:text-slate-300"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-2">Código ID</label>
                                     <input
-                                        required
                                         type="text"
-                                        placeholder="Ej: Terminal K-05"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all uppercase"
+                                        placeholder="K001"
+                                        value={formData.short_id}
+                                        onChange={(e) => setFormData({ ...formData, short_id: e.target.value.toUpperCase() })}
+                                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all uppercase placeholder:text-slate-300"
                                     />
                                 </div>
+                            </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Código (ID Corto)</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Ej: K01"
-                                            value={formData.short_id}
-                                            onChange={(e) => setFormData({ ...formData, short_id: e.target.value.toUpperCase() })}
-                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all uppercase"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Ubicación Física</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Ej: Hall Central"
-                                            value={formData.location}
-                                            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all uppercase"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-2">Ubicación</label>
                                     <input
-                                        type="checkbox"
-                                        id="qr_enabled"
-                                        checked={formData.qr_enabled}
-                                        onChange={(e) => setFormData({ ...formData, qr_enabled: e.target.checked })}
-                                        className="w-5 h-5 rounded-lg border-slate-300 text-slate-900 focus:ring-slate-500"
+                                        type="text"
+                                        placeholder="Hall Central"
+                                        value={formData.location}
+                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-[1.25rem] text-sm font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all uppercase placeholder:text-slate-300"
                                     />
-                                    <label htmlFor="qr_enabled" className="text-xs font-bold text-slate-600 uppercase tracking-widest cursor-pointer">
-                                        Habilitar Pagos QR en esta terminal
-                                    </label>
                                 </div>
-
-                                <div className="pt-4 flex gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsModalOpen(false)}
-                                        className="flex-1 px-6 py-4 border border-slate-200 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all"
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        disabled={isSaving}
-                                        type="submit"
-                                        className="flex-[2] px-6 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl shadow-slate-900/20 active:scale-95 disabled:opacity-50"
-                                    >
-                                        {isSaving ? 'Guardando...' : editingMachineId ? 'Guardar Cambios' : 'Registrar Terminal'}
-                                    </button>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-2">VALOR FICHA ($)</label>
+                                    <div className="relative">
+                                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-black">$</div>
+                                        <input
+                                            type="number"
+                                            placeholder="1000"
+                                            value={formData.tokenPrice}
+                                            onChange={(e) => setFormData({ ...formData, tokenPrice: parseInt(e.target.value) || 0 })}
+                                            className="w-full pl-10 pr-6 py-4 bg-indigo-50/50 border border-indigo-100 rounded-[1.25rem] text-sm font-black text-indigo-600 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all placeholder:text-indigo-200"
+                                        />
+                                    </div>
                                 </div>
-                            </form>
-                        </div>
-                    </div>
-                )
-            }
-
-            {/* Delete Confirmation Modal */}
-            {
-                showDeleteConfirm && (
-                    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                        <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-8 text-center animate-in zoom-in-95 duration-300">
-                            <div className="w-20 h-20 bg-red-100 rounded-3xl flex items-center justify-center text-red-500 mx-auto mb-6">
-                                <AlertTriangle className="w-10 h-10" />
                             </div>
-                            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight mb-2">¿Eliminar Terminal?</h3>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-8 leading-relaxed">
-                                Esta acción borrará permanentemente el registro de este terminal.
-                            </p>
-                            <div className="flex gap-4">
+
+                            <div className="flex items-center justify-between p-6 bg-slate-50/80 rounded-[1.8rem] border border-slate-100">
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">HABILITAR PAGOS QR</p>
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.1em]">Permite el uso de Mercado Pago</p>
+                                </div>
                                 <button
-                                    onClick={() => setShowDeleteConfirm(null)}
-                                    className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, qr_enabled: !formData.qr_enabled })}
+                                    className={`relative w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-300 ${formData.qr_enabled ? 'bg-amber-500' : 'bg-slate-300'}`}
                                 >
-                                    Cancelar
-                                </button>
-                                <button
-                                    onClick={() => handleDeleteMachine(showDeleteConfirm)}
-                                    className="flex-1 py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-500/20"
-                                >
-                                    Eliminar
+                                    <div className={`bg-white w-5 h-5 rounded-full shadow-sm transform transition-transform duration-300 ${formData.qr_enabled ? 'translate-x-7' : 'translate-x-0'}`} />
                                 </button>
                             </div>
+
+                            <div className="flex flex-col md:flex-row gap-4 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="order-2 md:order-1 flex-1 px-8 py-5 border border-slate-200 rounded-[1.25rem] font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 hover:bg-slate-50 transition-all active:scale-95"
+                                >
+                                    Cerrar
+                                </button>
+                                <button
+                                    disabled={isSaving}
+                                    type="submit"
+                                    className="order-1 md:order-2 flex-[2] px-8 py-5 bg-slate-900 hover:bg-black text-white rounded-[1.25rem] font-black text-[10px] uppercase tracking-[0.3em] transition-all shadow-2xl shadow-slate-200 active:scale-95 disabled:opacity-50"
+                                >
+                                    {isSaving ? 'Guardando...' : editingMachineId ? 'Actualizar Sistema' : 'Activar Terminal'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirm Delete - Premium Red Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="bg-white w-full max-w-xs rounded-[2.5rem] shadow-3xl p-10 text-center animate-in zoom-in-95 duration-300">
+                        <div className="w-24 h-24 bg-red-50 rounded-[2rem] flex items-center justify-center text-red-500 mx-auto mb-8 animate-bounce">
+                            <AlertTriangle className="w-12 h-12" />
+                        </div>
+                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">¿Confirmar Baja?</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-10 leading-relaxed">
+                            Esta acción eliminará permanentemente la terminal del inventario activo.
+                        </p>
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={() => handleDeleteMachine(showDeleteConfirm)}
+                                className="w-full py-5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-red-200 active:scale-95"
+                            >
+                                Sí, Eliminar
+                            </button>
+                            <button
+                                onClick={() => setShowDeleteConfirm(null)}
+                                className="w-full py-5 bg-slate-50 hover:bg-slate-100 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"
+                            >
+                                Cancelar
+                            </button>
                         </div>
                     </div>
-                )
-            }
-        </div >
+                </div>
+            )}
+        </div>
     );
 }

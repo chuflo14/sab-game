@@ -51,7 +51,11 @@ function PaymentContent() {
     useEffect(() => {
         const createPayment = async () => {
             try {
-                const res = await fetch('/api/payment/create', { method: 'POST', body: '{}' });
+                const mId = localStorage.getItem('MACHINE_ID');
+                const res = await fetch('/api/payment/create', {
+                    method: 'POST',
+                    body: JSON.stringify({ machineId: mId })
+                });
                 const data = await res.json();
 
                 if (res.ok && data.init_point && data.external_reference) {

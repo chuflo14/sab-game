@@ -154,6 +154,7 @@ export const getMachines = async (): Promise<Machine[]> => {
         short_id: m.short_id,
         isOperational: m.is_operational,
         qr_enabled: m.qr_enabled,
+        tokenPrice: m.token_price || 1000,
         lastSeenAt: new Date(m.last_seen_at),
         games_counter: m.games_counter || 0
     })) as Machine[];
@@ -167,6 +168,7 @@ export const getMachineById = async (id: string): Promise<Machine | undefined> =
         short_id: data.short_id,
         isOperational: data.is_operational,
         qr_enabled: data.qr_enabled,
+        tokenPrice: data.token_price || 1000,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
     } as Machine;
@@ -180,6 +182,7 @@ export const getMachineByShortId = async (shortId: string): Promise<Machine | un
         short_id: data.short_id,
         isOperational: data.is_operational,
         qr_enabled: data.qr_enabled,
+        tokenPrice: data.token_price || 1000,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
     } as Machine;
@@ -193,6 +196,7 @@ export const addMachine = async (m: Machine): Promise<Machine> => {
         location: m.location,
         is_operational: m.isOperational,
         qr_enabled: m.qr_enabled ?? true, // Default to true if not specified
+        token_price: m.tokenPrice || 1000,
         last_seen_at: m.lastSeenAt,
         games_counter: m.games_counter || 0
     };
@@ -203,6 +207,7 @@ export const addMachine = async (m: Machine): Promise<Machine> => {
         short_id: data.short_id,
         isOperational: data.is_operational,
         qr_enabled: data.qr_enabled,
+        tokenPrice: data.token_price || 1000,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
     } as Machine;
@@ -225,6 +230,10 @@ export const updateMachine = async (id: string, updates: Partial<Machine>): Prom
         dbUpdates.games_counter = updates.games_counter;
         delete dbUpdates.gamesCounter; // Just in case
     }
+    if (updates.tokenPrice !== undefined) {
+        dbUpdates.token_price = updates.tokenPrice;
+        delete dbUpdates.tokenPrice;
+    }
     // short_id handled automatically if present in updates object key match
     const { data, error } = await supabase.from('machines').update(dbUpdates).eq('id', id).select().single();
     if (error) return undefined;
@@ -233,6 +242,7 @@ export const updateMachine = async (id: string, updates: Partial<Machine>): Prom
         short_id: data.short_id,
         isOperational: data.is_operational,
         qr_enabled: data.qr_enabled,
+        tokenPrice: data.token_price || 1000,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
     } as Machine;

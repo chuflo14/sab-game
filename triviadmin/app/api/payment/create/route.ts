@@ -13,50 +13,56 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
     try {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const _body = await request.json();
-        // Allow overriding amount via body for testing, but ideally fetch from DB
-        // Allow overriding amount via body for testing, but ideally fetch from DB
+        const body = await request.json();
+        const machineId = body.machineId;
 
+        // Default amount
         let amount = 1000;
 
-        console.error('DEBUG: Entering Payment Route');
+        console.error('DEBUG: Entering Payment Route for machine:', machineId || 'NONE');
 
         // Initialize Supabase client
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
         const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-        console.log('DEBUG: Supabase Config:', {
-            hasUrl: !!supabaseUrl,
-            hasKey: !!supabaseKey,
-            startUrl: supabaseUrl ? supabaseUrl.substring(0, 10) : 'none'
-        });
-
         const { createClient } = await import('@supabase/supabase-js');
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         try {
-            console.log('DEBUG: Attempting RPC call to get_payment_config_json...');
-            const { data: jsonData, error: dbError } = await supabase
-                .rpc('get_payment_config_json')
-                .single();
+            // First Priority: Machine-specific price
+            if (machineId) {
+                console.log(`DEBUG: Fetching price for machine: ${machineId}`);
+                const { data: machine, error: mError } = await supabase
+                    .from('machines')
+                    .select('token_price')
+                    .eq('id', machineId)
+                    .single();
 
-            if (dbError) {
-                console.error('DEBUG: RPC returned error object:', dbError);
-                // Don't throw, just log. We will use default amount.
-            } else {
-                console.log('DEBUG: RPC success:', jsonData);
+                if (!mError && machine && machine.token_price) {
+                    amount = machine.token_price;
+                    console.log(`DEBUG: Using machine-specific amount: ${amount}`);
+                } else if (mError) {
+                    console.warn(`DEBUG: Could not find machine ${machineId}, error:`, mError);
+                }
+            }
 
-                // Safe cast and check
-                const config = jsonData as { game_price: number } | null;
-                if (config && typeof config.game_price === 'number') {
-                    amount = config.game_price;
-                    console.log(`DEBUG: Updated amount from DB: ${amount}`);
+            // Second Priority: Global config (if machine price not found or not provided)
+            if (amount === 1000) {
+                console.log('DEBUG: Attempting RPC call to get_payment_config_json...');
+                const { data: jsonData, error: dbError } = await supabase
+                    .rpc('get_payment_config_json')
+                    .single();
+
+                if (!dbError && jsonData) {
+                    const config = jsonData as { game_price: number } | null;
+                    if (config && typeof config.game_price === 'number') {
+                        amount = config.game_price;
+                        console.log(`DEBUG: Updated amount from global DB: ${amount}`);
+                    }
                 }
             }
         } catch (dbErr) {
             console.error('DEBUG: CAUGHT inner DB Error:', dbErr);
-            // Fallback to default amount (500 or 1000) will happen automatically since 'amount' is already init
         }
 
         console.log(`Creating payment preference for amount: ${amount}`);
