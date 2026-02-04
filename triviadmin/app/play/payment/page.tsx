@@ -72,7 +72,11 @@ function PaymentContent() {
 
                     // Report state to joystick
                     if (mId) {
-                        sendJoystickEvent(mId, { type: 'STATE_CHANGE', state: 'PAYING' });
+                        sendJoystickEvent(mId, {
+                            type: 'STATE_CHANGE',
+                            state: 'PAYING',
+                            paymentUrl: data.init_point
+                        });
                     }
                 } else {
                     console.error('DEBUG: Payment creation failed data:', data);

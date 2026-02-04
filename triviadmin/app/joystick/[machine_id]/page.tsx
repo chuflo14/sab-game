@@ -12,6 +12,7 @@ export default function JoystickPage() {
 
     const [status, setStatus] = useState<'READY' | 'PAYING' | 'PLAYING' | 'WAITING' | 'GAME_OVER' | 'TIMEOUT'>('WAITING');
     const [gameType, setGameType] = useState<'TRIVIA' | 'RULETA' | 'CHANGO' | 'MENU'>('MENU');
+    const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
     const [machineShortId, setMachineShortId] = useState<string>('');
@@ -43,6 +44,9 @@ export default function JoystickPage() {
                 setStatus(payload.state);
                 if (payload.game) {
                     setGameType(payload.game);
+                }
+                if (payload.paymentUrl) {
+                    setPaymentUrl(payload.paymentUrl);
                 }
             } else if (payload.type === 'GAME_OVER') {
                 setStatus('GAME_OVER');
@@ -265,6 +269,17 @@ export default function JoystickPage() {
                         <p className="text-lg text-gray-300">
                             Por favor, usa tu app de <span className="font-bold text-white">Mercado Pago</span> para escanear el QR en la pantalla de la máquina.
                         </p>
+                        {paymentUrl && (
+                            <a
+                                href={paymentUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full mt-4 p-4 bg-blue-500 text-white rounded-xl font-bold text-lg shadow-[0_4px_0_rgb(30,58,138)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2"
+                            >
+                                <span>📲</span>
+                                <span>Pagar con Mercado Pago</span>
+                            </a>
+                        )}
                     </div>
                 ) : (
                     // PLAYING STATE - Render specific controls

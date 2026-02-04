@@ -3,7 +3,7 @@ import { supabase } from './supabaseClient';
 export type JoystickEvent =
     | { type: 'START' }
     | { type: 'KEYDOWN'; key: string }
-    | { type: 'STATE_CHANGE'; state: 'READY' | 'PAYING' | 'PLAYING' | 'WAITING'; game?: 'TRIVIA' | 'RULETA' | 'CHANGO' | 'MENU' }
+    | { type: 'STATE_CHANGE'; state: 'READY' | 'PAYING' | 'PLAYING' | 'WAITING'; game?: 'TRIVIA' | 'RULETA' | 'CHANGO' | 'MENU'; paymentUrl?: string }
     | { type: 'GAME_OVER' }
     | { type: 'TIMEOUT' };
 
