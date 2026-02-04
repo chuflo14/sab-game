@@ -3,7 +3,8 @@ import { supabase } from './supabaseClient';
 export type JoystickEvent =
     | { type: 'START' }
     | { type: 'KEYDOWN'; key: string }
-    | { type: 'STATE_CHANGE'; state: 'READY' | 'PAYING' | 'PLAYING' | 'WAITING'; game?: 'TRIVIA' | 'RULETA' | 'CHANGO' | 'MENU' };
+    | { type: 'STATE_CHANGE'; state: 'READY' | 'PAYING' | 'PLAYING' | 'WAITING'; game?: 'TRIVIA' | 'RULETA' | 'CHANGO' | 'MENU' }
+    | { type: 'GAME_OVER' };
 
 export const subscribeToJoystick = (machineId: string, onEvent: (payload: JoystickEvent) => void) => {
     const channel = supabase.channel(`joystick:${machineId}`, {
