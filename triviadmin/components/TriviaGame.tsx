@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { generateWinningTicket, logGameEvent } from '@/lib/actions';
 import GameResultOverlay from './GameResultOverlay';
+import { sendJoystickEvent } from '@/lib/realtime';
 
 interface TriviaGameProps {
     questions: Question[];
@@ -33,6 +34,12 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
                 setConfig(configData);
             });
         });
+
+        // Report state to joystick
+        const mid = localStorage.getItem('MACHINE_ID');
+        if (mid) {
+            sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TRIVIA' });
+        }
     }, []);
 
     const handleGameOver = useCallback(async () => {

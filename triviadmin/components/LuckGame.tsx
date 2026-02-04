@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { generateWinningTicket, fetchPrizes, fetchChangoConfig, logGameEvent } from '@/lib/actions';
 import GameResultOverlay from './GameResultOverlay';
+import { sendJoystickEvent } from '@/lib/realtime';
 
 export default function LuckGame() {
     const router = useRouter();
@@ -45,6 +46,12 @@ export default function LuckGame() {
             }
         };
         initGame();
+
+        // Report state to joystick
+        const mid = localStorage.getItem('MACHINE_ID');
+        if (mid) {
+            sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'CHANGO' });
+        }
     }, []);
 
     // Timer logic

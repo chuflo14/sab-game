@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from 'sonner';
 import { ConnectivityProvider } from '@/components/ConnectivityProvider';
 import OfflineOverlay from '@/components/OfflineOverlay';
+import JoystickListener from '@/components/JoystickListener';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         <main className="w-full h-full flex-1 flex flex-col">
           <ConnectivityProvider>
+            <JoystickListener />
             {children}
             <OfflineOverlay />
           </ConnectivityProvider>

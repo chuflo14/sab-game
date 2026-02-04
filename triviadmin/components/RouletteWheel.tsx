@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { generateWinningTicket, logGameEvent } from '@/lib/actions';
 import GameResultOverlay from './GameResultOverlay';
+import { sendJoystickEvent } from '@/lib/realtime';
 
 interface RouletteWheelProps {
     segments: RouletteSegment[];
@@ -23,6 +24,12 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
         import('@/lib/actions').then(mod => {
             mod.fetchChangoConfig().then(setConfig);
         });
+
+        // Report state to joystick
+        const mid = localStorage.getItem('MACHINE_ID');
+        if (mid) {
+            sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'RULETA' });
+        }
     }, []);
 
     // ... (rest of component unchanged until handleConfirmResult)

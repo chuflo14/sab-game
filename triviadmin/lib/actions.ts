@@ -473,10 +473,23 @@ export async function logGameEvent(event: Omit<GameEvent, 'id'>) {
     };
 
     // 1. Log the event
-    const logged = await dal.addGameEvent(newEvent);
+    let logged: GameEvent | null = null;
+    try {
+        logged = await dal.addGameEvent(newEvent);
+    } catch (err: any) {
+        // Handle Foreign Key Violation (23503) specifically
+        if (err?.code === '23503') {
+            console.warn(`logGameEvent: Skipped logging for machineId '${event.machineId}' (not found in DB).`);
+            // We return a mock event so the game continues without crashing
+            return newEvent as GameEvent;
+        }
+        // Re-throw other errors
+        console.error('logGameEvent error:', err);
+        throw err;
+    }
 
     // 2. Increment machine counter if applicable
-    if (event.machineId) {
+    if (event.machineId && logged) {
         try {
             const m = await dal.getMachineById(event.machineId);
             if (m) {

@@ -14,7 +14,6 @@ import {
 export default function SettingsAdminPage() {
     const [config, setConfig] = useState<ChangoConfig | null>(null);
     const [price, setPrice] = useState(1000);
-    const [enablePayments, setEnablePayments] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -26,7 +25,6 @@ export default function SettingsAdminPage() {
         const data = await fetchChangoConfig();
         setConfig(data);
         setPrice(data.game_price || 1000);
-        setEnablePayments(data.enable_payments ?? true);
     };
 
     const updateConfig = async (key: keyof ChangoConfig, value: any) => {
@@ -39,8 +37,7 @@ export default function SettingsAdminPage() {
     const handleSave = async () => {
         setIsSaving(true);
         await updateChangoConfigAction({
-            game_price: price,
-            enable_payments: enablePayments
+            game_price: price
         });
         setIsSaving(false);
         setShowSuccess(true);
@@ -80,25 +77,9 @@ export default function SettingsAdminPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
 
-                {/* Payments Toggle Card */}
-                <div className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-8 md:col-span-2 flex items-center justify-between">
-                    <div>
-                        <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight leading-none mb-2">Cobros con QR</h4>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-md">
-                            Si se desactiva, el kiosco omitirá la pantalla de pago y permitirá jugar gratis.
-                        </p>
-                    </div>
-
-                    <button
-                        onClick={() => setEnablePayments(!enablePayments)}
-                        className={`w-20 h-10 rounded-full p-1 transition-all duration-300 ${enablePayments ? 'bg-green-500 shadow-lg shadow-green-500/20' : 'bg-slate-200 shadow-inner'}`}
-                    >
-                        <div className={`w-8 h-8 rounded-full bg-white shadow-sm transition-all duration-300 ${enablePayments ? 'translate-x-10' : 'translate-x-0'}`} />
-                    </button>
-                </div>
 
                 {/* Price Card */}
-                <div className={`bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-10 group md:col-span-2 transition-opacity duration-300 ${enablePayments ? 'opacity-100' : 'opacity-40 pointer-events-none grayscale'}`}>
+                <div className={`bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-10 group md:col-span-2 transition-opacity duration-300`}>
                     <div className="flex justify-between items-center">
                         <div>
                             <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight leading-none mb-2">Precio de la Ficha</h4>

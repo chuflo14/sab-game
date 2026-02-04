@@ -154,6 +154,7 @@ export const getMachines = async (): Promise<Machine[]> => {
         short_id: m.short_id,
         isOperational: m.is_operational,
         qr_enabled: m.qr_enabled,
+        joystick_enabled: m.joystick_enabled,
         tokenPrice: m.token_price || 1000,
         lastSeenAt: new Date(m.last_seen_at),
         games_counter: m.games_counter || 0
@@ -168,6 +169,7 @@ export const getMachineById = async (id: string): Promise<Machine | undefined> =
         short_id: data.short_id,
         isOperational: data.is_operational,
         qr_enabled: data.qr_enabled,
+        joystick_enabled: data.joystick_enabled,
         tokenPrice: data.token_price || 1000,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
@@ -182,6 +184,7 @@ export const getMachineByShortId = async (shortId: string): Promise<Machine | un
         short_id: data.short_id,
         isOperational: data.is_operational,
         qr_enabled: data.qr_enabled,
+        joystick_enabled: data.joystick_enabled,
         tokenPrice: data.token_price || 1000,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
@@ -196,6 +199,7 @@ export const addMachine = async (m: Machine): Promise<Machine> => {
         location: m.location,
         is_operational: m.isOperational,
         qr_enabled: m.qr_enabled ?? true, // Default to true if not specified
+        joystick_enabled: m.joystick_enabled ?? true,
         token_price: m.tokenPrice || 1000,
         last_seen_at: m.lastSeenAt,
         games_counter: m.games_counter || 0
@@ -207,6 +211,7 @@ export const addMachine = async (m: Machine): Promise<Machine> => {
         short_id: data.short_id,
         isOperational: data.is_operational,
         qr_enabled: data.qr_enabled,
+        joystick_enabled: data.joystick_enabled,
         tokenPrice: data.token_price || 1000,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
@@ -221,6 +226,9 @@ export const updateMachine = async (id: string, updates: Partial<Machine>): Prom
     if (updates.qr_enabled !== undefined) {
         dbUpdates.qr_enabled = updates.qr_enabled;
         // No need to delete qr_enabled as it matches DB column name
+    }
+    if (updates.joystick_enabled !== undefined) {
+        dbUpdates.joystick_enabled = updates.joystick_enabled;
     }
     if (updates.lastSeenAt !== undefined) {
         dbUpdates.last_seen_at = updates.lastSeenAt;
@@ -242,6 +250,7 @@ export const updateMachine = async (id: string, updates: Partial<Machine>): Prom
         short_id: data.short_id,
         isOperational: data.is_operational,
         qr_enabled: data.qr_enabled,
+        joystick_enabled: data.joystick_enabled,
         tokenPrice: data.token_price || 1000,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0

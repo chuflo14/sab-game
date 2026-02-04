@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 
 import { fetchChangoConfig } from '@/lib/actions';
+import { sendJoystickEvent } from '@/lib/realtime';
 
 export default function InstructionsPage() {
     const router = useRouter();
@@ -12,8 +13,8 @@ export default function InstructionsPage() {
 
     useEffect(() => {
         const loadConfig = async () => {
-            const config = await fetchChangoConfig();
-            let qrEnabled = config?.enable_payments !== false;
+            // Default to true (payments enabled) unless explicitly disabled by machine
+            let qrEnabled = true;
 
             const machineId = localStorage.getItem('MACHINE_ID');
             if (machineId) {
@@ -49,26 +50,33 @@ export default function InstructionsPage() {
             router.push('/');
         }, 20000); // 20 seconds
 
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const key = e.key.toUpperCase();
+        const handleInput = (key: string) => {
+            const upKey = key.toUpperCase();
+            console.log("InstructionsPage: Input detected:", upKey);
+            if (upKey === 'S') handleGameSelect('/play/pre-game?next=/play/trivia');
+            else if (upKey === 'A') handleGameSelect('/play/pre-game?next=/play/azar');
+            else if (upKey === 'B') handleGameSelect('/play/pre-game?next=/play/suerte');
+        };
 
-            console.log("InstructionsPage: Key down detected:", key);
-            if (key === 'S') {
-                console.log("InstructionsPage: S key pressed");
-                handleGameSelect('/play/pre-game?next=/play/trivia');
-            } else if (key === 'A') {
-                console.log("InstructionsPage: A key pressed");
-                handleGameSelect('/play/pre-game?next=/play/azar');
-            } else if (key === 'B') {
-                console.log("InstructionsPage: B key pressed");
-                handleGameSelect('/play/pre-game?next=/play/suerte');
-            }
+        const handleKeyDown = (e: KeyboardEvent) => {
+            handleInput(e.key);
         };
 
         window.addEventListener('keydown', handleKeyDown);
 
+        const machineId = localStorage.getItem('MACHINE_ID');
+        let channel: any;
+
+        if (machineId) {
+            // Report state to joystick
+            sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'MENU' });
+
+            // Note: Input is now handled by Layout's JoystickListener which dispatches window keyboard events
+        }
+
         return () => {
             clearTimeout(timeout);
+            window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [router, paymentsEnabled]); // Add paymentsEnabled dependency
@@ -141,4 +149,3 @@ export default function InstructionsPage() {
         </div>
     );
 }
-

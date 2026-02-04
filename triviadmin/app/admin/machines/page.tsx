@@ -13,7 +13,8 @@ import {
     AlertTriangle,
     Edit3,
     X,
-    Smartphone
+    Smartphone,
+    Gamepad2
 } from 'lucide-react';
 
 export default function MachinesAdminPage() {
@@ -29,7 +30,9 @@ export default function MachinesAdminPage() {
         name: '',
         location: '',
         short_id: '',
+        short_id: '',
         qr_enabled: true,
+        joystick_enabled: true,
         tokenPrice: 1000
     });
 
@@ -50,7 +53,7 @@ export default function MachinesAdminPage() {
 
     const openCreateModal = () => {
         setEditingMachineId(null);
-        setFormData({ name: '', location: '', short_id: generateCode(), qr_enabled: true, tokenPrice: 1000 });
+        setFormData({ name: '', location: '', short_id: generateCode(), qr_enabled: true, joystick_enabled: true, tokenPrice: 1000 });
         setIsModalOpen(true);
     };
 
@@ -60,7 +63,9 @@ export default function MachinesAdminPage() {
             name: machine.name,
             location: machine.location || '',
             short_id: machine.short_id || '',
+            short_id: machine.short_id || '',
             qr_enabled: machine.qr_enabled !== false,
+            joystick_enabled: machine.joystick_enabled !== false,
             tokenPrice: machine.tokenPrice || 1000
         });
         setIsModalOpen(true);
@@ -76,7 +81,9 @@ export default function MachinesAdminPage() {
                 name: formData.name,
                 location: formData.location || undefined,
                 short_id: formData.short_id || undefined,
+                short_id: formData.short_id || undefined,
                 qr_enabled: formData.qr_enabled,
+                joystick_enabled: formData.joystick_enabled,
                 tokenPrice: formData.tokenPrice
             });
         } else {
@@ -85,7 +92,9 @@ export default function MachinesAdminPage() {
                 name: formData.name,
                 location: formData.location || 'Sin ubicación',
                 isOperational: true,
+                isOperational: true,
                 qr_enabled: formData.qr_enabled,
+                joystick_enabled: formData.joystick_enabled,
                 tokenPrice: formData.tokenPrice,
                 lastSeenAt: new Date(),
                 short_id: formData.short_id || generateCode()
@@ -112,6 +121,11 @@ export default function MachinesAdminPage() {
 
     const toggleQr = async (machine: Machine) => {
         await updateMachineAction(machine.id, { qr_enabled: !machine.qr_enabled });
+        loadMachines();
+    };
+
+    const toggleJoystick = async (machine: Machine) => {
+        await updateMachineAction(machine.id, { joystick_enabled: !machine.joystick_enabled });
         loadMachines();
     };
 
@@ -207,6 +221,20 @@ export default function MachinesAdminPage() {
                                             className={`relative w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${m.qr_enabled !== false ? 'bg-amber-500' : 'bg-slate-200'}`}
                                         >
                                             <div className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-300 ${m.qr_enabled !== false ? 'translate-x-6' : 'translate-x-0'}`} />
+                                        </button>
+                                    </div>
+
+                                    {/* Action Row - Toggle Joystick */}
+                                    <div className="flex items-center justify-between p-4 rounded-2xl border border-dashed border-slate-200 bg-white group-hover:bg-slate-50/30 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <Gamepad2 className={`w-4 h-4 ${m.joystick_enabled !== false ? 'text-blue-500' : 'text-slate-400'}`} />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">JOYSTICK QR</span>
+                                        </div>
+                                        <button
+                                            onClick={() => toggleJoystick(m)}
+                                            className={`relative w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${m.joystick_enabled !== false ? 'bg-blue-500' : 'bg-slate-200'}`}
+                                        >
+                                            <div className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-300 ${m.joystick_enabled !== false ? 'translate-x-6' : 'translate-x-0'}`} />
                                         </button>
                                     </div>
                                 </div>
@@ -328,6 +356,20 @@ export default function MachinesAdminPage() {
                                     className={`relative w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-300 ${formData.qr_enabled ? 'bg-amber-500' : 'bg-slate-300'}`}
                                 >
                                     <div className={`bg-white w-5 h-5 rounded-full shadow-sm transform transition-transform duration-300 ${formData.qr_enabled ? 'translate-x-7' : 'translate-x-0'}`} />
+                                </button>
+                            </div>
+
+                            <div className="flex items-center justify-between p-6 bg-slate-50/80 rounded-[1.8rem] border border-slate-100">
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">HABILITAR JOYSTICK</p>
+                                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.1em]">Permite controlar juegos con el celular</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, joystick_enabled: !formData.joystick_enabled })}
+                                    className={`relative w-14 h-7 flex items-center rounded-full p-1 transition-colors duration-300 ${formData.joystick_enabled ? 'bg-blue-500' : 'bg-slate-300'}`}
+                                >
+                                    <div className={`bg-white w-5 h-5 rounded-full shadow-sm transform transition-transform duration-300 ${formData.joystick_enabled ? 'translate-x-7' : 'translate-x-0'}`} />
                                 </button>
                             </div>
 

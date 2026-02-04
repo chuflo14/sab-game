@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { updateMachineHeartbeat } from '@/lib/actions';
 import { AdMedia, ChangoConfig } from '@/lib/types';
+import QRCode from 'react-qr-code';
+import { subscribeToJoystick, sendJoystickEvent } from '@/lib/realtime';
 
 interface KioskLoopProps {
     ads: AdMedia[];
@@ -35,6 +37,7 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
     const [isDebug, setIsDebug] = useState(false);
     const [currentMachineId, setCurrentMachineId] = useState<string | null>(null);
     const [isOperational, setIsOperational] = useState<boolean>(true);
+    const [isJoystickEnabled, setIsJoystickEnabled] = useState<boolean>(true);
 
     // Sort and Filter ads (Moved after state declaration to use currentMachineId)
     const sortedAds = useMemo(() => {
@@ -108,6 +111,20 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
         return () => clearInterval(timer);
     }, []);
 
+    // Navigation handler
+    const handleStart = useCallback(() => {
+        console.log("KioskLoop: handleStart called. Cooldown:", cooldownTimeLeft);
+        if (cooldownTimeLeft > 0) {
+            console.log("KioskLoop: Blocked by cooldown.");
+            return;
+        }
+        console.log("KioskLoop: Navigating...");
+
+
+        console.log("KioskLoop: Navigating to /play (Menu)");
+        router.push('/play');
+    }, [cooldownTimeLeft, router]);
+
     // Machine Heartbeat logic
     useEffect(() => {
         if (!currentMachineId) return;
@@ -120,6 +137,7 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                 const m = await getMachineById(currentMachineId);
                 if (m) {
                     setIsOperational(m.isOperational !== false);
+                    setIsJoystickEnabled(m.joystick_enabled !== false);
                 }
             } catch (err) {
                 console.warn('Heartbeat/Status check failed:', err);
@@ -135,20 +153,16 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
         return () => clearInterval(heartbeatTimer);
     }, [currentMachineId]);
 
+    // Joystick Realtime Logic - Report State Only
+    useEffect(() => {
+        if (!currentMachineId || !isJoystickEnabled) return;
 
-    // Navigation handler
-    const handleStart = useCallback(() => {
-        console.log("KioskLoop: handleStart called. Cooldown:", cooldownTimeLeft);
-        if (cooldownTimeLeft > 0) {
-            console.log("KioskLoop: Blocked by cooldown.");
-            return;
-        }
-        console.log("KioskLoop: Navigating...");
+        console.log("KioskLoop: Javascript reporting state READY");
+        // Report state to joystick
+        sendJoystickEvent(currentMachineId, { type: 'STATE_CHANGE', state: 'READY' });
 
-
-        console.log("KioskLoop: Navigating to /play (Menu)");
-        router.push('/play');
-    }, [cooldownTimeLeft, router]);
+        // Note: Input handling is now global via JoystickListener dispatching keyboard events
+    }, [currentMachineId, isJoystickEnabled]);
 
     // Keyboard listener
     useEffect(() => {
@@ -387,9 +401,24 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                         </div>
                     </div>
                 ) : (
-                    <span className="inline-block px-8 py-4 md:px-14 md:py-6 bg-yellow-500 text-black font-black text-2xl md:text-5xl uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-full animate-bounce shadow-lg shadow-yellow-500/40 transform group-hover:scale-105 transition-all">
-                        Tocar para Jugar
-                    </span>
+                    <div className="flex flex-col items-center gap-4">
+                        <span className="inline-block px-8 py-4 md:px-14 md:py-6 bg-yellow-500 text-black font-black text-2xl md:text-5xl uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-full animate-bounce shadow-lg shadow-yellow-500/40 transform group-hover:scale-105 transition-all">
+                            Tocar para Jugar
+                        </span>
+
+                        {/* Joystick QR Code */}
+                        {currentMachineId && isJoystickEnabled && (
+                            <div className="pointer-events-auto bg-white p-2 rounded-xl shadow-2xl flex flex-col items-center gap-1 group/qr transition-transform hover:scale-110">
+                                <QRCode
+                                    value={`${window.location.origin}/joystick/${currentMachineId}`}
+                                    size={80}
+                                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                                    viewBox={`0 0 256 256`}
+                                />
+                                <span className="text-[8px] font-bold text-black uppercase tracking-tight">Joystick QR</span>
+                            </div>
+                        )}
+                    </div>
                 )}
             </div>
 

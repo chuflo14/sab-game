@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Smartphone, ChevronRight, Loader2 } from 'lucide-react';
 import ReactQRCode from 'react-qr-code';
 import { fetchChangoConfig } from '@/lib/actions';
+import { sendJoystickEvent } from '@/lib/realtime';
 
 
 
@@ -64,6 +65,11 @@ function PaymentContent() {
                     setExternalRef(data.external_reference);
                     if (data.amount) setAmount(data.amount);
                     setStatus('scanning');
+
+                    // Report state to joystick
+                    if (mId) {
+                        sendJoystickEvent(mId, { type: 'STATE_CHANGE', state: 'PAYING' });
+                    }
                 } else {
                     console.error('DEBUG: Payment creation failed data:', data);
                     const errorMsg = data.error || 'Error al generar el pago.';
