@@ -495,3 +495,12 @@ export async function resetMachineCounterAction(machineId: string) {
     await dal.updateMachine(machineId, { games_counter: 0 });
     revalidatePath('/admin/machines');
 }
+
+export async function updateMachineHeartbeat(machineId: string) {
+    try {
+        await dal.updateMachine(machineId, { lastSeenAt: new Date() });
+        // Optional: you could revalidate admin/machines but it's better to let it poll or refresh manually
+    } catch (err) {
+        console.error('Failed to update machine heartbeat:', err);
+    }
+}

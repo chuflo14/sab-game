@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Maximize2, Minimize2 } from 'lucide-react';
+import { updateMachineHeartbeat } from '@/lib/actions';
 import { AdMedia, ChangoConfig } from '@/lib/types';
 
 interface KioskLoopProps {
@@ -105,6 +106,25 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
         const timer = setInterval(checkCooldown, 1000);
         return () => clearInterval(timer);
     }, []);
+
+    // Machine Heartbeat logic
+    useEffect(() => {
+        if (!currentMachineId) return;
+
+        const sendHeartbeat = async () => {
+            console.log("KioskLoop: Sending heartbeat for machine:", currentMachineId);
+            await updateMachineHeartbeat(currentMachineId);
+        };
+
+        // Send initial heartbeat
+        sendHeartbeat();
+
+        // Send heartbeat every 30 seconds
+        const heartbeatTimer = setInterval(sendHeartbeat, 30000);
+
+        return () => clearInterval(heartbeatTimer);
+    }, [currentMachineId]);
+
 
     // Navigation handler
     const handleStart = useCallback(() => {
@@ -236,16 +256,32 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                     </div>
                 </>
             ) : (
-                <video
-                    key={currentAd.id}
-                    src={mediaSrc}
-                    crossOrigin="anonymous"
-                    className="w-full h-full object-cover animate-in fade-in duration-1000 pointer-events-none"
-                    autoPlay
-                    // muted removed to allow audio
-                    loop
-                    playsInline
-                />
+                <>
+                    <video
+                        key={currentAd.id}
+                        src={mediaSrc}
+                        crossOrigin="anonymous"
+                        className="w-full h-full object-cover animate-in fade-in duration-1000 pointer-events-none"
+                        autoPlay
+                        // muted removed to allow audio
+                        loop
+                        playsInline
+                        onError={(e) => {
+                            console.error("Error loading ad video:", mediaSrc);
+                            const video = e.currentTarget;
+                            video.style.display = 'none';
+                            const errorDiv = document.getElementById(`error-${currentAd.id}`);
+                            if (errorDiv) errorDiv.style.display = 'flex';
+                        }}
+                    />
+                    <div
+                        id={`error-${currentAd.id}`}
+                        className="absolute inset-0 hidden flex-col items-center justify-center bg-zinc-900 text-red-500"
+                    >
+                        <p className="font-bold uppercase tracking-widest mb-2">Error cargando video</p>
+                        <p className="text-xs font-mono bg-black/50 p-2 rounded max-w-lg break-all">{currentAd.url}</p>
+                    </div>
+                </>
             )}
 
             {/* Fullscreen Toggle Button */}

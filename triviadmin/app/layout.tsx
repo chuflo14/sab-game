@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from 'sonner';
+import { ConnectivityProvider } from '@/components/ConnectivityProvider';
+import OfflineOverlay from '@/components/OfflineOverlay';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,7 +31,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen w-full bg-black text-white overflow-x-hidden flex flex-col font-sans`}
       >
         <main className="w-full h-full flex-1 flex flex-col">
-          {children}
+          <ConnectivityProvider>
+            {children}
+            <OfflineOverlay />
+          </ConnectivityProvider>
         </main>
         <Toaster position="top-center" richColors />
       </body>

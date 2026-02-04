@@ -13,7 +13,9 @@ import {
     AlertTriangle,
     Edit3,
     X,
-    RotateCcw
+    RotateCcw,
+    Wifi,
+    WifiOff
 } from 'lucide-react';
 
 export default function MachinesAdminPage() {
@@ -135,98 +137,111 @@ export default function MachinesAdminPage() {
                         No hay máquinas registradas
                     </div>
                 ) : (
-                    machines.map((m) => (
-                        <div key={m.id} className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 group relative">
-                            {/* Operational Status Dot */}
-                            <div className={`absolute top-8 right-8 w-3 h-3 rounded-full ${m.isOperational ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse'}`} />
+                    machines.map((m) => {
+                        const isOnline = m.lastSeenAt && (Date.now() - new Date(m.lastSeenAt).getTime() < 120000); // 2 minutes threshold
 
-                            <div className="p-10 space-y-8">
-                                <div className="space-y-4">
-                                    <div className={`w-16 h-16 rounded-3xl flex items-center justify-center border transition-colors ${m.isOperational ? 'bg-green-500/10 border-green-500/20 text-green-600' : 'bg-red-500/10 border-red-500/20 text-red-600'}`}>
-                                        <Cpu className="w-8 h-8" />
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">{m.name}</h4>
+                        return (
+                            <div key={m.id} className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 group relative">
+                                {/* Operational Status Dot */}
+                                <div className={`absolute top-8 right-8 w-3 h-3 rounded-full ${isOnline ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse'}`} />
 
+                                <div className="p-10 space-y-8">
+                                    <div className="space-y-4">
+                                        <div className={`w-16 h-16 rounded-3xl flex items-center justify-center border transition-colors ${m.isOperational ? 'bg-green-500/10 border-green-500/20 text-green-600' : 'bg-red-500/10 border-red-500/20 text-red-600'}`}>
+                                            <Cpu className="w-8 h-8" />
                                         </div>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">ID: {m.short_id || m.id.substring(0, 6) + '...'}</span>
-                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">{m.name}</h4>
 
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <span className={`text-[10px] font-black uppercase tracking-widest ${m.isOperational ? 'text-green-600' : 'text-red-500'}`}>
-                                                {m.isOperational ? 'OPERATIVA' : 'FUERA DE SERVICIO'}
-                                            </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">ID: {m.short_id || m.id.substring(0, 6) + '...'}</span>
+                                            </div>
+
+                                            <div className="flex flex-col gap-1 mt-2">
+                                                <div className="flex items-center gap-1.5">
+                                                    {isOnline ? <Wifi className="w-3 h-3 text-green-500" /> : <WifiOff className="w-3 h-3 text-red-500" />}
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest ${isOnline ? 'text-green-600' : 'text-red-500'}`}>
+                                                        {isOnline ? 'ONLINE' : 'OFFLINE'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${m.isOperational ? 'bg-green-500' : 'bg-red-500'}`} />
+                                                    <span className={`text-[9px] font-bold uppercase tracking-widest ${m.isOperational ? 'text-slate-600' : 'text-slate-400'}`}>
+                                                        {m.isOperational ? 'SERVICIO ACTIVO' : 'FUERA DE SERVICIO'}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-100 group-hover:bg-white transition-colors">
-                                    <div className="flex items-center gap-3">
-                                        <MapPin className="text-slate-400 w-4 h-4" />
-                                        <p className="text-xs font-bold text-slate-600 uppercase tracking-wide">{m.location || 'SIN UBICACIÓN'}</p>
-                                    </div>
-                                    <div className="flex items-center justify-between">
+                                    <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border border-slate-100 group-hover:bg-white transition-colors">
                                         <div className="flex items-center gap-3">
-                                            <Activity className="text-slate-400 w-4 h-4" />
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                                S. Actual: <span className="text-indigo-600 text-sm">{m.games_counter || 0}</span>
+                                            <MapPin className="text-slate-400 w-4 h-4" />
+                                            <p className="text-xs font-bold text-slate-600 uppercase tracking-wide">{m.location || 'SIN UBICACIÓN'}</p>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <Activity className="text-slate-400 w-4 h-4" />
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                    S. Actual: <span className="text-indigo-600 text-sm">{m.games_counter || 0}</span>
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={async () => {
+                                                    if (confirm('¿Reiniciar contador de partidas para esta máquina?')) {
+                                                        const { resetMachineCounterAction } = await import('@/lib/actions');
+                                                        await resetMachineCounterAction(m.id);
+                                                        loadMachines();
+                                                    }
+                                                }}
+                                                className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 transition-colors"
+                                                title="Reiniciar Contador"
+                                            >
+                                                <RotateCcw className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest ml-7">
+                                                Ping: {m.lastSeenAt ? new Date(m.lastSeenAt).toLocaleTimeString() : 'NUNCA'}
                                             </p>
                                         </div>
+                                    </div>
+
+                                    <div className="flex gap-3 pt-4 border-t border-slate-100">
                                         <button
-                                            onClick={async () => {
-                                                if (confirm('¿Reiniciar contador de partidas para esta máquina?')) {
-                                                    const { resetMachineCounterAction } = await import('@/lib/actions');
-                                                    await resetMachineCounterAction(m.id);
-                                                    loadMachines();
-                                                }
-                                            }}
-                                            className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 transition-colors"
-                                            title="Reiniciar Contador"
+                                            onClick={() => openEditModal(m)}
+                                            className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-black/10 flex items-center justify-center gap-2"
                                         >
-                                            <RotateCcw className="w-3.5 h-3.5" />
+                                            <Edit3 className="w-3.5 h-3.5" />
+                                            Editar
+                                        </button>
+                                        <button
+                                            onClick={() => toggleStatus(m)}
+                                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${m.isOperational ? 'bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white' : 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20'}`}
+                                        >
+                                            <Power className="w-3.5 h-3.5" />
+                                            {m.isOperational ? 'Apagar' : 'Encender'}
+                                        </button>
+                                        <button
+                                            onClick={() => setShowDeleteConfirm(m.id)}
+                                            className="p-3 bg-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all border border-slate-200/50"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest ml-7">
-                                            Ping: {m.lastSeenAt ? new Date(m.lastSeenAt).toLocaleTimeString() : 'NUNCA'}
-                                        </p>
-                                    </div>
-                                </div>
 
-                                <div className="flex gap-3 pt-4 border-t border-slate-100">
-                                    <button
-                                        onClick={() => openEditModal(m)}
-                                        className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-black/10 flex items-center justify-center gap-2"
-                                    >
-                                        <Edit3 className="w-3.5 h-3.5" />
-                                        Editar
-                                    </button>
-                                    <button
-                                        onClick={() => toggleStatus(m)}
-                                        className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${m.isOperational ? 'bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white' : 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20'}`}
-                                    >
-                                        <Power className="w-3.5 h-3.5" />
-                                        {m.isOperational ? 'Apagar' : 'Encender'}
-                                    </button>
-                                    <button
-                                        onClick={() => setShowDeleteConfirm(m.id)}
-                                        className="p-3 bg-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all border border-slate-200/50"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    {!m.isOperational && (
+                                        <div className="flex items-center gap-3 p-3 bg-red-50 rounded-2xl border border-red-100">
+                                            <AlertTriangle className="text-red-500 w-4 h-4" />
+                                            <p className="text-[9px] font-black text-red-600 uppercase tracking-widest leading-tight">Acción requerida: La unidad no responde</p>
+                                        </div>
+                                    )}
                                 </div>
-
-                                {!m.isOperational && (
-                                    <div className="flex items-center gap-3 p-3 bg-red-50 rounded-2xl border border-red-100">
-                                        <AlertTriangle className="text-red-500 w-4 h-4" />
-                                        <p className="text-[9px] font-black text-red-600 uppercase tracking-widest leading-tight">Acción requerida: La unidad no responde</p>
-                                    </div>
-                                )}
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
 
