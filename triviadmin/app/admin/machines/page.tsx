@@ -30,7 +30,6 @@ export default function MachinesAdminPage() {
         name: '',
         location: '',
         short_id: '',
-        short_id: '',
         qr_enabled: true,
         joystick_enabled: true,
         tokenPrice: 1000
@@ -63,7 +62,6 @@ export default function MachinesAdminPage() {
             name: machine.name,
             location: machine.location || '',
             short_id: machine.short_id || '',
-            short_id: machine.short_id || '',
             qr_enabled: machine.qr_enabled !== false,
             joystick_enabled: machine.joystick_enabled !== false,
             tokenPrice: machine.tokenPrice || 1000
@@ -81,7 +79,6 @@ export default function MachinesAdminPage() {
                 name: formData.name,
                 location: formData.location || undefined,
                 short_id: formData.short_id || undefined,
-                short_id: formData.short_id || undefined,
                 qr_enabled: formData.qr_enabled,
                 joystick_enabled: formData.joystick_enabled,
                 tokenPrice: formData.tokenPrice
@@ -91,7 +88,6 @@ export default function MachinesAdminPage() {
                 id: crypto.randomUUID(),
                 name: formData.name,
                 location: formData.location || 'Sin ubicación',
-                isOperational: true,
                 isOperational: true,
                 qr_enabled: formData.qr_enabled,
                 joystick_enabled: formData.joystick_enabled,
