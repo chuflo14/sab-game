@@ -3,19 +3,33 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { sendJoystickEvent, subscribeToJoystick, JoystickEvent } from '@/lib/realtime';
+import { fetchMachineDetails } from '@/lib/actions';
 
 export default function JoystickPage() {
     const params = useParams();
     const machineId = params.machine_id;
     const mid = Array.isArray(machineId) ? machineId[0] : machineId;
 
-    const [status, setStatus] = useState<'READY' | 'PAYING' | 'PLAYING' | 'WAITING'>('WAITING');
+    const [status, setStatus] = useState<'READY' | 'PAYING' | 'PLAYING' | 'WAITING' | 'GAME_OVER'>('WAITING');
     const [gameType, setGameType] = useState<'TRIVIA' | 'RULETA' | 'CHANGO' | 'MENU'>('MENU');
     const [isConnected, setIsConnected] = useState(false);
+    const [machineName, setMachineName] = useState<string>('');
+    const [machineShortId, setMachineShortId] = useState<string>('');
 
     useEffect(() => {
-        console.log("JoystickPage: Mounted. Params:", params);
-        console.log("JoystickPage: Resolved ID:", mid);
+        if (mid) {
+            fetchMachineDetails(mid).then(details => {
+                if (details) {
+                    setMachineName(details.name);
+                    setMachineShortId(details.short_id || '');
+                }
+            });
+        }
+    }, [mid]);
+
+    useEffect(() => {
+        // console.log("JoystickPage: Mounted. Params:", params);
+        // console.log("JoystickPage: Resolved ID:", mid);
 
         if (!mid) {
             console.error("JoystickPage: No machineID found in params");
@@ -30,6 +44,12 @@ export default function JoystickPage() {
                 if (payload.game) {
                     setGameType(payload.game);
                 }
+            } else if (payload.type === 'GAME_OVER') {
+                setStatus('GAME_OVER');
+                setTimeout(() => {
+                    setIsConnected(false); // Disconnect logic visual only for now, forces user to leave or refresh
+                    setStatus('WAITING'); // Or keep as GAME_OVER for a "Thank you" screen
+                }, 2000);
             }
         });
 
@@ -42,7 +62,7 @@ export default function JoystickPage() {
     }, [mid]);
 
     const handlePress = useCallback(async (key: string) => {
-        if (!mid) return;
+        if (!mid || status === 'GAME_OVER') return;
 
         // Haptic feedback
         if (navigator.vibrate) {
@@ -51,7 +71,7 @@ export default function JoystickPage() {
 
         console.log("JoystickPage: Sending Keydown:", key);
         await sendJoystickEvent(mid, { type: 'KEYDOWN', key });
-    }, [mid]);
+    }, [mid, status]);
 
     const handleStart = useCallback(async () => {
         if (!mid) return;
@@ -73,11 +93,33 @@ export default function JoystickPage() {
 
     if (!isConnected) {
         return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white text-center">
-                <p className="animate-pulse mb-2">Conectando con la máquina...</p>
-                <p className="text-xs text-gray-600 font-mono">ID: {mid}</p>
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white text-center p-8 space-y-6">
+                {status === 'GAME_OVER' ? (
+                    <>
+                        <h1 className="text-3xl font-black text-yellow-500 uppercase tracking-widest">¡Juego Terminado!</h1>
+                        <p className="text-gray-400">Gracias por jugar. La conexión ha finalizado.</p>
+                        <p className="text-xs text-slate-600 uppercase tracking-wider mt-12">Escanea el QR nuevamente para jugar</p>
+                    </>
+                ) : (
+                    <>
+                        <div className="w-12 h-12 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin"></div>
+                        <p className="animate-pulse">Sincronizando con terminal...</p>
+                        <p className="text-xs text-gray-600 font-mono">ID: {mid.slice(0, 8)}...</p>
+                    </>
+                )}
             </div>
         );
+    }
+
+    if (status === 'GAME_OVER') {
+        return (
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white p-4 text-center animate-in fade-in duration-700">
+                <div className="text-6xl mb-4">👋</div>
+                <h1 className="text-3xl font-black text-white uppercase tracking-widest mb-2">¡Partida Finalizada!</h1>
+                <p className="text-gray-400">Gracias por participar.</p>
+                <div className="mt-8 text-xs text-slate-700 uppercase tracking-[0.2em] font-bold">Desconectando joystick...</div>
+            </div>
+        )
     }
 
     const renderControls = () => {
@@ -168,12 +210,18 @@ export default function JoystickPage() {
     return (
         <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-between p-8 font-sans overflow-hidden">
             {/* Header */}
-            <div className="w-full flex justify-between items-center text-xs opacity-50 font-black uppercase tracking-widest">
+            <div className="w-full flex justify-between items-center text-xs font-black uppercase tracking-widest border-b border-white/5 pb-4 mb-4">
                 <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    Conectado: {mid}
+                    <div className="flex flex-col">
+                        <span className="text-slate-400 text-[10px]">Conectado a</span>
+                        <span className="text-white text-sm">{machineName || 'Terminal'}</span>
+                    </div>
                 </div>
-                <div>SAB GAME</div>
+                <div className="flex flex-col items-end">
+                    <span className="text-slate-500 text-[10px]">ID TERMINAL</span>
+                    <span className="text-cyan-400">{machineShortId || '...'}</span>
+                </div>
             </div>
 
             {/* Main Interface Content */}

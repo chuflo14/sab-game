@@ -45,12 +45,18 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
     const handleGameOver = useCallback(async () => {
         if (!config) return; // Wait for config to load
         setGameState('lost');
+
+        const mid = localStorage.getItem('MACHINE_ID');
+        if (mid) {
+            sendJoystickEvent(mid, { type: 'GAME_OVER' });
+        }
+
         await logGameEvent({
             gameType: 'trivia',
             startedAt: gameStartTime.current,
             finishedAt: new Date(),
             result: 'LOSE',
-            machineId: localStorage.getItem('MACHINE_ID') || undefined
+            machineId: mid || undefined
         });
         const cooldownSec = config?.gameCooldownSeconds || 0;
         if (cooldownSec > 0) {
@@ -77,6 +83,12 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
                         ticketId: ticket.id,
                         machineId: localStorage.getItem('MACHINE_ID') || undefined
                     });
+
+                    const mid = localStorage.getItem('MACHINE_ID');
+                    if (mid) {
+                        sendJoystickEvent(mid, { type: 'GAME_OVER' });
+                    }
+
                     return ticket;
                 }
                 return null;

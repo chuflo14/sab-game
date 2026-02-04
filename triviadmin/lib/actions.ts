@@ -261,6 +261,15 @@ export async function getMachineByShortIdAction(code: string) {
     console.log('getMachineByShortIdAction result:', m);
     return m;
 }
+
+export async function fetchMachineDetails(id: string) {
+    const machine = await dal.getMachineById(id);
+    if (!machine) return null;
+    return {
+        name: machine.name,
+        short_id: machine.short_id
+    };
+}
 export async function createMachine(data: Machine) {
     const newM = await dal.addMachine(data);
     revalidatePath('/admin/machines');

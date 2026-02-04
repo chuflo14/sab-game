@@ -73,7 +73,25 @@ function PreGameContent() {
         return () => clearInterval(timer);
     }, [timeLeft, selectedAd, handleFinish]);
 
-    if (loading) return <div className="h-screen bg-black" />;
+    const [mediaLoaded, setMediaLoaded] = useState(false);
+
+    useEffect(() => {
+        if (!loading && (!selectedAd || selectedAd.type === 'video')) {
+            // Videos trigger onLoadedData, images triggers onLoad
+            // But if no ad found, logic handles finish.
+        }
+    }, [loading, selectedAd]);
+
+
+    if (loading) {
+        return (
+            <div className="h-screen w-screen bg-black flex flex-col items-center justify-center space-y-6">
+                <div className="w-16 h-16 border-4 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin" />
+                <p className="text-yellow-500/50 text-xs font-black uppercase tracking-[0.3em] animate-pulse">Cargando contenido...</p>
+            </div>
+        );
+    }
+
     if (!selectedAd) return null; // Redirecting...
 
     const mediaSrc = getMediaUrl(selectedAd.url);
@@ -81,22 +99,30 @@ function PreGameContent() {
     return (
         <div className="h-screen w-screen bg-black flex items-center justify-center overflow-hidden relative">
             {selectedAd.type === 'video' ? (
-
                 <video
                     ref={videoRef}
                     src={mediaSrc}
-                    className="w-full h-full object-cover animate-in fade-in zoom-in duration-500"
+                    className={`w-full h-full object-cover duration-500 ${mediaLoaded ? 'opacity-100 animate-in fade-in zoom-in' : 'opacity-0'}`}
                     autoPlay
                     onEnded={handleFinish}
+                    onLoadedData={() => setMediaLoaded(true)}
                 />
             ) : (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                     src={mediaSrc}
-                    className="w-full h-full object-cover animate-in fade-in zoom-in duration-500"
+                    className={`w-full h-full object-cover duration-500 ${mediaLoaded ? 'opacity-100 animate-in fade-in zoom-in' : 'opacity-0'}`}
                     alt="Publicidad"
+                    onLoad={() => setMediaLoaded(true)}
                     onError={handleFinish} // Skip on error
                 />
+            )}
+
+            {!mediaLoaded && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-6 z-40 bg-black">
+                    <div className="w-16 h-16 border-4 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin" />
+                    <p className="text-yellow-500/50 text-xs font-black uppercase tracking-[0.3em] animate-pulse">Cargando...</p>
+                </div>
             )}
 
             {/* Progress / Skip controls */}

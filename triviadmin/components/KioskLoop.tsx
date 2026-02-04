@@ -402,21 +402,26 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                     </div>
                 ) : (
                     <div className="flex flex-col items-center gap-4">
-                        <span className="inline-block px-8 py-4 md:px-14 md:py-6 bg-yellow-500 text-black font-black text-2xl md:text-5xl uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-full animate-bounce shadow-lg shadow-yellow-500/40 transform group-hover:scale-105 transition-all">
-                            Tocar para Jugar
-                        </span>
+                        {currentMachineId && isJoystickEnabled ? (
+                            <>
+                                <span className="inline-block px-8 py-4 md:px-14 md:py-6 bg-blue-600 text-white font-black text-2xl md:text-5xl uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-full animate-bounce shadow-lg shadow-blue-600/40 transform group-hover:scale-105 transition-all">
+                                    Escanear QR para Jugar
+                                </span>
 
-                        {/* Joystick QR Code */}
-                        {currentMachineId && isJoystickEnabled && (
-                            <div className="pointer-events-auto bg-white p-2 rounded-xl shadow-2xl flex flex-col items-center gap-1 group/qr transition-transform hover:scale-110">
-                                <QRCode
-                                    value={`${window.location.origin}/joystick/${currentMachineId}`}
-                                    size={80}
-                                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                                    viewBox={`0 0 256 256`}
-                                />
-                                <span className="text-[8px] font-bold text-black uppercase tracking-tight">Joystick QR</span>
-                            </div>
+                                <div className="pointer-events-auto bg-white p-4 rounded-xl shadow-2xl flex flex-col items-center gap-2 group/qr transition-transform hover:scale-105 mt-4">
+                                    <QRCode
+                                        value={`${window.location.origin}/joystick/${currentMachineId}`}
+                                        size={180}
+                                        style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                                        viewBox={`0 0 256 256`}
+                                    />
+                                    <span className="text-sm font-bold text-black uppercase tracking-tight">Joystick QR</span>
+                                </div>
+                            </>
+                        ) : (
+                            <span className="inline-block px-8 py-4 md:px-14 md:py-6 bg-yellow-500 text-black font-black text-2xl md:text-5xl uppercase tracking-[0.1em] md:tracking-[0.2em] rounded-full animate-bounce shadow-lg shadow-yellow-500/40 transform group-hover:scale-105 transition-all">
+                                Tocar para Jugar
+                            </span>
                         )}
                     </div>
                 )}

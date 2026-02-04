@@ -188,13 +188,19 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
         if (isWin) {
             const generateTicketPromise = (async () => {
                 const ticket = await generateWinningTicket(result.prizeId!, 'ruleta');
+
+                const mid = localStorage.getItem('MACHINE_ID');
+                if (mid) {
+                    sendJoystickEvent(mid, { type: 'GAME_OVER' });
+                }
+
                 await logGameEvent({
                     gameType: 'ruleta',
                     startedAt: gameStartTime.current,
                     finishedAt: new Date(),
                     result: 'WIN',
                     ticketId: ticket.id,
-                    machineId: localStorage.getItem('MACHINE_ID') || undefined
+                    machineId: mid || undefined
                 });
                 return ticket;
             })();
@@ -204,12 +210,17 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
                 router.push(`/result?ticketId=${ticket.id}`);
             }, (config?.resultDurationSeconds || 1.5) * 1000);
         } else {
+            const mid = localStorage.getItem('MACHINE_ID');
+            if (mid) {
+                sendJoystickEvent(mid, { type: 'GAME_OVER' });
+            }
+
             await logGameEvent({
                 gameType: 'ruleta',
                 startedAt: gameStartTime.current,
                 finishedAt: new Date(),
                 result: 'LOSE',
-                machineId: localStorage.getItem('MACHINE_ID') || undefined
+                machineId: mid || undefined
             });
             setTimeout(() => {
                 router.push('/');

@@ -63,12 +63,18 @@ export default function LuckGame() {
             if (cooldown > 0) {
                 localStorage.setItem('game_cooldown_until', (Date.now() + cooldown * 1000).toString());
             }
+
+            const mid = localStorage.getItem('MACHINE_ID');
+            if (mid) {
+                sendJoystickEvent(mid, { type: 'GAME_OVER' });
+            }
+
             logGameEvent({
                 gameType: 'chango',
                 startedAt: gameStartTime.current,
                 finishedAt: new Date(),
                 result: 'LOSE',
-                machineId: localStorage.getItem('MACHINE_ID') || undefined
+                machineId: mid || undefined
             });
             setTimeout(() => router.push('/'), (config?.resultDurationSeconds || 1.5) * 1000);
             return;
@@ -109,6 +115,12 @@ export default function LuckGame() {
                 const prize = prizes[Math.floor(Math.random() * prizes.length)];
                 try {
                     const ticket = await generateWinningTicket(prize.id, 'chango');
+
+                    const mid = localStorage.getItem('MACHINE_ID');
+                    if (mid) {
+                        sendJoystickEvent(mid, { type: 'GAME_OVER' });
+                    }
+
                     // Log the event
                     await logGameEvent({
                         gameType: 'chango',
@@ -116,7 +128,7 @@ export default function LuckGame() {
                         finishedAt: new Date(),
                         result: 'WIN',
                         ticketId: ticket.id,
-                        machineId: localStorage.getItem('MACHINE_ID') || undefined
+                        machineId: mid || undefined
                     });
                     return ticket;
                 } catch (e) {
