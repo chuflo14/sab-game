@@ -4,8 +4,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 // Initialize Mercado Pago
 const client = new MercadoPagoConfig({
-    // TEMPORARY FIX: Hardcoding token because Vercel Env Var is stuck on TEST
-    accessToken: 'APP_USR-4952804291016557-013110-1256f9a32dedbfed3a290fbc6713704b-24029138',
+    accessToken: process.env.MP_ACCESS_TOKEN || '',
     options: { timeout: 5000 }
 });
 
