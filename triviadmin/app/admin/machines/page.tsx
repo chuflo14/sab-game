@@ -15,7 +15,8 @@ import {
     X,
     RotateCcw,
     Wifi,
-    WifiOff
+    WifiOff,
+    Smartphone
 } from 'lucide-react';
 
 export default function MachinesAdminPage() {
@@ -30,7 +31,8 @@ export default function MachinesAdminPage() {
     const [formData, setFormData] = useState({
         name: '',
         location: '',
-        short_id: ''
+        short_id: '',
+        qr_enabled: true
     });
 
     useEffect(() => {
@@ -51,7 +53,7 @@ export default function MachinesAdminPage() {
 
     const openCreateModal = () => {
         setEditingMachineId(null);
-        setFormData({ name: '', location: '', short_id: generateCode() });
+        setFormData({ name: '', location: '', short_id: generateCode(), qr_enabled: true });
         setIsModalOpen(true);
     };
 
@@ -60,7 +62,8 @@ export default function MachinesAdminPage() {
         setFormData({
             name: machine.name,
             location: machine.location || '',
-            short_id: machine.short_id || ''
+            short_id: machine.short_id || '',
+            qr_enabled: machine.qr_enabled !== false
         });
         setIsModalOpen(true);
     };
@@ -74,7 +77,8 @@ export default function MachinesAdminPage() {
             await updateMachineAction(editingMachineId, {
                 name: formData.name,
                 location: formData.location || undefined,
-                short_id: formData.short_id || undefined
+                short_id: formData.short_id || undefined,
+                qr_enabled: formData.qr_enabled
             });
         } else {
             const newMachine: Machine = {
@@ -82,6 +86,7 @@ export default function MachinesAdminPage() {
                 name: formData.name,
                 location: formData.location || 'Sin ubicación',
                 isOperational: true,
+                qr_enabled: formData.qr_enabled,
                 lastSeenAt: new Date(),
                 short_id: formData.short_id || generateCode()
             };
@@ -104,6 +109,11 @@ export default function MachinesAdminPage() {
 
     const toggleStatus = async (machine: Machine) => {
         await updateMachineAction(machine.id, { isOperational: !machine.isOperational });
+        loadMachines();
+    };
+
+    const toggleQr = async (machine: Machine) => {
+        await updateMachineAction(machine.id, { qr_enabled: !machine.qr_enabled });
         loadMachines();
     };
 
@@ -167,9 +177,9 @@ export default function MachinesAdminPage() {
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center gap-1.5">
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${m.isOperational ? 'bg-green-500' : 'bg-red-500'}`} />
-                                                    <span className={`text-[9px] font-bold uppercase tracking-widest ${m.isOperational ? 'text-slate-600' : 'text-slate-400'}`}>
-                                                        {m.isOperational ? 'SERVICIO ACTIVO' : 'FUERA DE SERVICIO'}
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${m.qr_enabled !== false ? 'bg-amber-500' : 'bg-slate-300'}`} />
+                                                    <span className={`text-[9px] font-bold uppercase tracking-widest ${m.qr_enabled !== false ? 'text-slate-600' : 'text-slate-400'}`}>
+                                                        {m.qr_enabled !== false ? 'PAGOS QR ACTIVOS' : 'PAGOS QR INACTIVOS'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -212,14 +222,21 @@ export default function MachinesAdminPage() {
                                     <div className="flex gap-3 pt-4 border-t border-slate-100">
                                         <button
                                             onClick={() => openEditModal(m)}
-                                            className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-black/10 flex items-center justify-center gap-2"
+                                            className="p-3 bg-slate-100 text-slate-400 hover:text-slate-900 rounded-xl transition-all border border-slate-200/50"
+                                            title="Editar"
                                         >
-                                            <Edit3 className="w-3.5 h-3.5" />
-                                            Editar
+                                            <Edit3 className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => toggleQr(m)}
+                                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${m.qr_enabled !== false ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-500/20' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                                        >
+                                            <Smartphone className="w-3.5 h-3.5" />
+                                            QR {m.qr_enabled !== false ? 'ON' : 'OFF'}
                                         </button>
                                         <button
                                             onClick={() => toggleStatus(m)}
-                                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${m.isOperational ? 'bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white' : 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20'}`}
+                                            className={`flex-[1.5] py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${m.isOperational ? 'bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white' : 'bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/20'}`}
                                         >
                                             <Power className="w-3.5 h-3.5" />
                                             {m.isOperational ? 'Apagar' : 'Encender'}
@@ -301,6 +318,19 @@ export default function MachinesAdminPage() {
                                             className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all uppercase"
                                         />
                                     </div>
+                                </div>
+
+                                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <input
+                                        type="checkbox"
+                                        id="qr_enabled"
+                                        checked={formData.qr_enabled}
+                                        onChange={(e) => setFormData({ ...formData, qr_enabled: e.target.checked })}
+                                        className="w-5 h-5 rounded-lg border-slate-300 text-slate-900 focus:ring-slate-500"
+                                    />
+                                    <label htmlFor="qr_enabled" className="text-xs font-bold text-slate-600 uppercase tracking-widest cursor-pointer">
+                                        Habilitar Pagos QR en esta terminal
+                                    </label>
                                 </div>
 
                                 <div className="pt-4 flex gap-4">

@@ -34,6 +34,7 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
     const [cooldownTimeLeft, setCooldownTimeLeft] = useState(0);
     const [isDebug, setIsDebug] = useState(false);
     const [currentMachineId, setCurrentMachineId] = useState<string | null>(null);
+    const [isOperational, setIsOperational] = useState<boolean>(true);
 
     // Sort and Filter ads (Moved after state declaration to use currentMachineId)
     const sortedAds = useMemo(() => {
@@ -112,8 +113,17 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
         if (!currentMachineId) return;
 
         const sendHeartbeat = async () => {
-            console.log("KioskLoop: Sending heartbeat for machine:", currentMachineId);
-            await updateMachineHeartbeat(currentMachineId);
+            console.log("KioskLoop: Sending heartbeat and checking status for machine:", currentMachineId);
+            const { getMachineById } = await import('@/lib/dal');
+            try {
+                await updateMachineHeartbeat(currentMachineId);
+                const m = await getMachineById(currentMachineId);
+                if (m) {
+                    setIsOperational(m.isOperational !== false);
+                }
+            } catch (err) {
+                console.warn('Heartbeat/Status check failed:', err);
+            }
         };
 
         // Send initial heartbeat
@@ -382,6 +392,26 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                     </span>
                 )}
             </div>
+
+            {/* Out of Service Overlay */}
+            {!isOperational && (
+                <div className="absolute inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-center p-12 text-center animate-in fade-in duration-500">
+                    <div className="w-32 h-32 bg-red-500/20 rounded-full flex items-center justify-center mb-12 animate-pulse">
+                        <div className="w-16 h-16 bg-red-500 rounded-2xl rotate-45" />
+                    </div>
+                    <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6 leading-none">
+                        MÁQUINA FUERA <br /> DE SERVICIO
+                    </h1>
+                    <div className="h-2 w-32 bg-red-500 mx-auto mb-8" />
+                    <p className="text-xl md:text-2xl font-bold text-slate-400 uppercase tracking-[0.2em] max-w-2xl mb-12">
+                        O EN MANTENIMIENTO <br />
+                        <span className="text-white">COMUNICARSE CON SABGAME</span>
+                    </p>
+                    <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest px-6 py-2 border border-slate-800 rounded-full">
+                        ID: {currentMachineId || 'GLOBAL'}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

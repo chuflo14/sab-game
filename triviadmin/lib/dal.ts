@@ -153,6 +153,7 @@ export const getMachines = async (): Promise<Machine[]> => {
         ...m,
         short_id: m.short_id,
         isOperational: m.is_operational,
+        qr_enabled: m.qr_enabled,
         lastSeenAt: new Date(m.last_seen_at),
         games_counter: m.games_counter || 0
     })) as Machine[];
@@ -165,6 +166,7 @@ export const getMachineById = async (id: string): Promise<Machine | undefined> =
         ...data,
         short_id: data.short_id,
         isOperational: data.is_operational,
+        qr_enabled: data.qr_enabled,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
     } as Machine;
@@ -177,6 +179,7 @@ export const getMachineByShortId = async (shortId: string): Promise<Machine | un
         ...data,
         short_id: data.short_id,
         isOperational: data.is_operational,
+        qr_enabled: data.qr_enabled,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
     } as Machine;
@@ -189,6 +192,7 @@ export const addMachine = async (m: Machine): Promise<Machine> => {
         name: m.name,
         location: m.location,
         is_operational: m.isOperational,
+        qr_enabled: m.qr_enabled ?? true, // Default to true if not specified
         last_seen_at: m.lastSeenAt,
         games_counter: m.games_counter || 0
     };
@@ -198,6 +202,7 @@ export const addMachine = async (m: Machine): Promise<Machine> => {
         ...data,
         short_id: data.short_id,
         isOperational: data.is_operational,
+        qr_enabled: data.qr_enabled,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
     } as Machine;
@@ -207,6 +212,10 @@ export const updateMachine = async (id: string, updates: Partial<Machine>): Prom
     if (updates.isOperational !== undefined) {
         dbUpdates.is_operational = updates.isOperational;
         delete dbUpdates.isOperational;
+    }
+    if (updates.qr_enabled !== undefined) {
+        dbUpdates.qr_enabled = updates.qr_enabled;
+        // No need to delete qr_enabled as it matches DB column name
     }
     if (updates.lastSeenAt !== undefined) {
         dbUpdates.last_seen_at = updates.lastSeenAt;
@@ -223,6 +232,7 @@ export const updateMachine = async (id: string, updates: Partial<Machine>): Prom
         ...data,
         short_id: data.short_id,
         isOperational: data.is_operational,
+        qr_enabled: data.qr_enabled,
         lastSeenAt: new Date(data.last_seen_at),
         games_counter: data.games_counter || 0
     } as Machine;

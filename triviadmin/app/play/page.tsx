@@ -11,9 +11,21 @@ export default function InstructionsPage() {
     const [paymentsEnabled, setPaymentsEnabled] = useState<boolean | null>(null);
 
     useEffect(() => {
-        fetchChangoConfig().then(config => {
-            setPaymentsEnabled(config?.enable_payments !== false);
-        });
+        const loadConfig = async () => {
+            const config = await fetchChangoConfig();
+            let qrEnabled = config?.enable_payments !== false;
+
+            const machineId = localStorage.getItem('MACHINE_ID');
+            if (machineId) {
+                const { getMachineById } = await import('@/lib/dal');
+                const m = await getMachineById(machineId);
+                if (m && m.qr_enabled === false) {
+                    qrEnabled = false;
+                }
+            }
+            setPaymentsEnabled(qrEnabled);
+        };
+        loadConfig();
     }, []);
 
     const handleGameSelect = (nextRoute: string) => {

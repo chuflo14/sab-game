@@ -16,6 +16,7 @@ export interface Machine {
     name: string;
     location?: string;
     isOperational: boolean;
+    qr_enabled?: boolean; // Machine-specific QR payment toggle
     lastSeenAt?: Date;
     games_counter?: number; // Running total of games since last reset
 }
