@@ -465,6 +465,15 @@ export const updateChangoConfig = async (updates: Partial<ChangoConfig>): Promis
         qrDisplaySeconds: data.qr_display_seconds,
         paymentTimeoutSeconds: data.payment_timeout_seconds,
         paymentSuccessSeconds: data.payment_success_seconds,
+        simon_music_url: data.simon_music_url,
+        penalties_music_url: data.penalties_music_url,
+        penalties_difficulty: data.penalties_difficulty,
+        penalties_max_shots: data.penalties_max_shots,
+
+        taprace_music_url: data.taprace_music_url,
+        taprace_duration: data.taprace_duration,
+        taprace_difficulty: data.taprace_difficulty,
+
         updatedAt: new Date(data.updated_at)
     } as ChangoConfig;
 };

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { fetchChangoConfig, updateChangoConfigAction } from '@/lib/actions';
 import { ChangoConfig } from '@/lib/types';
 import MusicUploadButton from '@/components/admin/MusicUploadButton';
-import { Music, CheckCircle2 } from 'lucide-react';
+import { Music, CheckCircle2, Trophy, Gauge } from 'lucide-react';
 
 export default function MusicAdminPage() {
     const [config, setConfig] = useState<ChangoConfig | null>(null);
@@ -123,7 +123,69 @@ export default function MusicAdminPage() {
                     </div>
                 </div>
 
+                {/* Simon Music */}
+                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6 hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 bg-yellow-100 rounded-2xl flex items-center justify-center text-yellow-600 font-bold shadow-sm">
+                            <span className="text-xl">S</span>
+                        </div>
+                        <div>
+                            <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight">Simón</h4>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Música de fondo</p>
+                        </div>
+                    </div>
+                    <div className="pt-2">
+                        <MusicUploadButton
+                            onUpload={(url) => handleUpdateMusic('simon_music_url', url, 'Simón')}
+                            currentUrl={config.simon_music_url}
+                            label="Subir Música Simón"
+                        />
+                    </div>
+                </div>
+
             </div>
+
+            {/* Penalties Music */}
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 font-bold shadow-sm">
+                        <Trophy className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight">Penales</h4>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Música de fondo</p>
+                    </div>
+                </div>
+                <div className="pt-2">
+                    <MusicUploadButton
+                        onUpload={(url) => handleUpdateMusic('penalties_music_url', url, 'Penales')}
+                        currentUrl={config.penalties_music_url}
+                        label="Subir Música Penales"
+                    />
+                </div>
+            </div>
+
+            {/* Tap Race Music */}
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600 font-bold shadow-sm">
+                        <Gauge className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight">Carrera</h4>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Música de fondo</p>
+                    </div>
+                </div>
+                <div className="pt-2">
+                    <MusicUploadButton
+                        onUpload={(url) => handleUpdateMusic('taprace_music_url', url, 'Carrera')}
+                        currentUrl={config.taprace_music_url}
+                        label="Subir Música Carrera"
+                    />
+                </div>
+            </div>
+
         </div>
+
     );
 }

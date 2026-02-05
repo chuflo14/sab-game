@@ -1,4 +1,68 @@
-export type GameType = 'trivia' | 'ruleta' | 'chango';
+// Game Types
+export type GameType = 'trivia' | 'ruleta' | 'chango' | 'simon' | 'penalties' | 'taprace';
+
+// ... (skipping lines)
+
+export interface ChangoConfig {
+    id: 'default';
+    difficulty: number; // 1..10 (Chango)
+    timeLimit: number; // in seconds
+    gameCooldownSeconds?: number;
+    resultDurationSeconds?: number;
+    priorityAdDurationSeconds?: number;
+    qrDisplaySeconds?: number;
+    game_price?: number;
+    enable_payments?: boolean;
+    paymentTimeoutSeconds?: number;
+    paymentSuccessSeconds?: number;
+
+    // Music URLs
+    trivia_music_url?: string;
+    ruleta_music_url?: string;
+    chango_music_url?: string;
+    simon_music_url?: string;
+    penalties_music_url?: string;
+    taprace_music_url?: string;
+
+    // Penalties Config
+    penalties_difficulty?: number;
+    penalties_max_shots?: number;
+
+    // Tap Race Config
+    taprace_duration?: number; // seconds
+    taprace_difficulty?: number; // clicks to win (e.g. 50, 100)
+
+    updatedAt: Date;
+}
+
+// ... (skipping lines)
+
+export interface ChangoConfig {
+    id: 'default';
+    difficulty: number; // 1..10 (Chango)
+    timeLimit: number; // in seconds
+    gameCooldownSeconds?: number;
+    resultDurationSeconds?: number;
+    priorityAdDurationSeconds?: number;
+    qrDisplaySeconds?: number;
+    game_price?: number;
+    enable_payments?: boolean;
+    paymentTimeoutSeconds?: number;
+    paymentSuccessSeconds?: number;
+
+    // Music URLs
+    trivia_music_url?: string;
+    ruleta_music_url?: string;
+    chango_music_url?: string;
+    simon_music_url?: string;
+    penalties_music_url?: string;
+
+    // Penalties Config
+    penalties_difficulty?: number; // 1..10 (Speed/Zone Size)
+    penalties_max_shots?: number; // e.g. 5
+
+    updatedAt: Date;
+}
 
 
 export interface User {
@@ -99,6 +163,7 @@ export interface ChangoConfig {
     trivia_music_url?: string;
     ruleta_music_url?: string;
     chango_music_url?: string;
+    simon_music_url?: string;
     updatedAt: Date;
 }
 

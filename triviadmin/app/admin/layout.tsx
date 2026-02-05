@@ -17,7 +17,9 @@ import {
     LogOut,
     Clock,
     Flame,
-    Music
+    Music,
+    Trophy,
+    Gauge
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +31,9 @@ const navItems = [
     { label: 'Trivia', href: '/admin/questions', icon: Gamepad2 },
     { label: 'Ruleta', href: '/admin/wheel', icon: CircleEllipsis },
     { label: 'Globo (Chango)', href: '/admin/chango', icon: Flame },
+    { label: 'Simón', href: '/admin/simon', icon: Gamepad2 },
+    { label: 'Penales', href: '/admin/penalties', icon: Trophy },
+    { label: 'Carrera', href: '/admin/taprace', icon: Gauge },
     { label: 'Música', href: '/admin/music', icon: Music },
     { label: 'Tiendas', href: '/admin/stores', icon: Store },
     { label: 'Máquinas', href: '/admin/machines', icon: Cpu },
