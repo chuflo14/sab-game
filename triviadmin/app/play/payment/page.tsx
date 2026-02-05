@@ -235,8 +235,7 @@ function PaymentContent() {
                     </div>
 
                 </div>
-            )}
-        </div>
+                </div>
     )
 }
 
