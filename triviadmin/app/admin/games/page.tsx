@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { fetchGames } from '@/lib/actions';
 import { Game } from '@/lib/types';
-import { Layers, Activity } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 export default function GamesPage() {
     const [games, setGames] = useState<Game[]>([]);

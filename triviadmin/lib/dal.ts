@@ -9,7 +9,6 @@ import {
     WheelSegment,
     Machine,
     GameEvent,
-    GameEvent,
     Prize,
     Game,
     MachineGame

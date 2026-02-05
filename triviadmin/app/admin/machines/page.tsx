@@ -29,7 +29,6 @@ export default function MachinesAdminPage() {
 
     const [allGames, setAllGames] = useState<Game[]>([]);
     const [machineGames, setMachineGames] = useState<string[]>([]);
-    const [isLoadingGames, setIsLoadingGames] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -82,7 +81,6 @@ export default function MachinesAdminPage() {
     };
 
     const loadMachineGames = async (id: string) => {
-        setIsLoadingGames(true);
         try {
             const mg = await fetchMachineGames(id);
             // active is boolean. If record exists and active=true, it's enabled.
@@ -92,7 +90,6 @@ export default function MachinesAdminPage() {
         } catch (e) {
             console.error(e);
         }
-        setIsLoadingGames(false);
     };
 
     const handleToggleGame = async (gameId: string) => {
