@@ -4,12 +4,13 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-    // 1. Get Token with Fallback and Debugging
-    const token = process.env.MP_PROD_ACCESS_TOKEN || process.env.MP_ACCESS_TOKEN || '';
+    // 1. Get Token and TRIM (Critical fix)
+    const rawToken = process.env.MP_PROD_ACCESS_TOKEN || process.env.MP_ACCESS_TOKEN || '';
+    const token = rawToken.trim();
 
     console.log('--- PAYMENT CREATE START ---');
     console.log(`DEBUG: Token Source: ${process.env.MP_PROD_ACCESS_TOKEN ? 'PROD_VAR' : 'OLD_VAR'}`);
-    console.log(`DEBUG: Token Length: ${token.length}`);
+    console.log(`DEBUG: Token Length (Trimmed): ${token.length}`);
     console.log(`DEBUG: Token Prefix: ${token.substring(0, 10)}...`);
 
     try {
