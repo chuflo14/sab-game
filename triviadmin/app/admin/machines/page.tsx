@@ -14,7 +14,6 @@ import {
     Edit3,
     X,
     Smartphone,
-    Smartphone,
     Gamepad2,
     Layers
 } from 'lucide-react';
