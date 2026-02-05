@@ -222,7 +222,7 @@ export default function PenaltiesGame() {
             }
         });
 
-        return () => sub.unsubscribe();
+        return () => { sub.unsubscribe(); };
     }, [handleShoot]);
 
     const difficulty = config?.penalties_difficulty || 5;
