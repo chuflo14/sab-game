@@ -267,8 +267,21 @@ export async function fetchMachineDetails(id: string) {
     if (!machine) return null;
     return {
         name: machine.name,
-        short_id: machine.short_id
+        short_id: machine.short_id,
+        enabledGames: machine.enabledGames
     };
+}
+
+// Games Actions
+export async function fetchGames() {
+    return await dal.getGames();
+}
+export async function fetchMachineGames(machineId: string) {
+    return await dal.getMachineGames(machineId);
+}
+export async function toggleMachineGameAction(machineId: string, gameId: string, active: boolean) {
+    await dal.upsertMachineGame(machineId, gameId, active);
+    revalidatePath('/admin/machines');
 }
 export async function createMachine(data: Machine) {
     const newM = await dal.addMachine(data);

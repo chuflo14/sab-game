@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchMachines, createMachine, updateMachineAction } from '@/lib/actions';
-import { Machine } from '@/lib/types';
+import { fetchMachines, createMachine, updateMachineAction, fetchGames, toggleMachineGameAction, fetchMachineGames } from '@/lib/actions';
+import { Machine, Game } from '@/lib/types';
 import {
     Cpu,
     Plus,
@@ -14,7 +14,9 @@ import {
     Edit3,
     X,
     Smartphone,
-    Gamepad2
+    Smartphone,
+    Gamepad2,
+    Layers
 } from 'lucide-react';
 
 export default function MachinesAdminPage() {
@@ -25,6 +27,10 @@ export default function MachinesAdminPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [editingMachineId, setEditingMachineId] = useState<string | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+
+    const [allGames, setAllGames] = useState<Game[]>([]);
+    const [machineGames, setMachineGames] = useState<string[]>([]);
+    const [isLoadingGames, setIsLoadingGames] = useState(false);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -37,7 +43,13 @@ export default function MachinesAdminPage() {
 
     useEffect(() => {
         loadMachines();
+        loadGames();
     }, []);
+
+    const loadGames = async () => {
+        const g = await fetchGames();
+        setAllGames(g);
+    };
 
     const loadMachines = async () => {
         setIsLoading(true);
@@ -67,6 +79,37 @@ export default function MachinesAdminPage() {
             tokenPrice: machine.tokenPrice || 1000
         });
         setIsModalOpen(true);
+        loadMachineGames(machine.id);
+    };
+
+    const loadMachineGames = async (id: string) => {
+        setIsLoadingGames(true);
+        try {
+            const mg = await fetchMachineGames(id);
+            // active is boolean. If record exists and active=true, it's enabled.
+            // If we use upsert, checking active=true is enough.
+            const enabledIds = mg.filter(x => x.active).map(x => x.gameId);
+            setMachineGames(enabledIds);
+        } catch (e) {
+            console.error(e);
+        }
+        setIsLoadingGames(false);
+    };
+
+    const handleToggleGame = async (gameId: string) => {
+        if (!editingMachineId) return;
+
+        const isEnabled = machineGames.includes(gameId);
+        const newState = !isEnabled;
+
+        // Optimistic update
+        if (newState) {
+            setMachineGames([...machineGames, gameId]);
+        } else {
+            setMachineGames(machineGames.filter(id => id !== gameId));
+        }
+
+        await toggleMachineGameAction(editingMachineId, gameId, newState);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -368,6 +411,38 @@ export default function MachinesAdminPage() {
                                     <div className={`bg-white w-5 h-5 rounded-full shadow-sm transform transition-transform duration-300 ${formData.joystick_enabled ? 'translate-x-7' : 'translate-x-0'}`} />
                                 </button>
                             </div>
+
+                            {/* GAMES CONFIGURATION - Only if editing existing machine */}
+                            {editingMachineId && (
+                                <div className="space-y-4 pt-4 border-t border-slate-100">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Layers className="w-4 h-4 text-slate-400" />
+                                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Juegos Disponibles</h4>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {allGames.map(game => {
+                                            const isEnabled = machineGames.includes(game.id);
+                                            return (
+                                                <div key={game.id} className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                                                    <div className="flex items-center gap-3">
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                        <img src={game.imageUrl || '/placeholder.png'} className="w-8 h-8 rounded-lg bg-slate-100 object-cover" alt="" onError={(e) => e.currentTarget.style.display = 'none'} />
+                                                        <span className="text-xs font-bold uppercase text-slate-700">{game.name}</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleToggleGame(game.id)}
+                                                        className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all ${isEnabled ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 text-transparent hover:border-slate-400'}`}
+                                                    >
+                                                        <span className="font-black text-[10px]">✓</span>
+                                                    </button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="flex flex-col md:flex-row gap-4 pt-4">
                                 <button

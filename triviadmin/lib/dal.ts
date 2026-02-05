@@ -9,7 +9,10 @@ import {
     WheelSegment,
     Machine,
     GameEvent,
-    Prize
+    GameEvent,
+    Prize,
+    Game,
+    MachineGame
 } from './types';
 
 // Users DAL
@@ -164,6 +167,14 @@ export const getMachines = async (): Promise<Machine[]> => {
 export const getMachineById = async (id: string): Promise<Machine | undefined> => {
     const { data, error } = await supabase.from('machines').select('*').eq('id', id).single();
     if (error) return undefined;
+
+    // Fetch enabled games
+    const { data: gamesData } = await supabase.from('machine_games').select('game_id').eq('machine_id', id).eq('active', true);
+    // Be careful with join or separate query. Separate is safer for types.
+    // Also, we might want the slugs if the frontend uses slugs. But ID is safer.
+    // Let's assume frontend maps ID to Slug using the global games list.
+    const enabledGames = gamesData ? gamesData.map((g: any) => g.game_id) : [];
+
     return {
         ...data,
         short_id: data.short_id,
@@ -172,7 +183,8 @@ export const getMachineById = async (id: string): Promise<Machine | undefined> =
         joystick_enabled: data.joystick_enabled,
         tokenPrice: data.token_price || 1000,
         lastSeenAt: new Date(data.last_seen_at),
-        games_counter: data.games_counter || 0
+        games_counter: data.games_counter || 0,
+        enabledGames
     } as Machine;
 };
 
@@ -495,4 +507,39 @@ export const addGameEvent = async (event: GameEvent): Promise<GameEvent> => {
 export const clearGameEvents = async (): Promise<void> => {
     const { error } = await supabase.from('game_events').delete().neq('id', '0');
     if (error) throw error;
+};
+
+// Games DAL
+export const getGames = async (): Promise<Game[]> => {
+    const { data, error } = await supabase.from('games').select('*').order('name');
+    if (error) throw error;
+    return data.map((g: any) => ({
+        ...g,
+        imageUrl: g.image_url,
+        createdAt: new Date(g.created_at)
+    })) as Game[];
+};
+
+export const getMachineGames = async (machineId: string): Promise<MachineGame[]> => {
+    const { data, error } = await supabase.from('machine_games').select('*').eq('machine_id', machineId);
+    if (error) throw error;
+    return data.map((mg: any) => ({
+        machineId: mg.machine_id,
+        gameId: mg.game_id,
+        active: mg.active,
+        createdAt: new Date(mg.created_at)
+    })) as MachineGame[];
+};
+
+export const upsertMachineGame = async (machineId: string, gameId: string, active: boolean): Promise<void> => {
+    // Check if exists
+    const { data: existing } = await supabase.from('machine_games').select('*').match({ machine_id: machineId, game_id: gameId }).single();
+
+    if (existing) {
+        const { error } = await supabase.from('machine_games').update({ active }).match({ machine_id: machineId, game_id: gameId });
+        if (error) throw error;
+    } else {
+        const { error } = await supabase.from('machine_games').insert({ machine_id: machineId, game_id: gameId, active });
+        if (error) throw error;
+    }
 };

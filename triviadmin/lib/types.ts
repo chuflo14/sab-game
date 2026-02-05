@@ -21,6 +21,25 @@ export interface Machine {
     tokenPrice: number; // Price per token for this specific machine
     lastSeenAt?: Date;
     games_counter?: number; // Running total of games since last reset
+    enabledGames?: string[]; // IDs of enabled games
+}
+
+export interface Game {
+    id: string;
+    slug: string;
+    name: string;
+    description?: string;
+    route: string;
+    imageUrl?: string;
+    active: boolean;
+    createdAt: Date;
+}
+
+export interface MachineGame {
+    machineId: string;
+    gameId: string;
+    active: boolean;
+    createdAt: Date;
 }
 
 export interface AdMedia {

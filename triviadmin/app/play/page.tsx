@@ -9,21 +9,40 @@ import { sendJoystickEvent } from '@/lib/realtime';
 export default function InstructionsPage() {
     const router = useRouter();
     const [paymentsEnabled, setPaymentsEnabled] = useState<boolean | null>(null);
+    const [enabledSlugs, setEnabledSlugs] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const loadConfig = async () => {
             // Default to true (payments enabled) unless explicitly disabled by machine
             let qrEnabled = true;
+            let loadedSlugs = ['trivia', 'ruleta', 'chango']; // Default all
 
             const machineId = localStorage.getItem('MACHINE_ID');
             if (machineId) {
-                const { getMachineById } = await import('@/lib/dal');
-                const m = await getMachineById(machineId);
-                if (m && m.qr_enabled === false) {
-                    qrEnabled = false;
+                try {
+                    const { getMachineById, getGames } = await import('@/lib/dal');
+                    const [m, allGames] = await Promise.all([
+                        getMachineById(machineId),
+                        getGames()
+                    ]);
+
+                    if (m) {
+                        if (m.qr_enabled === false) qrEnabled = false;
+
+                        if (m.enabledGames && m.enabledGames.length > 0) {
+                            loadedSlugs = allGames
+                                ? allGames.filter((g: any) => m.enabledGames!.includes(g.id)).map((g: any) => g.slug)
+                                : loadedSlugs;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error loading config", e);
                 }
             }
             setPaymentsEnabled(qrEnabled);
+            setEnabledSlugs(loadedSlugs);
+            setIsLoading(false);
         };
         loadConfig();
     }, []);
@@ -88,38 +107,50 @@ export default function InstructionsPage() {
                 <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-8 drop-shadow-lg">Elige tu modo de juego:</h2>
 
                 <div className="flex flex-col gap-6 md:gap-8 text-xl md:text-2xl">
-                    <button
-                        onClick={() => handleGameSelect('/play/pre-game?next=/play/trivia')}
-                        className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
-                    >
-                        <div className="min-w-0 pr-4">
-                            <span className="block text-3xl md:text-5xl font-black text-blue-400 mb-2 truncate drop-shadow-md">Trivia Riojana</span>
-                            <span className="text-sm md:text-xl text-gray-300 font-medium">El desafío mental con identidad local</span>
-                        </div>
-                        <div className="bg-blue-400 text-black w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(59,130,246,0.4)] shrink-0">S</div>
-                    </button>
+                    {isLoading ? (
+                        <div className="text-center text-yellow-500 animate-pulse">Cargando juegos...</div>
+                    ) : (
+                        <>
+                            {enabledSlugs.includes('trivia') && (
+                                <button
+                                    onClick={() => handleGameSelect('/play/pre-game?next=/play/trivia')}
+                                    className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
+                                >
+                                    <div className="min-w-0 pr-4">
+                                        <span className="block text-3xl md:text-5xl font-black text-blue-400 mb-2 truncate drop-shadow-md">Trivia Riojana</span>
+                                        <span className="text-sm md:text-xl text-gray-300 font-medium">El desafío mental con identidad local</span>
+                                    </div>
+                                    <div className="bg-blue-400 text-black w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(59,130,246,0.4)] shrink-0">S</div>
+                                </button>
+                            )}
 
-                    <button
-                        onClick={() => handleGameSelect('/play/pre-game?next=/play/azar')}
-                        className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
-                    >
-                        <div className="min-w-0 pr-4">
-                            <span className="block text-3xl md:text-5xl font-black text-red-500 mb-2 truncate drop-shadow-md">La Ruleta</span>
-                            <span className="text-sm md:text-xl text-gray-300 font-medium">El azar puro con un toque divertido</span>
-                        </div>
-                        <div className="bg-red-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(239,68,68,0.4)] shrink-0">A</div>
-                    </button>
+                            {enabledSlugs.includes('ruleta') && (
+                                <button
+                                    onClick={() => handleGameSelect('/play/pre-game?next=/play/azar')}
+                                    className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
+                                >
+                                    <div className="min-w-0 pr-4">
+                                        <span className="block text-3xl md:text-5xl font-black text-red-500 mb-2 truncate drop-shadow-md">La Ruleta</span>
+                                        <span className="text-sm md:text-xl text-gray-300 font-medium">El azar puro con un toque divertido</span>
+                                    </div>
+                                    <div className="bg-red-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(239,68,68,0.4)] shrink-0">A</div>
+                                </button>
+                            )}
 
-                    <button
-                        onClick={() => handleGameSelect('/play/pre-game?next=/play/suerte')}
-                        className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
-                    >
-                        <div className="min-w-0 pr-4">
-                            <span className="block text-3xl md:text-5xl font-black text-orange-500 mb-2 truncate drop-shadow-md">Dedo de Chango</span>
-                            <span className="text-sm md:text-xl text-gray-300 font-medium">¡Inflá el globo lo más rápido posible!</span>
-                        </div>
-                        <div className="bg-orange-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(249,115,22,0.4)] shrink-0">B</div>
-                    </button>
+                            {enabledSlugs.includes('chango') && (
+                                <button
+                                    onClick={() => handleGameSelect('/play/pre-game?next=/play/suerte')}
+                                    className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
+                                >
+                                    <div className="min-w-0 pr-4">
+                                        <span className="block text-3xl md:text-5xl font-black text-orange-500 mb-2 truncate drop-shadow-md">Dedo de Chango</span>
+                                        <span className="text-sm md:text-xl text-gray-300 font-medium">¡Inflá el globo lo más rápido posible!</span>
+                                    </div>
+                                    <div className="bg-orange-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(249,115,22,0.4)] shrink-0">B</div>
+                                </button>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
 
