@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-black">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen w-full bg-black text-white overflow-x-hidden flex flex-col font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen w-full bg-black text-white overflow-hidden flex flex-col font-sans`}
       >
         <main className="w-full h-full flex-1 flex flex-col">
           <ConnectivityProvider>
@@ -41,9 +41,7 @@ export default function RootLayout({
           </ConnectivityProvider>
         </main>
         <Toaster position="top-center" richColors />
-        <footer>
-          <p className="text-center py-4 text-xs opacity-50">&copy; 2025 SAB Game. Todos los derechos reservados.</p>
-        </footer>
+
         <script
           dangerouslySetInnerHTML={{
             __html: `
