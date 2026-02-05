@@ -71,10 +71,8 @@ export async function POST(request: NextRequest) {
         console.log(`Creating payment preference for amount: ${amount}`);
 
         const externalReference = `game-${Date.now()}`;
-
         const preference = new Preference(client);
-
-        const result = await preference.create({
+        const payload = {
             body: {
                 items: [
                     {
@@ -84,19 +82,21 @@ export async function POST(request: NextRequest) {
                         unit_price: Number(amount),
                     }
                 ],
-                // We don't strictly need back_urls for a kiosk, but good practice
                 back_urls: {
-                    success: 'https://sabgame.com/success', // Dummy URLs since we poll
+                    success: 'https://sabgame.com/success',
                     failure: 'https://sabgame.com/failure',
                     pending: 'https://sabgame.com/pending',
                 },
-                // IMPORTANT: External reference to track safely if needed
                 external_reference: externalReference,
                 expires: true,
                 expiration_date_from: new Date().toISOString(),
-                expiration_date_to: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 min expiration
+                expiration_date_to: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
             }
-        });
+        };
+
+        console.log('DEBUG: Sending preference payload:', JSON.stringify(payload, null, 2));
+
+        const result = await preference.create(payload);
 
         if (!result.id) {
             throw new Error('Failed to create preference');
