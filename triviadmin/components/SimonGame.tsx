@@ -126,7 +126,7 @@ export default function SimonGame() {
         });
 
         setTimeout(() => router.push('/'), 3000);
-    }, [router]);
+    }, [router, playSound]);
 
     const handleWin = useCallback(async () => {
         setStatus('WIN');
@@ -193,7 +193,7 @@ export default function SimonGame() {
                 setTimeout(startNewRound, 1500);
             }
         }
-    }, [startNewRound, handleGameOver, handleWin]);
+    }, [startNewRound, handleGameOver, handleWin, playSound]);
 
     // Joystick Listener
     useEffect(() => {
