@@ -38,15 +38,15 @@ export default function SimonGame() {
 
     const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
 
-    const playSound = (color: string) => {
+    const playSound = useCallback((color: string) => {
         const audio = audioRefs.current[color];
         if (audio) {
             audio.currentTime = 0;
             audio.play().catch(e => console.error("Audio play failed", e));
         }
-    };
+    }, []);
 
-    const playSequence = async (seq: Color[]) => {
+    const playSequence = useCallback(async (seq: Color[]) => {
         setStatus('PLAYING_SEQUENCE');
         statusRef.current = 'PLAYING_SEQUENCE';
         setMessage('MEMORIZA');
@@ -68,7 +68,7 @@ export default function SimonGame() {
         setStatus('WAITING_INPUT');
         statusRef.current = 'WAITING_INPUT';
         setMessage('TU TURNO');
-    };
+    }, [score, playSound]);
 
     // Define dependencies for useEffect
     const startNewRound = useCallback(() => {

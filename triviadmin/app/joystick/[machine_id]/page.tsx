@@ -127,15 +127,6 @@ export default function JoystickPage() {
     const renderControls = () => {
         if (!gameType) return <div>Esperando juego...</div>;
 
-        if (gameState === 'WAITING') {
-            return (
-                <div className="text-center">
-                    <h1 className="text-3xl font-black text-yellow-500 mb-2">¡LISTO!</h1>
-                    <p className="text-gray-400">Espera a que inicie el juego</p>
-                </div>
-            );
-        }
-
         if (gameType === 'MENU') {
             return (
                 <div className="grid grid-cols-1 gap-4 w-full animate-in fade-in zoom-in duration-500">
