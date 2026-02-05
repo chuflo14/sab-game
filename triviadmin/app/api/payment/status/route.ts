@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 
 const client = new MercadoPagoConfig({
-    accessToken: process.env.MP_ACCESS_TOKEN || '',
+    accessToken: process.env.MP_PROD_ACCESS_TOKEN || '',
     options: { timeout: 5000 }
 });
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     try {
 
         if (externalReference) {
-            const token = process.env.MP_ACCESS_TOKEN || '';
+            const token = process.env.MP_PROD_ACCESS_TOKEN || '';
             console.log(`DEBUG: Checking status for ref: ${externalReference}`);
             console.log(`DEBUG: Token being used starts with: ${token.substring(0, 10)}... (Length: ${token.length})`);
 

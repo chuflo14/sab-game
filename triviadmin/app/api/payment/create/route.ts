@@ -4,7 +4,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 // Initialize Mercado Pago
 const client = new MercadoPagoConfig({
-    accessToken: process.env.MP_ACCESS_TOKEN || '',
+    accessToken: process.env.MP_PROD_ACCESS_TOKEN || '',
     options: { timeout: 5000 }
 });
 
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
     // DEBUG: Check Token Prefix
-    const token = process.env.MP_ACCESS_TOKEN || '';
+    const token = process.env.MP_PROD_ACCESS_TOKEN || '';
     console.log(`DEBUG: Using MP Token starting with: ${token.substring(0, 8)}...`);
 
     try {
