@@ -10,7 +10,7 @@ export default function JoystickPage() {
     const machineId = params.machine_id;
     const mid = Array.isArray(machineId) ? machineId[0] : machineId;
 
-    const [status, setStatus] = useState<'READY' | 'PAYING' | 'PLAYING' | 'WAITING' | 'GAME_OVER' | 'TIMEOUT'>('WAITING');
+    const [status, setStatus] = useState<'READY' | 'PAYING' | 'PAYMENT_APPROVED' | 'PLAYING' | 'WAITING' | 'GAME_OVER' | 'TIMEOUT'>('WAITING');
     const [gameType, setGameType] = useState<'TRIVIA' | 'RULETA' | 'CHANGO' | 'MENU'>('MENU');
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(false);
@@ -280,6 +280,20 @@ export default function JoystickPage() {
                                 <span>Pagar con Mercado Pago</span>
                             </a>
                         )}
+                    </div>
+                ) : status === 'PAYMENT_APPROVED' ? (
+                    <div className="flex flex-col items-center gap-8 text-center animate-in fade-in zoom-in duration-500">
+                        <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_50px_rgba(34,197,94,0.5)]">
+                            <span className="text-4xl text-black">✓</span>
+                        </div>
+                        <h1 className="text-3xl font-black text-green-500 uppercase tracking-widest">¡Pago Aprobado!</h1>
+                        <p className="text-lg text-gray-300">
+                            Tu crédito se acreditó correctamente.
+                        </p>
+                        <div className="mt-8 p-4 bg-slate-900/50 rounded-xl border border-white/10 animate-pulse">
+                            <p className="text-sm font-bold text-yellow-500 uppercase tracking-widest">Esperando al juego...</p>
+                            <p className="text-xs text-slate-500 mt-1">Mira la pantalla de la máquina</p>
+                        </div>
                     </div>
                 ) : (
                     // PLAYING STATE - Render specific controls

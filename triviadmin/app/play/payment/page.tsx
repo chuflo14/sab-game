@@ -109,6 +109,16 @@ function PaymentContent() {
 
                 if (data.status === 'approved') {
                     setStatus('approved');
+
+                    // Notify joystick immediately
+                    const mId = localStorage.getItem('MACHINE_ID');
+                    if (mId) {
+                        sendJoystickEvent(mId, {
+                            type: 'STATE_CHANGE',
+                            state: 'PAYMENT_APPROVED'
+                        });
+                    }
+
                     setTimeout(() => {
                         router.push(nextRoute); // Go to game selection or next route
                     }, config.success * 1000);
