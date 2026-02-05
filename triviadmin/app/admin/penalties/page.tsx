@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Trophy, Timer, Gauge } from 'lucide-react';
+import { Save, Trophy } from 'lucide-react';
 import { updateChangoConfigAction, fetchChangoConfig } from '@/lib/actions';
 import { toast } from 'sonner';
 

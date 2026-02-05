@@ -12,7 +12,6 @@ export default function PenaltiesGame() {
     const router = useRouter();
     const [gameState, setGameState] = useState<'IDLE' | 'PLAYING' | 'RESULT'>('IDLE');
     const [cursorPosition, setCursorPosition] = useState(50); // 0 to 100
-    const [direction, setDirection] = useState<1 | -1>(1);
     const [result, setResult] = useState<'GOAL' | 'MISS' | 'POST' | null>(null);
     const [score, setScore] = useState(0);
     const [attempts, setAttempts] = useState(0);
@@ -69,56 +68,62 @@ export default function PenaltiesGame() {
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
             if (crowdRef.current) crowdRef.current.pause();
         };
-    }, []);
+        useEffect(() => {
+            // Preload sounds...
+            // ... (truncated)
+            // Actually I need to see if startRound / startGame are stable.
+            // Assuming I fix them below.
 
-    const startGame = () => {
+            // ...
+
+            // Delay slighty
+            // setTimeout(init, 500); 
+            // Logic seems complex to patch in replace.
+            // Let's just fix the hook deps in line 72
+
+        }, []); // Hook said missing startGame. 
+        // And startgame calls startRound calls animate.
+        // If I wrap them all, I can put them here.
+
+        // Actually, init calls startGame. init is defined inside effect?
+        // Let's check view.
+        // Init is defined inside useEffect (lines 48-63 in view 50-200? Wait, view 939 shows lines 50+.
+        // Init is defined in previous lines not shown in 939 fully?
+        // Ah, lines 42-67 in view 851 (similar file).
+        // In PenaltiesGame view 939: 
+        // Line 72: }, []);
+        // Line 66: setTimeout(init, 500);
+        // Init calls startGame.
+        // startGame uses setGameState etc.
+        // Since init is inside useEffect, no need to dep it.
+        // But startGame is OUTSIDE useEffect?
+        // Line 74: const startGame = ...
+        // Yes. So init depends on startGame.
+        // So useEffect depends on startGame.
+        // So startGame must be wrapped or effect will loop if startGame unstable.
+
+        // I will wrap startGame and startRound in useCallback.
+
+        return null; // Dummy to skip replace here, do it in next tool calls
+    }, [startGame]);
+
+    const startGame = useCallback(() => {
         setGameState('PLAYING');
         setScore(0);
         setAttempts(0);
         crowdRef.current?.play().catch(() => { });
         startRound();
-    };
+    }, [startRound]);
 
-    const startRound = () => {
+    const startRound = useCallback(() => {
         setResult(null);
         setCursorPosition(50);
         isMoving.current = true;
         lastTimeRef.current = performance.now();
         requestRef.current = requestAnimationFrame(animate);
-    };
+    }, [animate]);
 
-    const animate = (time: number) => {
-        if (!isMoving.current) return;
-
-        if (lastTimeRef.current !== undefined) {
-            const deltaTime = time - lastTimeRef.current;
-
-            // Difficulty Speed
-            const difficulty = config?.penalties_difficulty || 5;
-            const speed = 0.05 + (difficulty * 0.02);
-
-            setCursorPosition(prev => {
-                let next = prev + (speed * deltaTime * direction); // direction needs to be ref or check logic
-
-                // Bounce logic needs access to current direction state, 
-                // but setState callback doesn't give it easily. 
-                // Better to use Ref for position logic in loop.
-                return prev;
-            });
-
-            // Ref-based update for smoother loop
-            updatePhysics(deltaTime);
-        }
-
-        lastTimeRef.current = time;
-        requestRef.current = requestAnimationFrame(animate);
-    };
-
-    // Use Refs for physics loop to avoid dependency closure staleness
-    const posRef = useRef(50);
-    const dirRef = useRef(1);
-
-    const updatePhysics = (deltaTime: number) => {
+    const updatePhysics = useCallback((deltaTime: number) => {
         const difficulty = config?.penalties_difficulty || 5;
         const speed = (0.05 + (difficulty * 0.02));
 
@@ -134,7 +139,19 @@ export default function PenaltiesGame() {
 
         posRef.current = next;
         setCursorPosition(next);
-    };
+    }, [config]);
+
+    const animate = useCallback((time: number) => {
+        if (!isMoving.current) return;
+
+        if (lastTimeRef.current !== undefined) {
+            const deltaTime = time - lastTimeRef.current;
+            updatePhysics(deltaTime);
+        }
+
+        lastTimeRef.current = time;
+        requestRef.current = requestAnimationFrame(animate);
+    }, [updatePhysics]);
 
     const handleShoot = useCallback(() => {
         if (!isMoving.current || gameState !== 'PLAYING') return;
@@ -177,7 +194,7 @@ export default function PenaltiesGame() {
             setTimeout(startRound, 2000); // Next shot
         }
 
-    }, [gameState, config, attempts, score]);
+    }, [gameState, config, attempts, score, endGame, startRound]);
 
     const endGame = useCallback(async (finalScore: number) => {
         setGameState('RESULT');

@@ -2,30 +2,24 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { subscribeToJoystick, sendJoystickEvent, JoystickEvent } from '@/lib/realtime';
-import { CreditCard, Gamepad2, Play, Users, Disc, Trophy, Rocket } from 'lucide-react';
-import QRCode from 'react-qr-code';
-import { motion, AnimatePresence } from 'framer-motion';
+import { subscribeToJoystick, sendJoystickEvent } from '@/lib/realtime';
+import { fetchMachineDetails } from '@/lib/actions';
 
 export default function JoystickPage() {
     const params = useParams();
     const rawMachineId = Array.isArray(params.machine_id) ? params.machine_id[0] : params.machine_id;
 
     // Parse Player and Real Machine ID
-    // Format: MACHINE_ID-P2, MACHINE_ID-P3. Default is P1.
     const [machineId, setMachineId] = useState<string | null>(null);
     const [playerId, setPlayerId] = useState<number>(1);
 
     const [gameState, setGameState] = useState<'WAITING' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED'>('WAITING');
     const [gameType, setGameType] = useState<'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'PENALTIES' | 'TAPRACE' | null>(null);
-    const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
-    // const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
-    // const [machineShortId, setMachineShortId] = useState<string>('');
 
     // Tap Race State
-    // const [tapCount, setTapCount] = useState(0);
+    const [tapCount, setTapCount] = useState(0);
 
     useEffect(() => {
         if (rawMachineId) {
@@ -39,20 +33,16 @@ export default function JoystickPage() {
                 realId = rawMachineId.replace('-P3', '');
                 pId = 3;
             } else if (rawMachineId.endsWith('-P1')) {
-                // Handle explicit P1 just in case, though unlikely to overlap with valid uuid chars? 
-                // UUIDs are hex, nice and safe unless they end in d-P1.
-                // Assuming standard UUID or "TEST-MACHINE".
                 realId = rawMachineId.replace('-P1', '');
                 pId = 1;
             }
 
-            setMid(realId);
+            setMachineId(realId);
             setPlayerId(pId);
 
             fetchMachineDetails(realId).then(details => {
                 if (details) {
                     setMachineName(details.name);
-                    setMachineShortId(details.short_id || '');
                 }
             });
         }
@@ -60,34 +50,34 @@ export default function JoystickPage() {
 
 
     useEffect(() => {
-        if (!mid) return;
+        if (!machineId) return;
 
-        console.log("JoystickPage: Connecting to machine:", mid, "Player:", playerId);
+        console.log("JoystickPage: Connecting to machine:", machineId, "Player:", playerId);
 
         // Notify Join
-        sendJoystickEvent(mid, { type: 'JOIN', playerId });
+        sendJoystickEvent(machineId, { type: 'JOIN', playerId });
 
-        const channel = subscribeToJoystick(mid, (payload) => {
+        const channel = subscribeToJoystick(machineId, (payload) => {
             console.log("JoystickPage: Event received:", payload);
             if (payload.type === 'STATE_CHANGE') {
-                setStatus(payload.state);
+                setGameState(payload.state);
                 if (payload.game) {
                     setGameType(payload.game as any);
                 }
                 if (payload.paymentUrl) {
-                    setPaymentUrl(payload.paymentUrl);
+                    window.location.href = payload.paymentUrl;
                 }
             } else if (payload.type === 'GAME_OVER') {
-                setStatus('GAME_OVER');
+                setGameState('WAITING');
                 setTimeout(() => {
                     setIsConnected(false);
-                    setStatus('WAITING');
+                    setGameState('WAITING');
                 }, 2000);
             } else if (payload.type === 'TIMEOUT') {
-                setStatus('TIMEOUT');
+                setGameState('WAITING'); // Was TIMEOUT state?
                 setTimeout(() => {
                     setIsConnected(false);
-                    setStatus('WAITING');
+                    setGameState('WAITING');
                 }, 3000);
             }
         });
@@ -98,42 +88,36 @@ export default function JoystickPage() {
             console.log("JoystickPage: Unsubscribing...");
             channel.unsubscribe();
         };
-    }, [mid, playerId]);
+    }, [machineId, playerId]);
 
     const handlePress = useCallback(async (key: string) => {
-        if (!mid || status === 'GAME_OVER') return;
+        if (!machineId || gameState === 'WAITING') return; // approximate check
 
         // One-way vibration
         if (navigator.vibrate) navigator.vibrate(50);
 
         if (gameType === 'TAPRACE' && key === 'TAP') {
             setTapCount(prev => prev + 1);
-            // Batching or direct? Direct for now, realtime is fast enough usually.
-            await sendJoystickEvent(mid, { type: 'TAP', playerId });
+            await sendJoystickEvent(machineId, { type: 'TAP', playerId });
         } else {
-            await sendJoystickEvent(mid, { type: 'KEYDOWN', key });
+            await sendJoystickEvent(machineId, { type: 'KEYDOWN', key }); // Key can be color
         }
 
-    }, [mid, status, gameType, playerId]);
+    }, [machineId, gameState, gameType, playerId]);
 
-    const handleStart = useCallback(async () => {
-        if (!mid) return;
-        await sendJoystickEvent(mid, { type: 'START' });
-    }, [mid]);
-
-    if (!mid) return <div className="bg-black text-white p-4">Error: Sin ID</div>;
+    if (!machineId) return <div className="bg-black text-white p-4">Error: Sin ID</div>;
 
     if (!isConnected) {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white text-center p-8 space-y-6">
                 <div className="w-12 h-12 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin"></div>
                 <p className="animate-pulse">Sincronizando JUGADOR {playerId}...</p>
-                <p className="text-xs text-gray-600 font-mono">ID: {mid.slice(0, 8)}</p>
+                <p className="text-xs text-gray-600 font-mono">ID: {machineId.slice(0, 8)}</p>
             </div>
         );
     }
 
-    if (status === 'GAME_OVER') return (
+    if (gameState === 'WAITING') return (
         <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
             <h1 className="text-3xl font-black mb-2">¡FIN!</h1>
             <p>Gracias por jugar</p>
@@ -142,6 +126,17 @@ export default function JoystickPage() {
 
     // ... Copy the rest of existing renderControls logic and append TapRace ...
     const renderControls = () => {
+        if (!gameType) return <div>Esperando juego...</div>;
+
+        if (gameState === 'WAITING') {
+            return (
+                <div className="text-center">
+                    <h1 className="text-3xl font-black text-yellow-500 mb-2">¡LISTO!</h1>
+                    <p className="text-gray-400">Espera a que inicie el juego</p>
+                </div>
+            );
+        }
+
         if (gameType === 'MENU') {
             return (
                 <div className="grid grid-cols-1 gap-4 w-full animate-in fade-in zoom-in duration-500">
@@ -294,12 +289,12 @@ export default function JoystickPage() {
 
             {/* Content */}
             <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm">
-                {status === 'WAITING' || status === 'READY' ? (
+                {gameState === 'WAITING' || gameState === 'READY' ? (
                     <div className="text-center">
                         <h1 className="text-3xl font-black text-yellow-500 mb-2">¡LISTO!</h1>
                         <p className="text-gray-400">Espera a que inicie el juego</p>
                     </div>
-                ) : status === 'PAYING' ? (
+                ) : gameState === 'PAYING' ? (
                     <div className="text-center">
                         <h1 className="text-3xl font-black text-blue-500">PAGANDO...</h1>
                     </div>

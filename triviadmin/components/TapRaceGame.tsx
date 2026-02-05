@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { subscribeToJoystick, sendJoystickEvent, JoystickEvent } from '@/lib/realtime';
+import { subscribeToJoystick, sendJoystickEvent } from '@/lib/realtime';
 import { fetchChangoConfig } from '@/lib/actions';
 import { ChangoConfig } from '@/lib/types';
 import { Trophy } from 'lucide-react';

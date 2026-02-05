@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { subscribeToJoystick, sendJoystickEvent } from '@/lib/realtime';
 import { fetchChangoConfig, logGameEvent, generateWinningTicket, fetchPrizes } from '@/lib/actions';
-import { ChangoConfig, Prize } from '@/lib/types';
+import { Prize } from '@/lib/types';
 import GameResultOverlay from './GameResultOverlay';
 
 type Color = 'GREEN' | 'RED' | 'YELLOW' | 'BLUE';
@@ -78,7 +78,7 @@ export default function SimonGame() {
         sequenceRef.current = newSeq;
 
         playSequence(newSeq);
-    }, [score]); // score is used in playSequence, so it's a dependency
+    }, [score, playSequence]); // score is used in playSequence, so it's a dependency
 
     useEffect(() => {
         // Preload sounds
@@ -193,7 +193,7 @@ export default function SimonGame() {
                 setTimeout(startNewRound, 1500);
             }
         }
-    }, [startNewRound]);
+    }, [startNewRound, handleGameOver, handleWin]);
 
     // Joystick Listener
     useEffect(() => {
@@ -209,7 +209,7 @@ export default function SimonGame() {
             }
         });
 
-        return () => sub.unsubscribe();
+        return () => { sub.unsubscribe(); };
     }, [handleInput]);
 
     return (
