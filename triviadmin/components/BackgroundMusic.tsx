@@ -9,7 +9,6 @@ interface BackgroundMusicProps {
 
 export default function BackgroundMusic({ src, volume = 0.3 }: BackgroundMusicProps) {
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
 
     useEffect(() => {
         if (!src) return;
@@ -24,11 +23,10 @@ export default function BackgroundMusic({ src, volume = 0.3 }: BackgroundMusicPr
         if (playPromise !== undefined) {
             playPromise
                 .then(() => {
-                    setIsPlaying(true);
+                    // Playing
                 })
                 .catch((error) => {
                     console.log("Auto-play was prevented:", error);
-                    setIsPlaying(false);
                 });
         }
 

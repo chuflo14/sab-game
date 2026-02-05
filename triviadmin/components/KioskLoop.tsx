@@ -6,7 +6,7 @@ import { Maximize2, Minimize2 } from 'lucide-react';
 import { updateMachineHeartbeat } from '@/lib/actions';
 import { AdMedia, ChangoConfig } from '@/lib/types';
 import QRCode from 'react-qr-code';
-import { subscribeToJoystick, sendJoystickEvent } from '@/lib/realtime';
+import { sendJoystickEvent } from '@/lib/realtime';
 
 interface KioskLoopProps {
     ads: AdMedia[];

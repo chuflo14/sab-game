@@ -2,7 +2,7 @@
 
 
 import { useState, useEffect } from 'react';
-import { Save, Monitor, AlertCircle } from 'lucide-react';
+import { Save, Monitor } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getMachineByShortIdAction } from '@/lib/actions';
 import { toast } from 'sonner';

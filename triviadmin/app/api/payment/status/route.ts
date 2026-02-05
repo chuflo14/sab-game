@@ -43,13 +43,13 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        let count = results.results?.length || 0;
+        const count = results.results?.length || 0;
         let finalPay = count > 0 ? results.results![0] : null;
 
         // 3. Fallback 1: Broad Search (Loose Match)
         // This addresses MP indexing delays. If we see a very recent approved payment, we take it.
         if (!finalPay) {
-            console.log('DEBUG: Search results: 0. Trying Broad Search fallback...');
+            console.log(`DEBUG: Search results for Ref ${externalReference} (Pref: ${preferenceId || 'None'}): 0. Trying Broad Search fallback...`);
             const broad = await paymentHandler.search({
                 options: {
                     limit: 5,
@@ -66,8 +66,8 @@ export async function GET(request: NextRequest) {
 
                 console.log(`DEBUG: Broad Match candidate: ID ${recent.id} (${recent.status}) - ${diffMin.toFixed(1)}m ago`);
 
-                // If it's approved and recent (< 3 mins), we accept it.
-                if (recent.status === 'approved' && diffMin < 3) {
+                // If it's approved and recent (< 1 min), we accept it.
+                if (recent.status === 'approved' && diffMin < 1) {
                     console.log('DEBUG: LOOSE MATCH APPLIED!');
                     finalPay = recent;
                 }

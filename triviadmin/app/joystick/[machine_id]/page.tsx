@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { sendJoystickEvent, subscribeToJoystick, JoystickEvent } from '@/lib/realtime';
+import { sendJoystickEvent, subscribeToJoystick } from '@/lib/realtime';
 import { fetchMachineDetails } from '@/lib/actions';
 
 export default function JoystickPage() {

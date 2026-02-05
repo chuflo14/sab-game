@@ -120,7 +120,7 @@ function PaymentContent() {
 
         const interval = setInterval(checkStatus, 3000); // Check every 3 seconds
         return () => clearInterval(interval);
-    }, [externalRef, status, router, nextRoute]);
+    }, [externalRef, status, router, nextRoute, config.success, preferenceId]);
 
 
     // Dev Bypass

@@ -27,12 +27,7 @@ export default function SettingsAdminPage() {
         setPrice(data.game_price || 1000);
     };
 
-    const updateConfig = async (key: keyof ChangoConfig, value: any) => {
-        const newData = { [key]: value };
-        // Optimistic update
-        setConfig(prev => prev ? { ...prev, ...newData } : null);
-        await updateChangoConfigAction(newData);
-    };
+
 
     const handleSave = async () => {
         setIsSaving(true);

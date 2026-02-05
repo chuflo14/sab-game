@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 
-import { fetchChangoConfig } from '@/lib/actions';
 import { sendJoystickEvent } from '@/lib/realtime';
 
 export default function InstructionsPage() {
@@ -29,7 +28,7 @@ export default function InstructionsPage() {
         loadConfig();
     }, []);
 
-    const handleGameSelect = (nextRoute: string) => {
+    const handleGameSelect = useCallback((nextRoute: string) => {
         // If loading, default to payment enabled for safety, or wait. 
         // Let's safe fail to payment flow if unsure, or block. 
         // If null, we might want to block interaction or default to true.
@@ -42,7 +41,7 @@ export default function InstructionsPage() {
         } else {
             router.push(nextRoute);
         }
-    };
+    }, [paymentsEnabled, router]);
 
     useEffect(() => {
         // Timeout to return to home if inactive
@@ -65,7 +64,6 @@ export default function InstructionsPage() {
         window.addEventListener('keydown', handleKeyDown);
 
         const machineId = localStorage.getItem('MACHINE_ID');
-        let channel: any;
 
         if (machineId) {
             // Report state to joystick
@@ -77,9 +75,8 @@ export default function InstructionsPage() {
         return () => {
             clearTimeout(timeout);
             window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [router, paymentsEnabled]); // Add paymentsEnabled dependency
+    }, [router, paymentsEnabled, handleGameSelect]); // Add handleGameSelect dependency
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-6 md:p-8 text-center space-y-8 md:space-y-12">
