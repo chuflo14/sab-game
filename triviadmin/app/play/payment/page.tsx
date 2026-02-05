@@ -235,12 +235,10 @@ function PaymentContent() {
                     </div>
 
                 </div>
-                </div>
-    )
-}
+            )}
 
-<LegalFooter />
-        </div >
+            <LegalFooter />
+        </div>
     );
 }
 
