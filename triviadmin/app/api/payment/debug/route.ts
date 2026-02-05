@@ -11,6 +11,13 @@ export async function GET(request: NextRequest) {
     const prodToken = process.env.MP_PROD_ACCESS_TOKEN;
     const devToken = process.env.MP_ACCESS_TOKEN;
 
+    results.context = {
+        node_env: process.env.NODE_ENV,
+        vercel_env: process.env.VERCEL_ENV,
+        vercel_url: process.env.VERCEL_URL,
+        timestamp: new Date().toISOString()
+    };
+
     results.env = {
         MP_PROD_ACCESS_TOKEN: prodToken ? {
             params: 'Present',
