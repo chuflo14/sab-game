@@ -19,8 +19,8 @@ export default function PenaltiesGame() {
     const [prizes, setPrizes] = useState<Prize[]>([]);
 
     // Game Loop Ref
-    const requestRef = useRef<number>();
-    const lastTimeRef = useRef<number>();
+    const requestRef = useRef<number | null>(null);
+    const lastTimeRef = useRef<number | null>(null);
     const gameStartTime = useRef(new Date());
     const isMoving = useRef(false);
 
