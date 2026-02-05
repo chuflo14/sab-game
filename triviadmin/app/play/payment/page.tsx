@@ -6,6 +6,7 @@ import { Smartphone, ChevronRight, Loader2 } from 'lucide-react';
 import ReactQRCode from 'react-qr-code';
 import { fetchChangoConfig } from '@/lib/actions';
 import { sendJoystickEvent } from '@/lib/realtime';
+import { LegalFooter } from '@/components/LegalFooter';
 
 
 
@@ -236,6 +237,11 @@ function PaymentContent() {
                 </div>
             )}
         </div>
+    )
+}
+
+<LegalFooter />
+        </div >
     );
 }
 

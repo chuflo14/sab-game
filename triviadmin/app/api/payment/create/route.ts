@@ -11,6 +11,10 @@ const client = new MercadoPagoConfig({
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
+    // DEBUG: Check Token Prefix
+    const token = process.env.MP_ACCESS_TOKEN || '';
+    console.log(`DEBUG: Using MP Token starting with: ${token.substring(0, 8)}...`);
+
     try {
         const body = await request.json();
         const machineId = body.machineId;
