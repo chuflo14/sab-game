@@ -19,6 +19,7 @@ function PaymentContent() {
     const [status, setStatus] = useState<'loading' | 'pending' | 'scanning' | 'approved'>('loading');
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
     const [externalRef, setExternalRef] = useState<string | null>(null);
+    const [preferenceId, setPreferenceId] = useState<string | null>(null);
     const [amount, setAmount] = useState<number>(1000); // Default to 1000
     const [error, setError] = useState<string | null>(null);
     const [clickCount, setClickCount] = useState(0);
@@ -68,6 +69,7 @@ function PaymentContent() {
                     console.log('DEBUG: Payment created', { id: data.id, ref: data.external_reference });
                     setPaymentUrl(data.init_point);
                     setExternalRef(data.external_reference);
+                    setPreferenceId(data.id);
                     if (data.amount) setAmount(data.amount);
                     setStatus('scanning');
 
@@ -101,7 +103,8 @@ function PaymentContent() {
         const checkStatus = async () => {
             console.log('DEBUG: Polling status for ref:', externalRef);
             try {
-                const res = await fetch(`/api/payment/status?external_reference=${externalRef}`, { cache: 'no-store' });
+                const url = `/api/payment/status?external_reference=${externalRef}${preferenceId ? `&preference_id=${preferenceId}` : ''}`;
+                const res = await fetch(url, { cache: 'no-store' });
                 const data = await res.json();
 
                 if (data.status === 'approved') {
