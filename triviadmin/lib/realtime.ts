@@ -9,7 +9,7 @@ export type JoystickEvent =
     | { type: 'GAME_OVER' }
     | { type: 'TIMEOUT' };
 
-export const subscribeToJoystick = (machineId: string, onEvent: (payload: JoystickEvent) => void) => {
+export const subscribeToJoystick = (machineId: string, onEvent: (payload: JoystickEvent) => void, onStatus?: (status: string) => void) => {
     const channel = supabase.channel(`joystick:${machineId}`, {
         config: {
             broadcast: { self: true },
@@ -20,7 +20,9 @@ export const subscribeToJoystick = (machineId: string, onEvent: (payload: Joysti
         .on('broadcast', { event: 'joystick_input' }, ({ payload }) => {
             onEvent(payload as JoystickEvent);
         })
-        .subscribe();
+        .subscribe((status) => {
+            if (onStatus) onStatus(status);
+        });
 
     return channel;
 };

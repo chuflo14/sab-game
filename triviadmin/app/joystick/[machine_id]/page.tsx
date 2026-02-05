@@ -54,9 +54,7 @@ export default function JoystickPage() {
 
         console.log("JoystickPage: Connecting to machine:", machineId, "Player:", playerId);
 
-        // Notify Join
-        sendJoystickEvent(machineId, { type: 'JOIN', playerId });
-
+        // Create subscription first
         const channel = subscribeToJoystick(machineId, (payload) => {
             console.log("JoystickPage: Event received:", payload);
             if (payload.type === 'STATE_CHANGE') {
@@ -79,6 +77,12 @@ export default function JoystickPage() {
                     setIsConnected(false);
                     setGameState('WAITING');
                 }, 3000);
+            }
+        }, (status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log("JoystickPage: Subscribed! Sending JOIN...");
+                // Notify Join ONLY after we are listening
+                sendJoystickEvent(machineId, { type: 'JOIN', playerId });
             }
         });
 
