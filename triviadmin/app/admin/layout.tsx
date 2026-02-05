@@ -17,8 +17,7 @@ import {
     LogOut,
     Clock,
     Flame,
-    Music,
-    Layers // New icon
+    Music
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +25,7 @@ const navItems = [
     { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { label: 'Usuarios', href: '/admin/users', icon: Users },
     { label: 'Publicidad', href: '/admin/ads', icon: MonitorPlay },
-    { label: 'Juegos', href: '/admin/games', icon: Layers }, // New Link
+
     { label: 'Trivia', href: '/admin/questions', icon: Gamepad2 },
     { label: 'Ruleta', href: '/admin/wheel', icon: CircleEllipsis },
     { label: 'Globo (Chango)', href: '/admin/chango', icon: Flame },
