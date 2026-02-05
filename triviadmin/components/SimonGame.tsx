@@ -78,7 +78,7 @@ export default function SimonGame() {
         sequenceRef.current = newSeq;
 
         playSequence(newSeq);
-    }, [score, playSequence]); // score is used in playSequence, so it's a dependency
+    }, [playSequence]);
 
     useEffect(() => {
         // Preload sounds
@@ -106,7 +106,7 @@ export default function SimonGame() {
         init();
     }, [startNewRound]); // Added dependency
 
-    const handleGameOver = () => {
+    const handleGameOver = useCallback(() => {
         setStatus('GAME_OVER');
         statusRef.current = 'GAME_OVER';
         setMessage('¡ERROR!');
@@ -126,9 +126,9 @@ export default function SimonGame() {
         });
 
         setTimeout(() => router.push('/'), 3000);
-    };
+    }, [router]);
 
-    const handleWin = async () => {
+    const handleWin = useCallback(async () => {
         setStatus('WIN');
         statusRef.current = 'WIN';
         const mid = localStorage.getItem('MACHINE_ID');
@@ -159,7 +159,7 @@ export default function SimonGame() {
                 router.push('/');
             }
         }, 3000);
-    };
+    }, [prizes, router]);
 
     const handleInput = useCallback((color: Color) => {
         if (statusRef.current !== 'WAITING_INPUT') return;

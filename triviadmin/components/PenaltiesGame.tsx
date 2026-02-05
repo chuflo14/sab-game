@@ -68,43 +68,6 @@ export default function PenaltiesGame() {
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
             if (crowdRef.current) crowdRef.current.pause();
         };
-        useEffect(() => {
-            // Preload sounds...
-            // ... (truncated)
-            // Actually I need to see if startRound / startGame are stable.
-            // Assuming I fix them below.
-
-            // ...
-
-            // Delay slighty
-            // setTimeout(init, 500); 
-            // Logic seems complex to patch in replace.
-            // Let's just fix the hook deps in line 72
-
-        }, []); // Hook said missing startGame. 
-        // And startgame calls startRound calls animate.
-        // If I wrap them all, I can put them here.
-
-        // Actually, init calls startGame. init is defined inside effect?
-        // Let's check view.
-        // Init is defined inside useEffect (lines 48-63 in view 50-200? Wait, view 939 shows lines 50+.
-        // Init is defined in previous lines not shown in 939 fully?
-        // Ah, lines 42-67 in view 851 (similar file).
-        // In PenaltiesGame view 939: 
-        // Line 72: }, []);
-        // Line 66: setTimeout(init, 500);
-        // Init calls startGame.
-        // startGame uses setGameState etc.
-        // Since init is inside useEffect, no need to dep it.
-        // But startGame is OUTSIDE useEffect?
-        // Line 74: const startGame = ...
-        // Yes. So init depends on startGame.
-        // So useEffect depends on startGame.
-        // So startGame must be wrapped or effect will loop if startGame unstable.
-
-        // I will wrap startGame and startRound in useCallback.
-
-        return null; // Dummy to skip replace here, do it in next tool calls
     }, [startGame]);
 
     const startGame = useCallback(() => {

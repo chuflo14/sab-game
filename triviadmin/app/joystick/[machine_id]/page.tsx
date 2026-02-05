@@ -18,8 +18,8 @@ export default function JoystickPage() {
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
 
-    // Tap Race State
-    const [tapCount, setTapCount] = useState(0);
+    // Tap Race State - direct event sending
+    // const [tapCount, setTapCount] = useState(0);
 
     useEffect(() => {
         if (rawMachineId) {
@@ -97,7 +97,6 @@ export default function JoystickPage() {
         if (navigator.vibrate) navigator.vibrate(50);
 
         if (gameType === 'TAPRACE' && key === 'TAP') {
-            setTapCount(prev => prev + 1);
             await sendJoystickEvent(machineId, { type: 'TAP', playerId });
         } else {
             await sendJoystickEvent(machineId, { type: 'KEYDOWN', key }); // Key can be color
