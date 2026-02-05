@@ -58,18 +58,30 @@ export async function POST(request: NextRequest) {
         const preference = new Preference(client);
         const externalReference = `game-${Date.now()}`;
 
+        const origin = request.nextUrl.origin;
+        const notificationUrl = `${origin}/api/payment/webhook`;
+
         const payload = {
             body: {
                 items: [
                     {
                         id: 'game-credit',
                         title: 'Ficha de Juego - SABGAME',
+                        description: `Crédito para máquina: ${machineId || 'Global'}`,
                         quantity: 1,
                         unit_price: Number(amount),
+                        category_id: 'entertainment',
                     }
                 ],
                 external_reference: externalReference,
-                // Removed expires and back_urls to test "PolicyAgent" issue
+                notification_url: notificationUrl,
+                auto_return: 'approved',
+                statement_descriptor: 'SABGAME RIOJA',
+                back_urls: {
+                    success: `${origin}/play/payment/success`,
+                    failure: `${origin}/play/payment/failure`,
+                    pending: `${origin}/play/payment/pending`
+                }
             }
         };
 
