@@ -1,22 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Trophy, Music, Timer, Gauge } from 'lucide-react';
+import { Save, Timer, Gauge } from 'lucide-react';
 import { fetchChangoConfig, updateChangoConfigAction } from '@/lib/actions';
-import { ChangoConfig } from '@/lib/types';
 import { toast } from 'sonner';
 
 export default function TapRaceAdminPage() {
     const [duration, setDuration] = useState(30);
     const [difficulty, setDifficulty] = useState(100);
     const [isSaving, setIsSaving] = useState(false);
-    const [config, setConfig] = useState<ChangoConfig | null>(null);
 
     useEffect(() => {
         const loadConfig = async () => {
             const data = await fetchChangoConfig();
             if (data) {
-                setConfig(data);
                 setDuration(data.taprace_duration || 30);
                 setDifficulty(data.taprace_difficulty || 100);
             }

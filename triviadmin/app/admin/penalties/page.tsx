@@ -1,22 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Trophy, Music } from 'lucide-react';
-import { fetchChangoConfig, updateChangoConfigAction } from '@/lib/actions';
-import { ChangoConfig } from '@/lib/types';
+import { Save, Trophy, Timer, Gauge } from 'lucide-react';
+import { updateChangoConfigAction, fetchChangoConfig } from '@/lib/actions';
 import { toast } from 'sonner';
 
-export default function PenaltiesAdminPage() {
+export default function PenaltiesGameAdminPage() {
     const [difficulty, setDifficulty] = useState(5); // 1-10
     const [maxShots, setMaxShots] = useState(5);
     const [isSaving, setIsSaving] = useState(false);
-    const [config, setConfig] = useState<ChangoConfig | null>(null);
 
     useEffect(() => {
         const loadConfig = async () => {
             const data = await fetchChangoConfig();
             if (data) {
-                setConfig(data);
                 setDifficulty(data.penalties_difficulty || 5);
                 setMaxShots(data.penalties_max_shots || 5);
             }

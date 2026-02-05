@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { sendJoystickEvent, subscribeToJoystick } from '@/lib/realtime';
-import { fetchMachineDetails } from '@/lib/actions';
+import { subscribeToJoystick, sendJoystickEvent, JoystickEvent } from '@/lib/realtime';
+import { CreditCard, Gamepad2, Play, Users, Disc, Trophy, Rocket } from 'lucide-react';
+import QRCode from 'react-qr-code';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function JoystickPage() {
     const params = useParams();
@@ -11,18 +13,19 @@ export default function JoystickPage() {
 
     // Parse Player and Real Machine ID
     // Format: MACHINE_ID-P2, MACHINE_ID-P3. Default is P1.
-    const [mid, setMid] = useState<string>('');
+    const [machineId, setMachineId] = useState<string | null>(null);
     const [playerId, setPlayerId] = useState<number>(1);
 
-    const [status, setStatus] = useState<'READY' | 'PAYING' | 'PAYMENT_APPROVED' | 'PLAYING' | 'WAITING' | 'GAME_OVER' | 'TIMEOUT'>('WAITING');
-    const [gameType, setGameType] = useState<'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'PENALTIES' | 'TAPRACE' | 'MENU'>('MENU');
-    const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+    const [gameState, setGameState] = useState<'WAITING' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED'>('WAITING');
+    const [gameType, setGameType] = useState<'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'PENALTIES' | 'TAPRACE' | null>(null);
+    const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+    // const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
-    const [machineShortId, setMachineShortId] = useState<string>('');
+    // const [machineShortId, setMachineShortId] = useState<string>('');
 
     // Tap Race State
-    const [tapCount, setTapCount] = useState(0);
+    // const [tapCount, setTapCount] = useState(0);
 
     useEffect(() => {
         if (rawMachineId) {

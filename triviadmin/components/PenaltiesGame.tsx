@@ -179,7 +179,7 @@ export default function PenaltiesGame() {
 
     }, [gameState, config, attempts, score]);
 
-    const endGame = async (finalScore: number) => {
+    const endGame = useCallback(async (finalScore: number) => {
         setGameState('RESULT');
         whistleRef.current?.play().catch(() => { });
 
@@ -189,9 +189,7 @@ export default function PenaltiesGame() {
         }
 
         const maxShots = config?.penalties_max_shots || 5;
-        const winThreshold = Math.ceil(maxShots / 2); // Win if > 50% ? or just generate ticket if any goal?
-        // Let's say win if score >= 3 (standard) or configurable.
-        // For simplicity: score > 0 generates ticket (or use winThreshold)
+        const winThreshold = Math.ceil(maxShots / 2);
 
         const isWin = finalScore >= winThreshold;
         let ticket = null;
@@ -217,7 +215,7 @@ export default function PenaltiesGame() {
                 router.push('/');
             }
         }, 4000);
-    };
+    }, [config, prizes, router]);
 
 
     // Joystick Listener

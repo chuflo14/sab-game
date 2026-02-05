@@ -23,12 +23,11 @@ const SOUNDS = {
 export default function SimonGame() {
     const router = useRouter();
     const [sequence, setSequence] = useState<Color[]>([]);
-    const [userSequence, setUserSequence] = useState<Color[]>([]);
+    // User sequence tracked via ref to avoid re-renders during rapid input
     const [status, setStatus] = useState<GameStatus>('IDLE');
     const [activeColor, setActiveColor] = useState<Color | null>(null);
     const [score, setScore] = useState(0);
     const [message, setMessage] = useState('ESPERANDO...');
-    const [config, setConfig] = useState<ChangoConfig | null>(null);
     const [prizes, setPrizes] = useState<Prize[]>([]);
 
     // Refs for safe access in timeouts/intervals
@@ -39,33 +38,6 @@ export default function SimonGame() {
 
     const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
 
-    useEffect(() => {
-        // Preload sounds
-        Object.entries(SOUNDS).forEach(([key, src]) => {
-            audioRefs.current[key] = new Audio(src);
-        });
-
-        const init = async () => {
-            gameStartTime.current = new Date();
-            const [prizeData, configData] = await Promise.all([
-                fetchPrizes(),
-                fetchChangoConfig()
-            ]);
-            setConfig(configData);
-            setPrizes(prizeData);
-
-            // Notify Joystick
-            const mid = localStorage.getItem('MACHINE_ID');
-            if (mid) {
-                sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'SIMON' });
-            }
-
-            // Start Game after short delay
-            setTimeout(startNewRound, 2000);
-        };
-        init();
-    }, []);
-
     const playSound = (color: string) => {
         const audio = audioRefs.current[color];
         if (audio) {
@@ -74,19 +46,10 @@ export default function SimonGame() {
         }
     };
 
-    const addToSequence = () => {
-        const nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-        const newSeq = [...sequenceRef.current, nextColor];
-        setSequence(newSeq);
-        sequenceRef.current = newSeq;
-        return newSeq;
-    };
-
     const playSequence = async (seq: Color[]) => {
         setStatus('PLAYING_SEQUENCE');
         statusRef.current = 'PLAYING_SEQUENCE';
         setMessage('MEMORIZA');
-        setUserSequence([]);
         userSequenceRef.current = [];
 
         // Speed calculation (gets faster as score increases)
@@ -107,45 +70,41 @@ export default function SimonGame() {
         setMessage('TU TURNO');
     };
 
-    const startNewRound = () => {
-        const newSeq = addToSequence();
+    // Define dependencies for useEffect
+    const startNewRound = useCallback(() => {
+        const nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+        const newSeq = [...sequenceRef.current, nextColor];
+        setSequence(newSeq);
+        sequenceRef.current = newSeq;
+
         playSequence(newSeq);
-    };
+    }, [score]); // score is used in playSequence, so it's a dependency
 
-    const handleInput = (color: Color) => {
-        if (statusRef.current !== 'WAITING_INPUT') return;
+    useEffect(() => {
+        // Preload sounds
+        Object.entries(SOUNDS).forEach(([key, src]) => {
+            audioRefs.current[key] = new Audio(src);
+        });
 
-        setActiveColor(color);
-        playSound(color);
-        setTimeout(() => setActiveColor(null), 300);
+        const init = async () => {
+            gameStartTime.current = new Date();
+            const [prizeData] = await Promise.all([
+                fetchPrizes(),
+                fetchChangoConfig()
+            ]);
+            setPrizes(prizeData);
 
-        const newUserSeq = [...userSequenceRef.current, color];
-        setUserSequence(newUserSeq);
-        userSequenceRef.current = newUserSeq;
-
-        // Check correctness
-        const index = newUserSeq.length - 1;
-        if (newUserSeq[index] !== sequenceRef.current[index]) {
-            handleGameOver();
-            return;
-        }
-
-        // Check completion of current sequence
-        if (newUserSeq.length === sequenceRef.current.length) {
-            const newScore = sequenceRef.current.length;
-            setScore(newScore);
-            setStatus('SUCCESS');
-            statusRef.current = 'SUCCESS';
-            setMessage('¡BIEN!');
-
-            // Win Condition (e.g. 10 rounds)
-            if (newScore >= 10) { // Configurable ideally
-                handleWin();
-            } else {
-                setTimeout(startNewRound, 1500);
+            // Notify Joystick
+            const mid = localStorage.getItem('MACHINE_ID');
+            if (mid) {
+                sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'SIMON' });
             }
-        }
-    };
+
+            // Start Game after short delay
+            setTimeout(startNewRound, 2000);
+        };
+        init();
+    }, [startNewRound]); // Added dependency
 
     const handleGameOver = () => {
         setStatus('GAME_OVER');
@@ -202,6 +161,40 @@ export default function SimonGame() {
         }, 3000);
     };
 
+    const handleInput = useCallback((color: Color) => {
+        if (statusRef.current !== 'WAITING_INPUT') return;
+
+        setActiveColor(color);
+        playSound(color);
+        setTimeout(() => setActiveColor(null), 300);
+
+        const newUserSeq = [...userSequenceRef.current, color];
+        userSequenceRef.current = newUserSeq;
+
+        // Check correctness
+        const index = newUserSeq.length - 1;
+        if (newUserSeq[index] !== sequenceRef.current[index]) {
+            handleGameOver();
+            return;
+        }
+
+        // Check completion of current sequence
+        if (newUserSeq.length === sequenceRef.current.length) {
+            const newScore = sequenceRef.current.length;
+            setScore(newScore);
+            setStatus('SUCCESS');
+            statusRef.current = 'SUCCESS';
+            setMessage('¡BIEN!');
+
+            // Win Condition (e.g. 10 rounds)
+            if (newScore >= 10) { // Configurable ideally
+                handleWin();
+            } else {
+                setTimeout(startNewRound, 1500);
+            }
+        }
+    }, [startNewRound]);
+
     // Joystick Listener
     useEffect(() => {
         const mid = localStorage.getItem('MACHINE_ID');
@@ -217,7 +210,7 @@ export default function SimonGame() {
         });
 
         return () => sub.unsubscribe();
-    }, []);
+    }, [handleInput]);
 
     return (
         <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto p-4">

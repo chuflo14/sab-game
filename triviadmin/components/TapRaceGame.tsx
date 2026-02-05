@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { subscribeToJoystick, sendJoystickEvent } from '@/lib/realtime';
-import { fetchChangoConfig, logGameEvent, generateWinningTicket, fetchPrizes } from '@/lib/actions';
-import { ChangoConfig, Prize } from '@/lib/types';
-import GameResultOverlay from './GameResultOverlay';
-import { Gauge, Users, Trophy } from 'lucide-react';
+import { subscribeToJoystick, sendJoystickEvent, JoystickEvent } from '@/lib/realtime';
+import { fetchChangoConfig } from '@/lib/actions';
+import { ChangoConfig } from '@/lib/types';
+import { Trophy } from 'lucide-react';
 import QRCode from 'react-qr-code';
 
 export default function TapRaceGame() {
@@ -23,97 +22,24 @@ export default function TapRaceGame() {
     const [machineId, setMachineId] = useState<string | null>(null);
     const [baseUrl, setBaseUrl] = useState('');
 
-    // Audio Refs
-    const bgmRef = useRef<HTMLAudioElement | null>(null);
-    const stepRefs = useRef<HTMLAudioElement[]>([]); // Array of audios for steps? 
-    // Or just one channel per player...
-
-    useEffect(() => {
-        // Hydration logic
-        setBaseUrl(window.location.origin);
-        const mid = localStorage.getItem('MACHINE_ID');
-        setMachineId(mid);
-
-        const init = async () => {
-            const configData = await fetchChangoConfig();
-            setConfig(configData);
-            setTimeLeft(configData?.taprace_duration || 30);
-        };
-        init();
-
-        // Audio
-        // ...
-
-        if (mid) {
-            // Subscribe to inputs
-            const sub = subscribeToJoystick(mid, (event) => {
-                if (event.type === 'JOIN') {
-                    // Add player
-                    setPlayers(prev => prev.map(p => p.id === event.playerId ? { ...p, connected: true } : p));
-                } else if (event.type === 'TAP') {
-                    handleTap(event.playerId);
-                } else if (gameState === 'LOBBY' && event.type === 'START') {
-                    // Start Game if at least 1 player
-                    startGame();
-                }
-            });
-
-            return () => sub.unsubscribe();
+    const endGame = useCallback((winnerId: number | null) => {
+        setWinner(winnerId);
+        setGameState('RESULT');
+        if (machineId) {
+            sendJoystickEvent(machineId, { type: 'GAME_OVER' });
         }
-    }, [gameState]); // Re-bind if gamestate changes? handleTap needs latest state? Use functional updates.
 
-    const handleTap = useCallback((playerId: number) => {
-        setGameState(current => {
-            if (current !== 'RACING') return current;
+        setTimeout(() => {
+            router.push('/');
+        }, 5000);
+    }, [machineId, router]);
 
-            setPlayers(prevPlayers => {
-                const nextPlayers = prevPlayers.map(p => {
-                    if (p.id !== playerId) return p;
-
-                    // Logic: Diffculty = clicks to win
-                    // Progress = (clicks / difficulty) * 100
-                    // But we store progress directly? Or clicks?
-                    // Let's store pure progress (0-100)
-                    const difficulty = config?.taprace_difficulty || 100;
-                    const perClick = 100 / difficulty;
-                    const nextProgress = Math.min(100, p.progress + perClick);
-
-                    return { ...p, progress: nextProgress };
-                });
-
-                // Check Win
-                const winner = nextPlayers.find(p => p.progress >= 100);
-                if (winner) {
-                    processWin(winner.id);
-                    return prevPlayers; // State update happens in processWin via setGameState('RESULT')? 
-                    // No, setGameState is the reducer here. We should return nextPlayers but also trigger end.
-                    // React pattern: use useEffect to react to winner.
-                }
-
-                return nextPlayers;
-            });
-
-            return current;
-        });
-    }, [config]);
-
-    // Watch for winner
-    useEffect(() => {
-        if (gameState !== 'RACING') return;
-        const w = players.find(p => p.progress >= 100);
-        if (w) {
-            endGame(w.id);
-        }
-    }, [players, gameState]);
-
-    const startGame = () => {
+    const startGame = useCallback(() => {
         setGameState('RACING');
-        // Notify Joysticks
         if (machineId) {
             sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE' });
         }
 
-        // Timer
         const interval = setInterval(() => {
             setTimeLeft(prev => {
                 if (prev <= 1) {
@@ -124,29 +50,77 @@ export default function TapRaceGame() {
                 return prev - 1;
             });
         }, 1000);
-    };
+    }, [machineId, endGame]);
 
-    const endGame = (winnerId: number | null) => {
-        setWinner(winnerId);
-        setGameState('RESULT');
-        if (machineId) {
-            sendJoystickEvent(machineId, { type: 'GAME_OVER' });
+    const handleTap = useCallback((playerId: number) => {
+        setGameState(current => {
+            if (current !== 'RACING') return current;
+
+            setPlayers(prevPlayers => {
+                const nextPlayers = prevPlayers.map(p => {
+                    if (p.id !== playerId) return p;
+
+                    const difficulty = config?.taprace_difficulty || 100;
+                    const perClick = 100 / difficulty;
+                    const nextProgress = Math.min(100, p.progress + perClick);
+
+                    return { ...p, progress: nextProgress };
+                });
+                return nextPlayers;
+            });
+
+            return current;
+        });
+    }, [config]);
+
+    // Hydration & Config
+    useEffect(() => {
+        setBaseUrl(window.location.origin);
+        const mid = localStorage.getItem('MACHINE_ID');
+        setMachineId(mid);
+
+        const init = async () => {
+            const configData = await fetchChangoConfig();
+            setConfig(configData);
+            setTimeLeft(configData?.taprace_duration || 30);
+        };
+        init();
+    }, []);
+
+    // Joystick & Game Logic
+    useEffect(() => {
+        if (!machineId) return;
+
+        const sub = subscribeToJoystick(machineId, (event) => {
+            if (event.type === 'JOIN') {
+                setPlayers(prev => prev.map(p => p.id === event.playerId ? { ...p, connected: true } : p));
+            } else if (event.type === 'TAP') {
+                handleTap(event.playerId);
+            } else if (gameState === 'LOBBY' && event.type === 'START') {
+                // Check if at least one player connected? No strict check, P1 starts.
+                startGame();
+            }
+        });
+
+        return () => sub.unsubscribe();
+    }, [machineId, gameState, handleTap, startGame]);
+
+    // Watch for winner
+    useEffect(() => {
+        if (gameState !== 'RACING') return;
+        const w = players.find(p => p.progress >= 100);
+        if (w) {
+            endGame(w.id);
         }
+    }, [players, gameState, endGame]);
 
-        // Log results...
-        setTimeout(() => {
-            router.push('/');
-        }, 5000);
-    };
 
     if (!machineId) return <div>Cargando ID...</div>;
 
     const getJoinUrl = (pid: number) => `${baseUrl}/joystick/${machineId}${pid > 1 ? `-P${pid}` : ''}`;
-    // E.g. /joystick/ID, /joystick/ID-P2
 
     return (
         <div className="w-full h-screen flex flex-col bg-slate-900 text-white p-4 overflow-hidden">
-
             {gameState === 'LOBBY' && (
                 <div className="flex-1 flex flex-col items-center justify-center gap-8 animate-in fade-in">
                     <h1 className="text-6xl font-black text-orange-500 uppercase italic tracking-tighter">Carrera de Dedos</h1>
@@ -172,7 +146,6 @@ export default function TapRaceGame() {
                         ))}
                     </div>
 
-                    {/* Start Prompt */}
                     {players.some(p => p.connected) && (
                         <div className="animate-bounce mt-12 bg-white/10 px-8 py-4 rounded-full border border-white/20 backdrop-blur-md">
                             <p className="text-2xl font-bold uppercase tracking-widest">Presiona <span className="text-yellow-400">COMENZAR</span> (Joystick 1)</p>
@@ -191,24 +164,19 @@ export default function TapRaceGame() {
                     <div className="flex-1 flex flex-row justify-between items-end gap-4 px-8 pb-8 h-full">
                         {players.map(p => (
                             <div key={p.id} className="relative h-full w-full max-w-[180px] group">
-                                {/* Track */}
                                 <div className="w-full h-full bg-slate-800 rounded-full relative overflow-hidden border-4 border-slate-700 mx-auto">
                                     <div className="absolute inset-0 flex flex-col items-center py-4 justify-between opacity-30">
                                         {[...Array(15)].map((_, i) => <div key={i} className="h-2 w-16 bg-slate-600" />)}
                                     </div>
-                                    {/* Start Line */}
                                     <div className="absolute bottom-4 w-full h-4 bg-white/20 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#fff_10px,#fff_20px)] opacity-50" />
-                                    {/* Finish Line */}
                                     <div className="absolute top-4 w-full h-8 bg-[repeating-linear-gradient(90deg,#000,#000_20px,#fff_20px,#fff_40px)]" />
                                 </div>
 
-                                {/* Racer */}
                                 <div
                                     className="absolute left-1/2 -translate-x-1/2 transition-all duration-100 ease-linear flex flex-col items-center z-10"
-                                    style={{ bottom: `calc(${p.progress}% - 3rem + 1rem)` }} /* Offset calculation */
+                                    style={{ bottom: `calc(${p.progress}% - 3rem + 1rem)` }}
                                 >
                                     <div className={`text-6xl filter drop-shadow-2xl transition-transform ${p.progress > 95 ? 'scale-125 animate-bounce' : ''}`}>
-                                        {/* Use vertical facing emojis if possible, or rotate */}
                                         {p.id === 1 ? '🚀' : p.id === 2 ? '🛸' : '🚁'}
                                     </div>
                                     <div className={`text-xs font-bold px-2 py-0.5 rounded mt-2 border-2 border-white/50 shadow-lg ${p.id === 1 ? 'bg-orange-500' : p.id === 2 ? 'bg-blue-500' : 'bg-green-500'
@@ -217,7 +185,6 @@ export default function TapRaceGame() {
                                     </div>
                                 </div>
 
-                                {/* Progress Bar (Optional visual aid) */}
                                 <div
                                     className={`absolute bottom-0 left-0 w-2 h-full bg-slate-900 rounded-full overflow-hidden ml-[-1rem] hidden md:block`}
                                 >
@@ -246,7 +213,6 @@ export default function TapRaceGame() {
                     )}
                 </div>
             )}
-
         </div>
     );
 }

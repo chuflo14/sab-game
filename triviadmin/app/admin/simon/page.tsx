@@ -128,7 +128,7 @@ export default function SimonAdminPage() {
                     </div>
                     <div>
                         <p className="text-sm font-black uppercase tracking-widest">Gestión de Audio</p>
-                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Configura los sonidos en la sección "Música"</p>
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Configura los sonidos en la sección &quot;Música&quot;</p>
                     </div>
                 </div>
             </div>
