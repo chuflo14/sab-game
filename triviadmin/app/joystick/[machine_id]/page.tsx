@@ -279,7 +279,7 @@ export default function JoystickPage() {
 
             {/* Content */}
             <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm">
-                {gameState === 'WAITING' || gameState === 'READY' ? (
+                {gameState === 'READY' ? (
                     <div className="text-center">
                         <h1 className="text-3xl font-black text-yellow-500 mb-2">¡LISTO!</h1>
                         <p className="text-gray-400">Espera a que inicie el juego</p>
