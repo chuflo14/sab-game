@@ -102,7 +102,7 @@ export default function TapRaceGame() {
             }
         });
 
-        return () => sub.unsubscribe();
+        return () => { sub.unsubscribe(); };
     }, [machineId, gameState, handleTap, startGame]);
 
     // Watch for winner
