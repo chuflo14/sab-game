@@ -31,60 +31,48 @@ export default function PenaltiesGame() {
     const goalRef = useRef<HTMLAudioElement | null>(null);
     const missRef = useRef<HTMLAudioElement | null>(null);
 
-    useEffect(() => {
-        // Init Audio
-        crowdRef.current = new Audio('https://cdn.freesound.org/previews/195/195396_2634676-lq.mp3'); // Crowd ambience
-        crowdRef.current.loop = true;
-        crowdRef.current.volume = 0.3;
+    // Physics Refs
+    const posRef = useRef(50);
+    const dirRef = useRef(1);
+    const startPosRef = useRef(50);
 
-        whistleRef.current = new Audio('https://cdn.freesound.org/previews/415/415082_5121236-lq.mp3'); // Whistle
-        kickRef.current = new Audio('https://cdn.freesound.org/previews/563/563606_10522067-lq.mp3'); // Kick
-        goalRef.current = new Audio('https://cdn.freesound.org/previews/495/495005_6090639-lq.mp3'); // Goal cheer
-        missRef.current = new Audio('https://cdn.freesound.org/previews/337/337189_5682181-lq.mp3'); // Miss sigh
+    const endGame = useCallback(async (finalScore: number) => {
+        setGameState('RESULT');
+        whistleRef.current?.play().catch(() => { });
 
-        const init = async () => {
-            gameStartTime.current = new Date();
-            const [prizeData, configData] = await Promise.all([
-                fetchPrizes(),
-                fetchChangoConfig()
-            ]);
-            setConfig(configData);
-            setPrizes(prizeData);
+        const mid = localStorage.getItem('MACHINE_ID');
+        if (mid) {
+            sendJoystickEvent(mid, { type: 'GAME_OVER' });
+        }
 
-            // Notify Joystick
-            const mid = localStorage.getItem('MACHINE_ID');
-            if (mid) {
-                sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'PENALTIES' });
+        const maxShots = config?.penalties_max_shots || 5;
+        const winThreshold = Math.ceil(maxShots / 2);
+
+        const isWin = finalScore >= winThreshold;
+        let ticket = null;
+
+        if (isWin && prizes.length > 0) {
+            const prize = prizes[Math.floor(Math.random() * prizes.length)];
+            ticket = await generateWinningTicket(prize.id, 'penalties');
+        }
+
+        logGameEvent({
+            gameType: 'penalties',
+            startedAt: gameStartTime.current,
+            finishedAt: new Date(),
+            result: isWin ? 'WIN' : 'LOSE',
+            ticketId: ticket?.id,
+            machineId: mid || undefined
+        });
+
+        setTimeout(() => {
+            if (ticket) {
+                router.push(`/result?ticketId=${ticket.id}`);
+            } else {
+                router.push('/');
             }
-
-            // Start Game
-            startGame();
-        };
-
-        // Delay slighty to allow hydration
-        setTimeout(init, 500);
-
-        return () => {
-            if (requestRef.current) cancelAnimationFrame(requestRef.current);
-            if (crowdRef.current) crowdRef.current.pause();
-        };
-    }, [startGame]);
-
-    const startGame = useCallback(() => {
-        setGameState('PLAYING');
-        setScore(0);
-        setAttempts(0);
-        crowdRef.current?.play().catch(() => { });
-        startRound();
-    }, [startRound]);
-
-    const startRound = useCallback(() => {
-        setResult(null);
-        setCursorPosition(50);
-        isMoving.current = true;
-        lastTimeRef.current = performance.now();
-        requestRef.current = requestAnimationFrame(animate);
-    }, [animate]);
+        }, 3000);
+    }, [prizes, router, config, gameStartTime]);
 
     const updatePhysics = useCallback((deltaTime: number) => {
         const difficulty = config?.penalties_difficulty || 5;
@@ -106,15 +94,32 @@ export default function PenaltiesGame() {
 
     const animate = useCallback((time: number) => {
         if (!isMoving.current) return;
+        if (!lastTimeRef.current) lastTimeRef.current = time;
 
-        if (lastTimeRef.current !== undefined) {
-            const deltaTime = time - lastTimeRef.current;
-            updatePhysics(deltaTime);
-        }
-
+        const deltaTime = time - lastTimeRef.current;
         lastTimeRef.current = time;
+
+        updatePhysics(deltaTime);
+
         requestRef.current = requestAnimationFrame(animate);
     }, [updatePhysics]);
+
+    const startRound = useCallback(() => {
+        setResult(null);
+        posRef.current = 50; // Reset position for new round
+        setCursorPosition(50);
+        isMoving.current = true;
+        lastTimeRef.current = performance.now();
+        requestRef.current = requestAnimationFrame(animate);
+    }, [animate]);
+
+    const startGame = useCallback(() => {
+        setGameState('PLAYING');
+        setScore(0);
+        setAttempts(0);
+        crowdRef.current?.play().catch(() => { });
+        startRound();
+    }, [startRound]);
 
     const handleShoot = useCallback(() => {
         if (!isMoving.current || gameState !== 'PLAYING') return;
@@ -159,44 +164,52 @@ export default function PenaltiesGame() {
 
     }, [gameState, config, attempts, score, endGame, startRound]);
 
-    const endGame = useCallback(async (finalScore: number) => {
-        setGameState('RESULT');
-        whistleRef.current?.play().catch(() => { });
 
-        const mid = localStorage.getItem('MACHINE_ID');
-        if (mid) {
-            sendJoystickEvent(mid, { type: 'GAME_OVER' });
-        }
+    useEffect(() => {
+        // Preload sounds
+        const preloadAudio = (src: string) => {
+            const audio = new Audio(src);
+            audio.preload = 'auto';
+            return audio;
+        };
 
-        const maxShots = config?.penalties_max_shots || 5;
-        const winThreshold = Math.ceil(maxShots / 2);
+        crowdRef.current = preloadAudio('/sounds/crowd.mp3');
+        whistleRef.current = preloadAudio('/sounds/whistle.mp3');
+        kickRef.current = preloadAudio('/sounds/kick.mp3');
+        goalRef.current = preloadAudio('/sounds/goal.mp3');
+        missRef.current = preloadAudio('/sounds/miss.mp3');
 
-        const isWin = finalScore >= winThreshold;
-        let ticket = null;
+        crowdRef.current.loop = true;
+        crowdRef.current.volume = 0.3;
 
-        if (isWin && prizes.length > 0) {
-            const prize = prizes[Math.floor(Math.random() * prizes.length)];
-            ticket = await generateWinningTicket(prize.id, 'penalties');
-        }
+        // Init Logic
+        const init = async () => {
+            gameStartTime.current = new Date();
+            const [configData, prizeData] = await Promise.all([
+                fetchChangoConfig(),
+                fetchPrizes()
+            ]);
+            setConfig(configData);
+            setPrizes(prizeData);
 
-        logGameEvent({
-            gameType: 'penalties',
-            startedAt: gameStartTime.current,
-            finishedAt: new Date(),
-            result: isWin ? 'WIN' : 'LOSE',
-            ticketId: ticket?.id,
-            machineId: mid || undefined
-        });
-
-        setTimeout(() => {
-            if (ticket) {
-                router.push(`/result?ticketId=${ticket.id}`);
-            } else {
-                router.push('/');
+            // Notify Joystick
+            const mid = localStorage.getItem('MACHINE_ID');
+            if (mid) {
+                sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'PENALTIES' });
             }
-        }, 4000);
-    }, [config, prizes, router]);
 
+            // Start Game
+            startGame();
+        };
+
+        // Delay slighty to allow hydration
+        setTimeout(init, 500);
+
+        return () => {
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+            if (crowdRef.current) crowdRef.current.pause();
+        };
+    }, [startGame, gameStartTime]);
 
     // Joystick Listener
     useEffect(() => {
