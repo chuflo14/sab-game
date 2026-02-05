@@ -314,7 +314,7 @@ export default function MachinesAdminPage() {
             {/* Modal - Modern Design */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-500">
-                    <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-3xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-500">
+                    <div className="bg-white w-full max-w-lg max-h-[90vh] flex flex-col rounded-[2.5rem] shadow-3xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-500">
                         <div className="p-8 md:p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
                             <div className="space-y-1">
                                 <h3 className="text-xl md:text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">
@@ -327,7 +327,7 @@ export default function MachinesAdminPage() {
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-6 md:space-y-8">
+                        <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-6 md:space-y-8 overflow-y-auto">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] ml-2">Nombre / Ref</label>
