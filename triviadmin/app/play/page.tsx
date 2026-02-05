@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 
-import { sendJoystickEvent } from '@/lib/realtime';
+import { sendJoystickEvent, subscribeToJoystick } from '@/lib/realtime';
 
 export default function InstructionsPage() {
     const router = useRouter();
@@ -83,17 +83,25 @@ export default function InstructionsPage() {
         window.addEventListener('keydown', handleKeyDown);
 
         const machineId = localStorage.getItem('MACHINE_ID');
+        let sub: any;
 
         if (machineId) {
             // Report state to joystick
             sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'MENU' });
 
-            // Note: Input is now handled by Layout's JoystickListener which dispatches window keyboard events
+            // Listen for new connections (JOIN) and resend state
+            sub = subscribeToJoystick(machineId, (event) => {
+                if (event.type === 'JOIN') {
+                    console.log(`InstructionsPage: Player ${event.playerId} joined, resending MENU state`);
+                    sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'MENU' });
+                }
+            });
         }
 
         return () => {
             clearTimeout(timeout);
             window.removeEventListener('keydown', handleKeyDown);
+            if (sub) sub.unsubscribe();
         };
     }, [router, paymentsEnabled, handleGameSelect]); // Add handleGameSelect dependency
 

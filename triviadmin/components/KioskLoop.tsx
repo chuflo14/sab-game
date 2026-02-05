@@ -6,7 +6,7 @@ import { Maximize2, Minimize2 } from 'lucide-react';
 import { updateMachineHeartbeat } from '@/lib/actions';
 import { AdMedia, ChangoConfig } from '@/lib/types';
 import QRCode from 'react-qr-code';
-import { sendJoystickEvent } from '@/lib/realtime';
+import { sendJoystickEvent, subscribeToJoystick } from '@/lib/realtime';
 
 interface KioskLoopProps {
     ads: AdMedia[];
@@ -153,15 +153,23 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
         return () => clearInterval(heartbeatTimer);
     }, [currentMachineId]);
 
-    // Joystick Realtime Logic - Report State Only
+    // Joystick Realtime Logic - Report State & Respond to JOIN
     useEffect(() => {
         if (!currentMachineId || !isJoystickEnabled) return;
 
         console.log("KioskLoop: Javascript reporting state READY");
-        // Report state to joystick
+        // Report state to joystick (Initial)
         sendJoystickEvent(currentMachineId, { type: 'STATE_CHANGE', state: 'READY' });
 
-        // Note: Input handling is now global via JoystickListener dispatching keyboard events
+        // Listen for new connections (JOIN) and resend state
+        const sub = subscribeToJoystick(currentMachineId, (event) => {
+            if (event.type === 'JOIN') {
+                console.log(`KioskLoop: Player ${event.playerId} joined, resending READY state`);
+                sendJoystickEvent(currentMachineId, { type: 'STATE_CHANGE', state: 'READY' });
+            }
+        });
+
+        return () => { sub.unsubscribe(); };
     }, [currentMachineId, isJoystickEnabled]);
 
     // Keyboard listener
