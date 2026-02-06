@@ -41,13 +41,21 @@ export default function JoystickListener() {
                     if (payload.type === 'KEYDOWN') {
                         console.log("JoystickListener: Dispatching global keydown:", payload.key);
                         toast.info(`Joystick Event: KEYDOWN ${payload.key}`); // DEBUG
+
+                        // Create a more compatible event
                         const event = new KeyboardEvent('keydown', {
                             key: payload.key,
                             code: `Key${payload.key.toUpperCase()}`,
                             bubbles: true,
                             cancelable: true,
-                            view: window
+                            view: window,
+                            composed: true
                         });
+
+                        // Hack for legacy properties if needed by some browsers (though React uses key)
+                        Object.defineProperty(event, 'keyCode', { get: () => payload.key.charCodeAt(0) });
+                        Object.defineProperty(event, 'which', { get: () => payload.key.charCodeAt(0) });
+
                         window.dispatchEvent(event);
                     }
                     if (payload.type === 'START') {

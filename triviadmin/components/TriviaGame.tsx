@@ -157,6 +157,19 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
         }
     }, [timeLeft, gameState, handleGameOver]);
 
+    // Debug Effect - Always listen
+    useEffect(() => {
+        const handleDebugKey = (e: KeyboardEvent) => {
+            console.log(`[DEBUG] Global Key Down: ${e.key} (State: ${gameState})`);
+            // Only show toast for relevant keys to avoid spam
+            if (['S', 'A', 'B'].includes(e.key.toUpperCase())) {
+                toast.warning(`[DEBUG] RAW KEY: ${e.key} | State: ${gameState}`);
+            }
+        };
+        window.addEventListener('keydown', handleDebugKey);
+        return () => window.removeEventListener('keydown', handleDebugKey);
+    }, [gameState]);
+
     useEffect(() => {
         if (gameState !== 'playing') return;
         const handleKeyDown = (e: KeyboardEvent) => {
