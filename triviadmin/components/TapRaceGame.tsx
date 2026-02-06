@@ -269,7 +269,14 @@ export default function TapRaceGame() {
                                                 viewBox={`0 0 256 256`}
                                             />
                                         ) : (
-                                            <div className="text-6xl">{p.type === 'bot' ? '🤖' : '👤'}</div>
+                                            <div className="flex items-center justify-center">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={p.type === 'bot' ? '/media/car-red.png' : '/media/car-blue.png'}
+                                                    alt="Avatar"
+                                                    className="w-24 h-24 object-contain"
+                                                />
+                                            </div>
                                         )}
                                     </div>
                                 </div>
