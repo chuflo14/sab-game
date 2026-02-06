@@ -320,7 +320,7 @@ export default function TapRaceGame() {
                                     <div className={`filter drop-shadow-2xl transition-transform ${p.progress > 95 ? 'scale-125 animate-bounce' : ''}`}>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
-                                            src={p.type === 'bot' ? '/media/car-red.png' : '/media/car-blue.png'}
+                                            src={p.type === 'bot' ? '/media/car-red.png' : (p.id === 2 ? '/media/car-yellow.png' : '/media/car-blue.png')}
                                             alt={p.name}
                                             className="w-24 h-auto transform -rotate-90 object-contain"
                                         />
