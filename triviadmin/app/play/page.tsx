@@ -86,7 +86,7 @@ export default function InstructionsPage() {
         let sub: any;
 
         if (machineId) {
-            // Report state to joystick
+            // Report state to joystick - Force MENU state
             sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'MENU' });
 
             // Listen for new connections (JOIN) and resend state

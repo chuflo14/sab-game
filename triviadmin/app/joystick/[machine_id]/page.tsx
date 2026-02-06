@@ -13,7 +13,7 @@ export default function JoystickPage() {
     const [machineId, setMachineId] = useState<string | null>(null);
     const [playerId, setPlayerId] = useState<number>(1);
 
-    const [gameState, setGameState] = useState<'INITIALIZING' | 'WAITING' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED'>('INITIALIZING');
+    const [gameState, setGameState] = useState<'INITIALIZING' | 'WAITING' | 'CONNECTION_SUCCESS' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED'>('INITIALIZING');
     const [gameType, setGameType] = useState<'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'PENALTIES' | 'TAPRACE' | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
@@ -45,38 +45,16 @@ export default function JoystickPage() {
                 if (details) {
                     setMachineName(details.name);
                     if (details.enabledGames && details.enabledGames.length > 0) {
-                        // Map internal IDs if needed, but assuming slug match or direct ID match.
-                        // The types say enabledGames is string[]. Usually it's IDs.
-                        // But let's check how play/page.tsx does it.
-                        // play/page.tsx: allGames.filter(g => m.enabledGames.includes(g.id)).map(g => g.slug)
-                        // Note: Joystick doesn't fetch allGames list efficiently yet.
-                        // For simplicity/robustness, if enabledGames contains slugs directly or we just assume 'trivia' etc.
-                        // Wait, enabledGames usually stores UUIDs in DB.
-                        // fetchMachineDetails returns what's in DB.
-                        // We might need to fetch games list to map IDs to Slugs if they are IDs. 
-                        // However, let's assume for now we might need to adjust if we don't have game dict.
-                        // Actually, to be safe and avoid extra fetches, I will defer strict filtering to server or just try to match if possible.
-                        // user request "que estan tildados".
-                        // Let's blindly check if we can pass slugs from server or just use what we have.
-                        // Reviewing actions.ts: fetchMachineDetails returns enabledGames (ids).
-                        // I probably need to fetch all games to map them.
-                        // Or I can just trust the user set up and maybe the enabledGames are slugs? 
-                        // DAL schema says enabledGames is string[].
-                        // Let's use a server action helper to get slugs if needed.
-                        // But I can't change server actions easily without context.
-                        // I'll assume I need to fetch games to map.
-                        // Actually, let's just use a helper or do it in the effect?
-                        // I'll fetch games locally in effect for mapping.
-                    }
-                    // Actually, I'll update the effect to also fetchGames
-                    import('@/lib/actions').then(mod => {
-                        mod.fetchGames().then(allGames => {
-                            if (details.enabledGames && details.enabledGames.length > 0 && allGames) {
-                                const slugs = allGames.filter((g: any) => details.enabledGames!.includes(g.id)).map((g: any) => g.slug);
-                                setEnabledGames(slugs);
-                            }
+                        // Import helper to resolve game slugs if needed
+                        import('@/lib/actions').then(mod => {
+                            mod.fetchGames().then(allGames => {
+                                if (details.enabledGames && details.enabledGames.length > 0 && allGames) {
+                                    const slugs = allGames.filter((g: any) => details.enabledGames!.includes(g.id)).map((g: any) => g.slug);
+                                    setEnabledGames(slugs);
+                                }
+                            });
                         });
-                    });
+                    }
                 }
             });
         }
@@ -90,8 +68,11 @@ export default function JoystickPage() {
 
         // Fallback: If connection takes too long, force READY state (Optimistic UI)
         const fallbackTimer = setTimeout(() => {
-            setGameState(current => current === 'INITIALIZING' ? 'READY' : current);
-            setIsConnected(true);
+            if (!isConnected) {
+                setGameState(current => current === 'INITIALIZING' ? 'CONNECTION_SUCCESS' : current);
+                setIsConnected(true);
+                setTimeout(() => setGameState('READY'), 2000);
+            }
         }, 3000);
 
         // Create subscription first
@@ -124,6 +105,12 @@ export default function JoystickPage() {
                 // Notify Join ONLY after we are listening
                 sendJoystickEvent(machineId, { type: 'JOIN', playerId });
                 setIsConnected(true);
+
+                // Show Success Message first
+                setGameState('CONNECTION_SUCCESS');
+                setTimeout(() => {
+                    setGameState(prev => prev === 'CONNECTION_SUCCESS' ? 'READY' : prev);
+                }, 2000);
             }
         });
 
@@ -156,6 +143,17 @@ export default function JoystickPage() {
                 <div className="w-12 h-12 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin"></div>
                 <p className="animate-pulse">CONECTANDO...</p>
                 <p className="text-xs text-gray-600 font-mono">ID: {machineId.slice(0, 8)}</p>
+            </div>
+        );
+    }
+
+    if (gameState === 'CONNECTION_SUCCESS') {
+        return (
+            <div className="min-h-screen bg-green-500 flex flex-col items-center justify-center text-white text-center p-8 space-y-6 animate-in fade-in zoom-in duration-300">
+                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mb-4">
+                    <span className="text-6xl">✓</span>
+                </div>
+                <h1 className="text-4xl font-black uppercase tracking-widest">¡CONEXIÓN<br />EXITOSA!</h1>
             </div>
         );
     }
