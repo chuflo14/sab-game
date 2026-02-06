@@ -97,6 +97,9 @@ export default function InstructionsPage() {
                 if (event.type === 'JOIN') {
                     console.log(`InstructionsPage: Player ${event.playerId} joined, resending MENU state`);
                     sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'MENU' });
+                } else if (event.type === 'KEYDOWN' && event.key) {
+                    console.log(`InstructionsPage: Joystick keydown: ${event.key}`);
+                    handleInput(event.key);
                 }
             });
         }
