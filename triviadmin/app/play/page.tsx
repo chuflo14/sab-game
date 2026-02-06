@@ -201,27 +201,29 @@ export default function InstructionsPage() {
                             )}
                         </>
                     )}
-
-                    <div className="mt-8 md:mt-12 p-6 md:p-8 bg-yellow-900/30 border border-yellow-600/50 rounded-2xl md:rounded-3xl max-w-3xl w-full text-center">
-                        <h3 className="text-2xl md:text-4xl font-bold text-yellow-400 mb-4 md:mb-6 uppercase tracking-wider">¡Importante!</h3>
-                        <p className="text-xl md:text-3xl leading-relaxed font-medium">
-                            Si ganas: Aparecerá un código QR durante 20 segundos.
-                            <br className="my-2" />
-                            <span className="font-bold text-white underline decoration-yellow-500 underline-offset-8">¡Tómale una foto rápido!</span>
-                            <br className="my-2" />
-                            la necesitarás para reclamar tu premio.
-                        </p>
-                    </div>
-
-                    <div className="mt-auto pt-12 pb-4 flex gap-8 opacity-20 hover:opacity-100 transition-opacity duration-500">
-                        <button
-                            onClick={() => router.push('/login')}
-                            className="px-6 py-2 border border-white/10 rounded-full hover:bg-white/5 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2"
-                        >
-                            <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
-                            Acceso Restringido
-                        </button>
-                    </div>
                 </div>
-                );
+
+                <div className="mt-8 md:mt-12 p-6 md:p-8 bg-yellow-900/30 border border-yellow-600/50 rounded-2xl md:rounded-3xl max-w-3xl w-full text-center">
+                    <h3 className="text-2xl md:text-4xl font-bold text-yellow-400 mb-4 md:mb-6 uppercase tracking-wider">¡Importante!</h3>
+                    <p className="text-xl md:text-3xl leading-relaxed font-medium">
+                        Si ganas: Aparecerá un código QR durante 20 segundos.
+                        <br className="my-2" />
+                        <span className="font-bold text-white underline decoration-yellow-500 underline-offset-8">¡Tómale una foto rápido!</span>
+                        <br className="my-2" />
+                        la necesitarás para reclamar tu premio.
+                    </p>
+                </div>
+
+                <div className="mt-auto pt-12 pb-4 flex gap-8 opacity-20 hover:opacity-100 transition-opacity duration-500">
+                    <button
+                        onClick={() => router.push('/login')}
+                        className="px-6 py-2 border border-white/10 rounded-full hover:bg-white/5 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2"
+                    >
+                        <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                        Acceso Restringido
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 }
