@@ -95,12 +95,21 @@ export default function TapRaceGame() {
             if (event.type === 'JOIN') {
                 setPlayers(prev => prev.map(p => p.id === event.playerId ? { ...p, connected: true } : p));
             } else if (event.type === 'TAP') {
-                handleTap(event.playerId);
+                if (gameState === 'RACING') {
+                    handleTap(event.playerId);
+                } else if (gameState === 'LOBBY') {
+                    // Allow TAP to start if lobby
+                    startGame();
+                }
+            } else if (event.type === 'KEYDOWN' && event.key === 'S' && gameState === 'LOBBY') {
+                startGame();
             } else if (gameState === 'LOBBY' && event.type === 'START') {
-                // Check if at least one player connected? No strict check, P1 starts.
                 startGame();
             }
         });
+
+        // Broadcast presence
+        sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE' });
 
         return () => { sub.unsubscribe(); };
     }, [machineId, gameState, handleTap, startGame]);
