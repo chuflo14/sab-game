@@ -282,8 +282,7 @@ export default function JoystickPage() {
                     </div>
                 </div>
                 <div className="flex flex-col items-end">
-                    <span className="text-slate-500 text-[10px]">JUGADOR {playerId}</span>
-                    <span className="text-orange-500 text-lg">P{playerId}</span>
+                    <span className="text-slate-500 text-[10px]">SABGAME</span>
                 </div>
             </div>
 

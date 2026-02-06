@@ -166,6 +166,9 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
             if (event.type === 'JOIN') {
                 console.log(`KioskLoop: Player ${event.playerId} joined, resending READY state`);
                 sendJoystickEvent(currentMachineId, { type: 'STATE_CHANGE', state: 'READY' });
+            } else if (event.type === 'KEYDOWN' || event.type === 'TAP') {
+                console.log("KioskLoop: Joystick input received, triggering start.");
+                handleStart();
             }
         });
 
