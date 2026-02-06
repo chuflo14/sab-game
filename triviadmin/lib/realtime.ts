@@ -5,7 +5,7 @@ export type JoystickEvent =
     | { type: 'KEYDOWN'; key: string }
     | { type: 'TAP'; playerId: number }
     | { type: 'JOIN'; playerId: number }
-    | { type: 'STATE_CHANGE'; state: 'READY' | 'CONNECTION_SUCCESS' | 'PAYING' | 'PAYMENT_APPROVED' | 'PLAYING' | 'WAITING' | 'WAITING_SELECTION'; game?: 'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'TAPRACE'; paymentUrl?: string }
+    | { type: 'STATE_CHANGE'; state: 'READY' | 'CONNECTION_SUCCESS' | 'PAYING' | 'PAYMENT_APPROVED' | 'PLAYING' | 'WAITING' | 'WAITING_SELECTION'; game?: 'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'TAPRACE' | 'TAPRACE_SETUP'; paymentUrl?: string }
     | { type: 'GAME_OVER' }
     | { type: 'TIMEOUT' };
 
