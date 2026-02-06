@@ -74,6 +74,9 @@ export default function InstructionsPage() {
             if (upKey === 'S') handleGameSelect('/play/pre-game?next=/play/trivia');
             else if (upKey === 'A') handleGameSelect('/play/pre-game?next=/play/azar');
             else if (upKey === 'B') handleGameSelect('/play/pre-game?next=/play/suerte');
+            else if (upKey === 'C') handleGameSelect('/play/pre-game?next=/play/simon');
+            else if (upKey === 'D') handleGameSelect('/play/pre-game?next=/play/penalties');
+            else if (upKey === 'E') handleGameSelect('/play/pre-game?next=/play/taprace');
         };
 
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -157,31 +160,68 @@ export default function InstructionsPage() {
                                     <div className="bg-orange-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(249,115,22,0.4)] shrink-0">B</div>
                                 </button>
                             )}
+
+                            {enabledSlugs.includes('simon') && (
+                                <button
+                                    onClick={() => handleGameSelect('/play/pre-game?next=/play/simon')}
+                                    className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
+                                >
+                                    <div className="min-w-0 pr-4">
+                                        <span className="block text-3xl md:text-5xl font-black text-green-500 mb-2 truncate drop-shadow-md">Simón Dice</span>
+                                        <span className="text-sm md:text-xl text-gray-300 font-medium">¡Sigue la secuencia de colores!</span>
+                                    </div>
+                                    <div className="bg-green-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(34,197,94,0.4)] shrink-0">S</div>
+                                </button>
+                            )}
+
+                            {enabledSlugs.includes('penalties') && (
+                                <button
+                                    onClick={() => handleGameSelect('/play/pre-game?next=/play/penalties')}
+                                    className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
+                                >
+                                    <div className="min-w-0 pr-4">
+                                        <span className="block text-3xl md:text-5xl font-black text-emerald-500 mb-2 truncate drop-shadow-md">Penales</span>
+                                        <span className="text-sm md:text-xl text-gray-300 font-medium">¡Patea en el momento justo!</span>
+                                    </div>
+                                    <div className="bg-emerald-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(16,185,129,0.4)] shrink-0">P</div>
+                                </button>
+                            )}
+
+                            {enabledSlugs.includes('taprace') && (
+                                <button
+                                    onClick={() => handleGameSelect('/play/pre-game?next=/play/taprace')}
+                                    className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
+                                >
+                                    <div className="min-w-0 pr-4">
+                                        <span className="block text-3xl md:text-5xl font-black text-orange-500 mb-2 truncate drop-shadow-md">Carrera</span>
+                                        <span className="text-sm md:text-xl text-gray-300 font-medium">¡Toca rápido para ganar!</span>
+                                    </div>
+                                    <div className="bg-orange-600 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(234,88,12,0.4)] shrink-0">C</div>
+                                </button>
+                            )}
                         </>
                     )}
+
+                    <div className="mt-8 md:mt-12 p-6 md:p-8 bg-yellow-900/30 border border-yellow-600/50 rounded-2xl md:rounded-3xl max-w-3xl w-full text-center">
+                        <h3 className="text-2xl md:text-4xl font-bold text-yellow-400 mb-4 md:mb-6 uppercase tracking-wider">¡Importante!</h3>
+                        <p className="text-xl md:text-3xl leading-relaxed font-medium">
+                            Si ganas: Aparecerá un código QR durante 20 segundos.
+                            <br className="my-2" />
+                            <span className="font-bold text-white underline decoration-yellow-500 underline-offset-8">¡Tómale una foto rápido!</span>
+                            <br className="my-2" />
+                            la necesitarás para reclamar tu premio.
+                        </p>
+                    </div>
+
+                    <div className="mt-auto pt-12 pb-4 flex gap-8 opacity-20 hover:opacity-100 transition-opacity duration-500">
+                        <button
+                            onClick={() => router.push('/login')}
+                            className="px-6 py-2 border border-white/10 rounded-full hover:bg-white/5 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2"
+                        >
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                            Acceso Restringido
+                        </button>
+                    </div>
                 </div>
-            </div>
-
-            <div className="mt-8 md:mt-12 p-6 md:p-8 bg-yellow-900/30 border border-yellow-600/50 rounded-2xl md:rounded-3xl max-w-3xl w-full text-center">
-                <h3 className="text-2xl md:text-4xl font-bold text-yellow-400 mb-4 md:mb-6 uppercase tracking-wider">¡Importante!</h3>
-                <p className="text-xl md:text-3xl leading-relaxed font-medium">
-                    Si ganas: Aparecerá un código QR durante 20 segundos.
-                    <br className="my-2" />
-                    <span className="font-bold text-white underline decoration-yellow-500 underline-offset-8">¡Tómale una foto rápido!</span>
-                    <br className="my-2" />
-                    la necesitarás para reclamar tu premio.
-                </p>
-            </div>
-
-            <div className="mt-auto pt-12 pb-4 flex gap-8 opacity-20 hover:opacity-100 transition-opacity duration-500">
-                <button
-                    onClick={() => router.push('/login')}
-                    className="px-6 py-2 border border-white/10 rounded-full hover:bg-white/5 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2"
-                >
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
-                    Acceso Restringido
-                </button>
-            </div>
-        </div>
-    );
+                );
 }

@@ -194,6 +194,27 @@ export default function JoystickPage() {
                             <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">B</span>
                         </button>
                     )}
+
+                    {enabledGames.includes('simon') && (
+                        <button onClick={() => handlePress('C')} className="w-full p-6 bg-green-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(22,101,52)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
+                            <span>SIMÓN</span>
+                            <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">C</span>
+                        </button>
+                    )}
+
+                    {enabledGames.includes('penalties') && (
+                        <button onClick={() => handlePress('D')} className="w-full p-6 bg-emerald-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(5,150,105)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
+                            <span>PENALES</span>
+                            <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">D</span>
+                        </button>
+                    )}
+
+                    {enabledGames.includes('taprace') && (
+                        <button onClick={() => handlePress('E')} className="w-full p-6 bg-purple-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(126,34,206)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
+                            <span>CARRERA</span>
+                            <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">E</span>
+                        </button>
+                    )}
                 </div>
             );
         }
