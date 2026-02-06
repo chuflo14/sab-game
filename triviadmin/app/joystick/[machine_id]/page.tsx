@@ -18,6 +18,7 @@ export default function JoystickPage() {
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
     const [enabledGames, setEnabledGames] = useState<string[]>(['trivia', 'ruleta', 'chango', 'simon', 'penalties']); // Default all
+    const [highlightedKey, setHighlightedKey] = useState<string | null>(null);
 
     // Tap Race State - direct event sending
     // const [tapCount, setTapCount] = useState(0);
@@ -123,6 +124,10 @@ export default function JoystickPage() {
 
     const handlePress = useCallback(async (key: string) => {
         if (!machineId || gameState === 'WAITING') return; // approximate check
+
+        // Visual Feedback
+        setHighlightedKey(key);
+        setTimeout(() => setHighlightedKey(null), 200);
 
         // One-way vibration
         if (navigator.vibrate) navigator.vibrate(50);
@@ -276,16 +281,16 @@ export default function JoystickPage() {
                 <div className="grid grid-cols-2 gap-4 w-full animate-in fade-in zoom-in duration-500 p-2">
                     <h2 className="col-span-2 text-center text-yellow-500/50 uppercase font-black tracking-widest mb-2 font-mono">SIMÓN DICE</h2>
                     {/* GREEN (Top Left) */}
-                    <button onClick={() => handlePress('GREEN')} className="aspect-square bg-green-500 rounded-tl-[3rem] rounded-br-[1rem] shadow-[0_6px_0_rgb(21,128,61)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center">
+                    <button onClick={() => handlePress('GREEN')} className={`aspect-square bg-green-500 rounded-tl-[3rem] rounded-br-[1rem] shadow-[0_6px_0_rgb(21,128,61)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center ${highlightedKey === 'GREEN' ? 'brightness-150 scale-105 shadow-[0_0_30px_rgba(21,128,61,0.8)]' : ''}`}>
                     </button>
                     {/* RED (Top Right) */}
-                    <button onClick={() => handlePress('RED')} className="aspect-square bg-red-500 rounded-tr-[3rem] rounded-bl-[1rem] shadow-[0_6px_0_rgb(185,28,28)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center">
+                    <button onClick={() => handlePress('RED')} className={`aspect-square bg-red-500 rounded-tr-[3rem] rounded-bl-[1rem] shadow-[0_6px_0_rgb(185,28,28)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center ${highlightedKey === 'RED' ? 'brightness-150 scale-105 shadow-[0_0_30px_rgba(185,28,28,0.8)]' : ''}`}>
                     </button>
                     {/* YELLOW (Bottom Left) */}
-                    <button onClick={() => handlePress('YELLOW')} className="aspect-square bg-yellow-400 rounded-bl-[3rem] rounded-tr-[1rem] shadow-[0_6px_0_rgb(161,98,7)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center">
+                    <button onClick={() => handlePress('YELLOW')} className={`aspect-square bg-yellow-400 rounded-bl-[3rem] rounded-tr-[1rem] shadow-[0_6px_0_rgb(161,98,7)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center ${highlightedKey === 'YELLOW' ? 'brightness-150 scale-105 shadow-[0_0_30px_rgba(161,98,7,0.8)]' : ''}`}>
                     </button>
                     {/* BLUE (Bottom Right) */}
-                    <button onClick={() => handlePress('BLUE')} className="aspect-square bg-blue-500 rounded-br-[3rem] rounded-tl-[1rem] shadow-[0_6px_0_rgb(29,78,216)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center">
+                    <button onClick={() => handlePress('BLUE')} className={`aspect-square bg-blue-500 rounded-br-[3rem] rounded-tl-[1rem] shadow-[0_6px_0_rgb(29,78,216)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center ${highlightedKey === 'BLUE' ? 'brightness-150 scale-105 shadow-[0_0_30px_rgba(29,78,216,0.8)]' : ''}`}>
                     </button>
                 </div>
             );
