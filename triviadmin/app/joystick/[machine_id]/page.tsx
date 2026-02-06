@@ -14,10 +14,10 @@ export default function JoystickPage() {
     const [playerId, setPlayerId] = useState<number>(1);
 
     const [gameState, setGameState] = useState<'INITIALIZING' | 'WAITING' | 'CONNECTION_SUCCESS' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED' | 'WAITING_SELECTION'>('INITIALIZING');
-    const [gameType, setGameType] = useState<'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'PENALTIES' | 'TAPRACE' | null>(null);
+    const [gameType, setGameType] = useState<'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'TAPRACE' | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
-    const [enabledGames, setEnabledGames] = useState<string[]>(['trivia', 'ruleta', 'chango', 'simon', 'penalties']); // Default all
+    const [enabledGames, setEnabledGames] = useState<string[]>(['trivia', 'ruleta', 'chango', 'simon']); // Default all
     const [highlightedKey, setHighlightedKey] = useState<string | null>(null);
 
     // Tap Race State - direct event sending
@@ -207,12 +207,7 @@ export default function JoystickPage() {
                         </button>
                     )}
 
-                    {enabledGames.includes('penalties') && (
-                        <button onClick={() => handlePress('D')} className="w-full p-6 bg-emerald-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(5,150,105)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
-                            <span>PENALES</span>
-                            <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">D</span>
-                        </button>
-                    )}
+
 
                     {enabledGames.includes('taprace') && (
                         <button onClick={() => handlePress('E')} className="w-full p-6 bg-purple-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(126,34,206)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
@@ -296,22 +291,7 @@ export default function JoystickPage() {
             );
         }
 
-        if (gameType === 'PENALTIES') {
-            return (
-                <div className="flex flex-col items-center justify-center w-full h-[60vh] animate-in fade-in zoom-in duration-500 p-4">
-                    <h2 className="text-center text-emerald-500/50 uppercase font-black tracking-widest mb-8 animate-pulse">¡Momento de Patear!</h2>
-                    <button
-                        onClick={() => handlePress('SHOOT')}
-                        className="w-full max-w-sm aspect-square bg-white rounded-full border-[1.5rem] border-black shadow-[0_10px_0_rgb(0,0,0)] active:translate-y-2 active:shadow-none transition-all flex items-center justify-center group"
-                    >
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="text-6xl group-active:scale-125 transition-transform">⚽</span>
-                            <span className="font-black text-2xl text-slate-900 uppercase tracking-widest">PATEAR</span>
-                        </div>
-                    </button>
-                </div>
-            );
-        }
+
 
         if (gameType === 'TAPRACE') {
             return (

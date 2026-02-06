@@ -1,5 +1,5 @@
 // Game Types
-export type GameType = 'trivia' | 'ruleta' | 'chango' | 'simon' | 'penalties' | 'taprace';
+export type GameType = 'trivia' | 'ruleta' | 'chango' | 'simon' | 'taprace';
 
 // ... (skipping lines)
 
@@ -24,12 +24,7 @@ export interface ChangoConfig {
     simon_max_levels?: number;
     simon_speed_ms?: number;
     simon_level_time_sec?: number;
-    penalties_music_url?: string;
     taprace_music_url?: string;
-
-    // Penalties Config
-    penalties_difficulty?: number;
-    penalties_max_shots?: number;
 
     // Tap Race Config
     taprace_duration?: number; // seconds

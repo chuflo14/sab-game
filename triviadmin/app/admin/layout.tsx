@@ -32,7 +32,7 @@ const navItems = [
     { label: 'Ruleta', href: '/admin/wheel', icon: CircleEllipsis },
     { label: 'Globo (Chango)', href: '/admin/chango', icon: Flame },
     { label: 'Simón', href: '/admin/simon', icon: Gamepad2 },
-    { label: 'Penales', href: '/admin/penalties', icon: Trophy },
+    // { label: 'Penales', href: '/admin/penalties', icon: Trophy }, // Removed
     { label: 'Carrera', href: '/admin/taprace', icon: Gauge },
     { label: 'Música', href: '/admin/music', icon: Music },
     { label: 'Tiendas', href: '/admin/stores', icon: Store },

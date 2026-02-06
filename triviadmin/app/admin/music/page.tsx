@@ -145,25 +145,7 @@ export default function MusicAdminPage() {
 
             </div>
 
-            {/* Penalties Music */}
-            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 font-bold shadow-sm">
-                        <Trophy className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight">Penales</h4>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Música de fondo</p>
-                    </div>
-                </div>
-                <div className="pt-2">
-                    <MusicUploadButton
-                        onUpload={(url) => handleUpdateMusic('penalties_music_url', url, 'Penales')}
-                        currentUrl={config.penalties_music_url}
-                        label="Subir Música Penales"
-                    />
-                </div>
-            </div>
+
 
             {/* Tap Race Music */}
             <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6 hover:shadow-md transition-shadow">

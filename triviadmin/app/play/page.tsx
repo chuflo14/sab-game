@@ -48,8 +48,7 @@ export default function InstructionsPage() {
     }, []);
 
     const handleGameSelect = useCallback((nextRoute: string) => {
-        // If loading, default to payment enabled for safety, or wait. 
-        // Let's safe fail to payment flow if unsure, or block. 
+        // Penalties Removedf unsure, or block. 
         // If null, we might want to block interaction or default to true.
         const enabled = paymentsEnabled !== false; // Default true if null/undefined
 
@@ -79,7 +78,6 @@ export default function InstructionsPage() {
             else if (upKey === 'A') handleGameSelect('/play/pre-game?next=/play/azar');
             else if (upKey === 'B') handleGameSelect('/play/pre-game?next=/play/suerte');
             else if (upKey === 'C') handleGameSelect('/play/pre-game?next=/play/simon');
-            else if (upKey === 'D') handleGameSelect('/play/pre-game?next=/play/penalties');
             else if (upKey === 'E') handleGameSelect('/play/pre-game?next=/play/taprace');
         };
 
@@ -181,18 +179,7 @@ export default function InstructionsPage() {
                                 </button>
                             )}
 
-                            {enabledSlugs.includes('penalties') && (
-                                <button
-                                    onClick={() => handleGameSelect('/play/pre-game?next=/play/penalties')}
-                                    className="w-full p-6 md:p-10 border border-white/20 rounded-[2rem] bg-white/10 flex items-center justify-between text-left group hover:bg-white/20 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg active:scale-95"
-                                >
-                                    <div className="min-w-0 pr-4">
-                                        <span className="block text-3xl md:text-5xl font-black text-emerald-500 mb-2 truncate drop-shadow-md">Penales</span>
-                                        <span className="text-sm md:text-xl text-gray-300 font-medium">¡Patea en el momento justo!</span>
-                                    </div>
-                                    <div className="bg-emerald-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(16,185,129,0.4)] shrink-0">P</div>
-                                </button>
-                            )}
+
 
                             {enabledSlugs.includes('taprace') && (
                                 <button
