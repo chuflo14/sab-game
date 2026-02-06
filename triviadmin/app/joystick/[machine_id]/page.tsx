@@ -17,6 +17,7 @@ export default function JoystickPage() {
     const [gameType, setGameType] = useState<'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'PENALTIES' | 'TAPRACE' | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
+    const [enabledGames, setEnabledGames] = useState<string[]>(['trivia', 'ruleta', 'chango', 'simon', 'penalties']); // Default all
 
     // Tap Race State - direct event sending
     // const [tapCount, setTapCount] = useState(0);
@@ -43,6 +44,39 @@ export default function JoystickPage() {
             fetchMachineDetails(realId).then(details => {
                 if (details) {
                     setMachineName(details.name);
+                    if (details.enabledGames && details.enabledGames.length > 0) {
+                        // Map internal IDs if needed, but assuming slug match or direct ID match.
+                        // The types say enabledGames is string[]. Usually it's IDs.
+                        // But let's check how play/page.tsx does it.
+                        // play/page.tsx: allGames.filter(g => m.enabledGames.includes(g.id)).map(g => g.slug)
+                        // Note: Joystick doesn't fetch allGames list efficiently yet.
+                        // For simplicity/robustness, if enabledGames contains slugs directly or we just assume 'trivia' etc.
+                        // Wait, enabledGames usually stores UUIDs in DB.
+                        // fetchMachineDetails returns what's in DB.
+                        // We might need to fetch games list to map IDs to Slugs if they are IDs. 
+                        // However, let's assume for now we might need to adjust if we don't have game dict.
+                        // Actually, to be safe and avoid extra fetches, I will defer strict filtering to server or just try to match if possible.
+                        // user request "que estan tildados".
+                        // Let's blindly check if we can pass slugs from server or just use what we have.
+                        // Reviewing actions.ts: fetchMachineDetails returns enabledGames (ids).
+                        // I probably need to fetch all games to map them.
+                        // Or I can just trust the user set up and maybe the enabledGames are slugs? 
+                        // DAL schema says enabledGames is string[].
+                        // Let's use a server action helper to get slugs if needed.
+                        // But I can't change server actions easily without context.
+                        // I'll assume I need to fetch games to map.
+                        // Actually, let's just use a helper or do it in the effect?
+                        // I'll fetch games locally in effect for mapping.
+                    }
+                    // Actually, I'll update the effect to also fetchGames
+                    import('@/lib/actions').then(mod => {
+                        mod.fetchGames().then(allGames => {
+                            if (details.enabledGames && details.enabledGames.length > 0 && allGames) {
+                                const slugs = allGames.filter((g: any) => details.enabledGames!.includes(g.id)).map((g: any) => g.slug);
+                                setEnabledGames(slugs);
+                            }
+                        });
+                    });
                 }
             });
         }
@@ -141,18 +175,27 @@ export default function JoystickPage() {
             return (
                 <div className="grid grid-cols-1 gap-4 w-full animate-in fade-in zoom-in duration-500">
                     <h2 className="text-center text-slate-500 uppercase font-black tracking-widest mb-2">Menú Principal</h2>
-                    <button onClick={() => handlePress('S')} className="w-full p-6 bg-blue-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(30,58,138)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
-                        <span>TRIVIA</span>
-                        <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">S</span>
-                    </button>
-                    <button onClick={() => handlePress('A')} className="w-full p-6 bg-red-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(153,27,27)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
-                        <span>RULETA</span>
-                        <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">A</span>
-                    </button>
-                    <button onClick={() => handlePress('B')} className="w-full p-6 bg-orange-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(154,52,18)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
-                        <span>CHANGO</span>
-                        <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">B</span>
-                    </button>
+
+                    {enabledGames.includes('trivia') && (
+                        <button onClick={() => handlePress('S')} className="w-full p-6 bg-blue-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(30,58,138)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
+                            <span>TRIVIA</span>
+                            <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">S</span>
+                        </button>
+                    )}
+
+                    {enabledGames.includes('ruleta') && (
+                        <button onClick={() => handlePress('A')} className="w-full p-6 bg-red-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(153,27,27)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
+                            <span>RULETA</span>
+                            <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">A</span>
+                        </button>
+                    )}
+
+                    {enabledGames.includes('chango') && (
+                        <button onClick={() => handlePress('B')} className="w-full p-6 bg-orange-600/90 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(154,52,18)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
+                            <span>CHANGO</span>
+                            <span className="bg-black/20 px-3 py-1 rounded-lg text-lg">B</span>
+                        </button>
+                    )}
                 </div>
             );
         }
@@ -282,7 +325,8 @@ export default function JoystickPage() {
                     </div>
                 </div>
                 <div className="flex flex-col items-end">
-                    <span className="text-slate-500 text-[10px]">SABGAME</span>
+                    <span className="text-slate-500 text-[10px]">JUGADOR {playerId}</span>
+                    <span className="text-orange-500 text-lg">P{playerId}</span>
                 </div>
             </div>
 
@@ -293,9 +337,9 @@ export default function JoystickPage() {
                         <h1 className="text-3xl font-black text-yellow-500 mb-2">¡LISTO!</h1>
                         <button
                             onClick={() => handlePress('S')}
-                            className="w-full px-8 py-4 bg-green-500 text-white rounded-full font-black text-2xl uppercase tracking-widest shadow-lg animate-bounce"
+                            className="w-full p-6 bg-green-600 text-white rounded-2xl font-black text-2xl shadow-[0_8px_0_rgb(22,101,52)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2"
                         >
-                            COMENZAR
+                            <span>COMENZAR</span>
                         </button>
                     </div>
                 ) : gameState === 'PAYING' ? (
