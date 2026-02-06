@@ -461,6 +461,10 @@ export const updateChangoConfig = async (updates: Partial<ChangoConfig>): Promis
         dbUpdates.simon_speed_ms = updates.simon_speed_ms;
         delete dbUpdates.simonSpeedMs;
     }
+    if (updates.simon_level_time_sec !== undefined) {
+        dbUpdates.simon_level_time_sec = updates.simon_level_time_sec;
+        delete dbUpdates.simonLevelTimeSec;
+    }
 
     const { data, error } = await supabase.from('chango_config').update(dbUpdates).eq('id', 'default').select().single();
     if (error) throw error;
@@ -476,6 +480,7 @@ export const updateChangoConfig = async (updates: Partial<ChangoConfig>): Promis
         simon_music_url: data.simon_music_url,
         simon_max_levels: data.simon_max_levels || 10,
         simon_speed_ms: data.simon_speed_ms || 1000,
+        simon_level_time_sec: data.simon_level_time_sec || 10,
         penalties_music_url: data.penalties_music_url,
         penalties_difficulty: data.penalties_difficulty,
         penalties_max_shots: data.penalties_max_shots,

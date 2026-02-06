@@ -16,6 +16,7 @@ import { useState, useEffect } from 'react';
 export default function SimonAdminPage() {
     const [difficulty, setDifficulty] = useState(10);
     const [speed, setSpeed] = useState(1000); // ms
+    const [levelTime, setLevelTime] = useState(10); // seconds
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -25,6 +26,7 @@ export default function SimonAdminPage() {
             if (config) {
                 if (config.simon_max_levels) setDifficulty(config.simon_max_levels);
                 if (config.simon_speed_ms) setSpeed(config.simon_speed_ms);
+                if (config.simon_level_time_sec) setLevelTime(config.simon_level_time_sec);
             }
         };
         init();
@@ -35,7 +37,8 @@ export default function SimonAdminPage() {
         try {
             await updateChangoConfigAction({
                 simon_max_levels: difficulty,
-                simon_speed_ms: speed
+                simon_speed_ms: speed,
+                simon_level_time_sec: levelTime
             });
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 3000);
@@ -133,6 +136,30 @@ export default function SimonAdminPage() {
                         <div className="flex justify-between mt-4">
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fácil (3)</span>
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Experto (20)</span>
+                        </div>
+                    </div>
+
+                    {/* New: Tiempo por Nivel */}
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight leading-none mb-2">Tiempo por Nivel</h4>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Segundos para repetir la secuencia.</p>
+                            </div>
+                            <span className="text-2xl font-black text-slate-900 tracking-tighter">{levelTime}s</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="3"
+                            max="30"
+                            step="1"
+                            value={levelTime}
+                            onChange={(e) => setLevelTime(Number(e.target.value))}
+                            className="w-full h-3 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-500"
+                        />
+                        <div className="flex justify-between mt-4">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Corto (3s)</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Largo (30s)</span>
                         </div>
                     </div>
                 </div>

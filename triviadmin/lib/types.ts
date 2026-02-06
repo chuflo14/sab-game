@@ -23,6 +23,7 @@ export interface ChangoConfig {
     simon_music_url?: string;
     simon_max_levels?: number;
     simon_speed_ms?: number;
+    simon_level_time_sec?: number;
     penalties_music_url?: string;
     taprace_music_url?: string;
 

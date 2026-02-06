@@ -40,6 +40,8 @@ export default function SimonGame() {
 
     const [maxLevels, setMaxLevels] = useState(10);
     const [baseSpeed, setBaseSpeed] = useState(1000);
+    const [levelTimeLimit, setLevelTimeLimit] = useState(10);
+    const [timeLeft, setTimeLeft] = useState(10);
 
     const playSound = useCallback((color: string) => {
         const audio = audioRefs.current[color];
@@ -49,82 +51,7 @@ export default function SimonGame() {
         }
     }, []);
 
-    const playSequence = useCallback(async (seq: Color[]) => {
-        setStatus('PLAYING_SEQUENCE');
-        statusRef.current = 'PLAYING_SEQUENCE';
-        setMessage('MEMORIZA');
-        userSequenceRef.current = [];
-
-        // Speed calculation (gets faster as score increases)
-        // Ensure minimum speed is not too fast (e.g. 200ms)
-        const speed = Math.max(200, baseSpeed - (score * 50));
-
-        for (let i = 0; i < seq.length; i++) {
-            await new Promise(resolve => setTimeout(resolve, 500)); // Pause between
-            const color = seq[i];
-            setActiveColor(color);
-            playSound(color);
-            await new Promise(resolve => setTimeout(resolve, speed));
-            setActiveColor(null);
-        }
-
-        setStatus('WAITING_INPUT');
-        statusRef.current = 'WAITING_INPUT';
-        setMessage('TU TURNO');
-    }, [score, playSound, baseSpeed]);
-
-    // Define dependencies for useEffect
-    const startNewRound = useCallback(() => {
-        const nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-        const newSeq = [...sequenceRef.current, nextColor];
-        setSequence(newSeq);
-        sequenceRef.current = newSeq;
-
-        playSequence(newSeq);
-    }, [playSequence]);
-
-    const gameStarted = useRef(false);
-
-    useEffect(() => {
-        // Preload sounds
-        Object.entries(SOUNDS).forEach(([key, src]) => {
-            audioRefs.current[key] = new Audio(src);
-        });
-
-        const init = async () => {
-            if (gameStarted.current) return;
-            gameStarted.current = true;
-
-            gameStartTime.current = new Date();
-            const [prizeData, config] = await Promise.all([
-                fetchPrizes(),
-                fetchChangoConfig()
-            ]);
-            setPrizes(prizeData);
-
-            if (config) {
-                if (config.simon_max_levels) setMaxLevels(config.simon_max_levels);
-                if (config.simon_speed_ms) setBaseSpeed(config.simon_speed_ms);
-            }
-
-            // Notify Joystick
-            const mid = localStorage.getItem('MACHINE_ID');
-            if (mid) {
-                sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'SIMON' });
-            }
-
-            // Start Game after short delay
-            setTimeout(() => {
-                // Initial start
-                const nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-                const newSeq = [nextColor];
-                setSequence(newSeq);
-                sequenceRef.current = newSeq;
-                playSequence(newSeq);
-            }, 2000);
-        };
-        init();
-    }, []); // Empty dependency array to run once
+    // Moved handleGameOver and handleWin up to avoid hoisting issues
 
     const handleGameOver = useCallback(() => {
         setStatus('GAME_OVER');
@@ -181,6 +108,110 @@ export default function SimonGame() {
         }, 3000);
     }, [prizes, router]);
 
+    const playSequence = useCallback(async (seq: Color[]) => {
+        setStatus('PLAYING_SEQUENCE');
+        statusRef.current = 'PLAYING_SEQUENCE';
+        setMessage('MEMORIZA');
+        userSequenceRef.current = [];
+
+        // Speed calculation (gets faster as score increases)
+        // Ensure minimum speed is not too fast (e.g. 200ms)
+        const speed = Math.max(200, baseSpeed - (score * 50));
+
+        for (let i = 0; i < seq.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 500)); // Pause between
+            const color = seq[i];
+            setActiveColor(color);
+            playSound(color);
+            await new Promise(resolve => setTimeout(resolve, speed));
+            setActiveColor(null);
+        }
+
+        setStatus('WAITING_INPUT');
+        statusRef.current = 'WAITING_INPUT';
+        setMessage('TU TURNO');
+        setTimeLeft(levelTimeLimit);
+    }, [score, playSound, baseSpeed, levelTimeLimit]);
+
+    // Timer Logic
+    useEffect(() => {
+        if (status !== 'WAITING_INPUT') return;
+
+        const timer = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    handleGameOver();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [status, handleGameOver]);
+
+    // Define dependencies for useEffect
+    const startNewRound = useCallback(() => {
+        const nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+        const newSeq = [...sequenceRef.current, nextColor];
+        setSequence(newSeq);
+        sequenceRef.current = newSeq;
+
+        playSequence(newSeq);
+    }, [playSequence]);
+
+    const gameStarted = useRef(false);
+
+    useEffect(() => {
+        // Preload sounds
+        Object.entries(SOUNDS).forEach(([key, src]) => {
+            audioRefs.current[key] = new Audio(src);
+        });
+
+        const init = async () => {
+            if (gameStarted.current) return;
+            gameStarted.current = true;
+
+            gameStartTime.current = new Date();
+            const [prizeData, config] = await Promise.all([
+                fetchPrizes(),
+                fetchChangoConfig()
+            ]);
+            setPrizes(prizeData);
+
+            if (config) {
+                console.log("Simon Config Loaded:", config);
+                if (config.simon_max_levels) setMaxLevels(Number(config.simon_max_levels));
+                if (config.simon_speed_ms) setBaseSpeed(Number(config.simon_speed_ms));
+                if (config.simon_level_time_sec) {
+                    setLevelTimeLimit(Number(config.simon_level_time_sec));
+                    setTimeLeft(Number(config.simon_level_time_sec));
+                }
+            }
+
+            // Notify Joystick
+            const mid = localStorage.getItem('MACHINE_ID');
+            if (mid) {
+                sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'SIMON' });
+            }
+
+            // Start Game after short delay
+            setTimeout(() => {
+                // Initial start
+                const nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+                const newSeq = [nextColor];
+                setSequence(newSeq);
+                sequenceRef.current = newSeq;
+                playSequence(newSeq);
+            }, 2000);
+        };
+        init();
+    }, []); // Empty dependency array to run once
+
+    // handleGameOver and handleWin moved up
+
+
     const handleInput = useCallback((color: Color) => {
         if (statusRef.current !== 'WAITING_INPUT') return;
 
@@ -236,7 +267,15 @@ export default function SimonGame() {
         <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto p-4">
             {/* Score / Status */}
             <div className="mb-8 text-center bg-slate-900/50 p-6 rounded-3xl border border-white/10 backdrop-blur-md">
-                <h2 className="text-4xl font-black text-white uppercase tracking-widest mb-2">{message}</h2>
+                <div className={`text-6xl font-black mb-8 drop-shadow-lg ${status === 'GAME_OVER' ? 'text-red-500' : 'text-white'}`}>
+                    {message}
+                </div>
+
+                {status === 'WAITING_INPUT' && (
+                    <div className={`text-4xl font-black mb-8 animate-pulse ${timeLeft <= 3 ? 'text-red-500' : 'text-yellow-400'}`}>
+                        ⏳ {timeLeft}s
+                    </div>
+                )}
                 <div className="text-xl font-bold text-yellow-500 uppercase tracking-wider">Nivel {sequence.length}</div>
             </div>
 
