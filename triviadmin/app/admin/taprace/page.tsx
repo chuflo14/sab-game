@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 export default function TapRaceAdminPage() {
     const [duration, setDuration] = useState(30);
     const [difficulty, setDifficulty] = useState(100);
+    const [botSpeed, setBotSpeed] = useState(5);
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
@@ -16,6 +17,7 @@ export default function TapRaceAdminPage() {
             if (data) {
                 setDuration(data.taprace_duration || 30);
                 setDifficulty(data.taprace_difficulty || 100);
+                setBotSpeed(data.taprace_bot_speed || 5);
             }
         };
         loadConfig();
@@ -26,7 +28,8 @@ export default function TapRaceAdminPage() {
         try {
             await updateChangoConfigAction({
                 taprace_duration: duration,
-                taprace_difficulty: difficulty
+                taprace_difficulty: difficulty,
+                taprace_bot_speed: botSpeed
             });
             toast.success('Configuración guardada');
         } catch (error) {

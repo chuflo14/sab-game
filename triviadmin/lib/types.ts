@@ -29,6 +29,7 @@ export interface ChangoConfig {
     // Tap Race Config
     taprace_duration?: number; // seconds
     taprace_difficulty?: number; // clicks to win (e.g. 50, 100)
+    taprace_bot_speed?: number; // 1-10
 
     updatedAt: Date;
 }

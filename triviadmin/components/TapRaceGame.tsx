@@ -10,12 +10,8 @@ import QRCode from 'react-qr-code';
 
 export default function TapRaceGame() {
     const router = useRouter();
-    const [gameState, setGameState] = useState<'LOBBY' | 'RACING' | 'RESULT'>('LOBBY');
-    const [players, setPlayers] = useState<{ id: number, connected: boolean, progress: number, name: string }[]>([
-        { id: 1, connected: false, progress: 0, name: 'JUGADOR 1' },
-        { id: 2, connected: false, progress: 0, name: 'JUGADOR 2' },
-        { id: 3, connected: false, progress: 0, name: 'JUGADOR 3' }
-    ]);
+    const [gameState, setGameState] = useState<'SETUP' | 'LOBBY' | 'RACING' | 'RESULT'>('SETUP');
+    const [players, setPlayers] = useState<{ id: number, connected: boolean, progress: number, name: string, type: 'human' | 'bot' }[]>([]);
     const [winner, setWinner] = useState<number | null>(null);
     const [timeLeft, setTimeLeft] = useState(30);
     const [config, setConfig] = useState<ChangoConfig | null>(null);
@@ -58,7 +54,8 @@ export default function TapRaceGame() {
 
             setPlayers(prevPlayers => {
                 const nextPlayers = prevPlayers.map(p => {
-                    if (p.id !== playerId) return p;
+                    // Only humans tap
+                    if (p.id !== playerId || p.type === 'bot') return p;
 
                     const difficulty = config?.taprace_difficulty || 100;
                     const perClick = 100 / difficulty;
@@ -72,6 +69,26 @@ export default function TapRaceGame() {
             return current;
         });
     }, [config]);
+
+    // Bot Logic
+    useEffect(() => {
+        if (gameState !== 'RACING') return;
+
+        const botSpeed = config?.taprace_bot_speed || 5;
+        // Map 1-10 to duration in seconds (1=40s, 10=10s)
+        const targetDuration = 45 - (botSpeed * 3.5);
+        const fps = 30;
+        const progressPerFrame = (100 / targetDuration) / fps;
+
+        const interval = setInterval(() => {
+            setPlayers(prev => prev.map(p => {
+                if (p.type !== 'bot') return p;
+                return { ...p, progress: Math.min(100, p.progress + progressPerFrame) };
+            }));
+        }, 1000 / fps);
+
+        return () => clearInterval(interval);
+    }, [gameState, config]);
 
     // Hydration & Config
     useEffect(() => {
@@ -98,8 +115,6 @@ export default function TapRaceGame() {
     }, [handleTap, startGame]);
 
 
-    // ... wait, I need to implement the replacement content fully.
-
     // Let's use a ref for gameState
     const gameStateRef = useRef(gameState);
     useEffect(() => {
@@ -113,7 +128,7 @@ export default function TapRaceGame() {
             const currentGameState = gameStateRef.current;
 
             if (event.type === 'JOIN') {
-                setPlayers(prev => prev.map(p => p.id === event.playerId ? { ...p, connected: true } : p));
+                setPlayers(prev => prev.map(p => p.id === event.playerId && p.type === 'human' ? { ...p, connected: true } : p));
             } else if (event.type === 'TAP') {
                 if (currentGameState === 'RACING') {
                     if (handleTapRef.current) handleTapRef.current(event.playerId);
@@ -125,10 +140,6 @@ export default function TapRaceGame() {
                 const key = event.key ? event.key.toUpperCase() : '';
                 if (['S', 'A', 'B'].includes(key)) {
                     if (currentGameState === 'RACING') {
-                        // Map keys to player IDs: S=1, A=2, B=3 (or however they map physically)
-                        // Assuming standard mapping: Player 1 (S), Player 2 (A), Player 3 (B) - Verification needed on exact mapping but this is a safe default for now or we can use 1 for all if single player testing, 
-                        // but TapRace is multiplayer. 
-                        // Let's assume: S -> 1, A -> 2, B -> 3 based on standard arcade layouts often used here.
                         let pid = 1;
                         if (key === 'A') pid = 2;
                         if (key === 'B') pid = 3;
@@ -163,8 +174,46 @@ export default function TapRaceGame() {
 
     const getJoinUrl = (pid: number) => `${baseUrl}/joystick/${machineId}${pid > 1 ? `-P${pid}` : ''}`;
 
+    const setupGame = (mode: '1P' | '2P') => {
+        if (mode === '1P') {
+            setPlayers([
+                { id: 1, connected: false, progress: 0, name: 'TÚ', type: 'human' },
+                { id: 99, connected: true, progress: 0, name: 'Psab (CPU)', type: 'bot' }
+            ]);
+        } else {
+            setPlayers([
+                { id: 1, connected: false, progress: 0, name: 'JUGADOR 1', type: 'human' },
+                { id: 2, connected: false, progress: 0, name: 'JUGADOR 2', type: 'human' },
+                { id: 99, connected: true, progress: 0, name: 'Psab (CPU)', type: 'bot' }
+            ]);
+        }
+        setGameState('LOBBY');
+    };
+
     return (
         <div className="w-full h-screen flex flex-col bg-slate-900 text-white p-4 overflow-hidden">
+            {gameState === 'SETUP' && (
+                <div className="flex-1 flex flex-col items-center justify-center gap-12 animate-in fade-in">
+                    <h1 className="text-6xl font-black text-orange-500 uppercase italic tracking-tighter">CONFIGURAR CARRERA</h1>
+                    <div className="flex gap-8">
+                        <button
+                            onClick={() => setupGame('1P')}
+                            className="bg-blue-600 hover:bg-blue-500 text-white p-12 rounded-3xl text-4xl font-black shadow-lg hover:scale-105 transition-all w-96"
+                        >
+                            1 JUGADOR
+                            <div className="text-base font-normal opacity-70 mt-4">Vs Psab Bot</div>
+                        </button>
+                        <button
+                            onClick={() => setupGame('2P')}
+                            className="bg-purple-600 hover:bg-purple-500 text-white p-12 rounded-3xl text-4xl font-black shadow-lg hover:scale-105 transition-all w-96"
+                        >
+                            2 JUGADORES
+                            <div className="text-base font-normal opacity-70 mt-4">P1 vs P2 vs Psab Bot</div>
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {gameState === 'LOBBY' && (
                 <div className="flex-1 flex flex-col items-center justify-center gap-8 animate-in fade-in">
                     <h1 className="text-6xl font-black text-orange-500 uppercase italic tracking-tighter">Carrera de Dedos</h1>
@@ -174,23 +223,27 @@ export default function TapRaceGame() {
                         {players.map(p => (
                             <div key={p.id} className={`flex flex-col items-center gap-4 transition-all duration-500 ${p.connected ? 'scale-110' : 'opacity-50'}`}>
                                 <div className={`p-4 bg-white rounded-3xl ${p.connected ? 'shadow-[0_0_50px_rgba(249,115,22,0.6)]' : ''}`}>
-                                    <div className="w-48 h-48">
-                                        <QRCode
-                                            value={getJoinUrl(p.id)}
-                                            size={256}
-                                            style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                                            viewBox={`0 0 256 256`}
-                                        />
+                                    <div className="w-48 h-48 flex items-center justify-center">
+                                        {p.type === 'human' ? (
+                                            <QRCode
+                                                value={getJoinUrl(p.id)}
+                                                size={256}
+                                                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                                                viewBox={`0 0 256 256`}
+                                            />
+                                        ) : (
+                                            <div className="text-6xl">🤖</div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className={`px-6 py-2 rounded-full font-black text-xl uppercase ${p.connected ? 'bg-orange-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
-                                    {p.connected ? 'LISTO' : p.name}
+                                    {p.connected ? (p.type === 'bot' ? 'LISTO (CPU)' : 'LISTO') : p.name}
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    {players.some(p => p.connected) && (
+                    {players.filter(p => p.type === 'human').some(p => p.connected) && (
                         <div className="animate-bounce mt-12 bg-white/10 px-8 py-4 rounded-full border border-white/20 backdrop-blur-md">
                             <p className="text-2xl font-bold uppercase tracking-widest">Presiona <span className="text-yellow-400">COMENZAR</span> (Joystick 1)</p>
                         </div>
@@ -221,11 +274,11 @@ export default function TapRaceGame() {
                                     style={{ bottom: `calc(${p.progress}% - 3rem + 1rem)` }}
                                 >
                                     <div className={`text-6xl filter drop-shadow-2xl transition-transform ${p.progress > 95 ? 'scale-125 animate-bounce' : ''}`}>
-                                        {p.id === 1 ? '🚀' : p.id === 2 ? '🛸' : '🚁'}
+                                        {p.type === 'bot' ? '🤖' : (p.id === 1 ? '🚀' : '🛸')}
                                     </div>
-                                    <div className={`text-xs font-bold px-2 py-0.5 rounded mt-2 border-2 border-white/50 shadow-lg ${p.id === 1 ? 'bg-orange-500' : p.id === 2 ? 'bg-blue-500' : 'bg-green-500'
+                                    <div className={`text-xs font-bold px-2 py-0.5 rounded mt-2 border-2 border-white/50 shadow-lg ${p.type === 'bot' ? 'bg-purple-500' : (p.id === 1 ? 'bg-orange-500' : 'bg-blue-500')
                                         }`}>
-                                        P{p.id}
+                                        {p.name}
                                     </div>
                                 </div>
 
@@ -233,7 +286,7 @@ export default function TapRaceGame() {
                                     className={`absolute bottom-0 left-0 w-2 h-full bg-slate-900 rounded-full overflow-hidden ml-[-1rem] hidden md:block`}
                                 >
                                     <div
-                                        className={`w-full transition-all duration-100 ${p.id === 1 ? 'bg-orange-500' : p.id === 2 ? 'bg-blue-500' : 'bg-green-500'
+                                        className={`w-full transition-all duration-100 ${p.type === 'bot' ? 'bg-purple-500' : (p.id === 1 ? 'bg-orange-500' : 'bg-blue-500')
                                             }`}
                                         style={{ height: `${p.progress}%` }}
                                     />
@@ -249,7 +302,9 @@ export default function TapRaceGame() {
                     {winner ? (
                         <>
                             <Trophy className="w-32 h-32 text-yellow-500 animate-bounce mb-8" />
-                            <h1 className="text-8xl font-black text-white mb-4">¡JUGADOR {winner} GANA!</h1>
+                            <h1 className="text-8xl font-black text-white mb-4">
+                                {players.find(p => p.id === winner)?.name} GANA!
+                            </h1>
                             <p className="text-2xl text-slate-400">Increíble velocidad</p>
                         </>
                     ) : (
