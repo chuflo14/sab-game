@@ -166,7 +166,16 @@ export default function JoystickPage() {
     if (gameState === 'WAITING') return (
         <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
             <h1 className="text-3xl font-black mb-2">¡FIN!</h1>
-            <p>Gracias por jugar</p>
+            <p className="mb-8">Gracias por jugar</p>
+            <button
+                onClick={() => {
+                    setGameState('INITIALIZING');
+                    setIsConnected(false);
+                }}
+                className="px-8 py-3 bg-yellow-500 text-black rounded-full font-black uppercase tracking-widest hover:bg-yellow-400 transition-colors"
+            >
+                Jugar de Nuevo
+            </button>
         </div>
     );
 

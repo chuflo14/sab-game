@@ -103,6 +103,8 @@ export default function InstructionsPage() {
                     console.log(`InstructionsPage: Joystick keydown: ${event.key}`);
                     handleInput(event.key);
                 }
+            }, (status) => {
+                console.log("InstructionsPage: Subscription status:", status);
             });
         }
 
