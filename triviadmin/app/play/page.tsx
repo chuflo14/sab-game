@@ -65,6 +65,10 @@ export default function InstructionsPage() {
     useEffect(() => {
         // Timeout to return to home if inactive
         const timeout = setTimeout(() => {
+            const mid = localStorage.getItem('MACHINE_ID');
+            if (mid) {
+                sendJoystickEvent(mid, { type: 'GAME_OVER' });
+            }
             router.push('/');
         }, 20000); // 20 seconds
 
