@@ -21,6 +21,8 @@ export interface ChangoConfig {
     ruleta_music_url?: string;
     chango_music_url?: string;
     simon_music_url?: string;
+    simon_max_levels?: number;
+    simon_speed_ms?: number;
     penalties_music_url?: string;
     taprace_music_url?: string;
 

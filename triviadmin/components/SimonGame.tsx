@@ -38,6 +38,9 @@ export default function SimonGame() {
 
     const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
 
+    const [maxLevels, setMaxLevels] = useState(10);
+    const [baseSpeed, setBaseSpeed] = useState(1000);
+
     const playSound = useCallback((color: string) => {
         const audio = audioRefs.current[color];
         if (audio) {
@@ -53,8 +56,8 @@ export default function SimonGame() {
         userSequenceRef.current = [];
 
         // Speed calculation (gets faster as score increases)
-        const baseSpeed = 1000;
-        const speed = Math.max(300, baseSpeed - (score * 50));
+        // Ensure minimum speed is not too fast (e.g. 200ms)
+        const speed = Math.max(200, baseSpeed - (score * 50));
 
         for (let i = 0; i < seq.length; i++) {
             await new Promise(resolve => setTimeout(resolve, 500)); // Pause between
@@ -68,7 +71,7 @@ export default function SimonGame() {
         setStatus('WAITING_INPUT');
         statusRef.current = 'WAITING_INPUT';
         setMessage('TU TURNO');
-    }, [score, playSound]);
+    }, [score, playSound, baseSpeed]);
 
     // Define dependencies for useEffect
     const startNewRound = useCallback(() => {
@@ -93,11 +96,16 @@ export default function SimonGame() {
             gameStarted.current = true;
 
             gameStartTime.current = new Date();
-            const [prizeData] = await Promise.all([
+            const [prizeData, config] = await Promise.all([
                 fetchPrizes(),
                 fetchChangoConfig()
             ]);
             setPrizes(prizeData);
+
+            if (config) {
+                if (config.simon_max_levels) setMaxLevels(config.simon_max_levels);
+                if (config.simon_speed_ms) setBaseSpeed(config.simon_speed_ms);
+            }
 
             // Notify Joystick
             const mid = localStorage.getItem('MACHINE_ID');
@@ -199,13 +207,13 @@ export default function SimonGame() {
             setMessage('¡BIEN!');
 
             // Win Condition (e.g. 10 rounds)
-            if (newScore >= 10) { // Configurable ideally
+            if (newScore >= maxLevels) { // Configurable ideally
                 handleWin();
             } else {
                 setTimeout(startNewRound, 1500);
             }
         }
-    }, [startNewRound, handleGameOver, handleWin, playSound]);
+    }, [startNewRound, handleGameOver, handleWin, playSound, maxLevels]);
 
     // Joystick Listener
     useEffect(() => {

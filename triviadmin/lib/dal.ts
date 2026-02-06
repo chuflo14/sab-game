@@ -453,6 +453,14 @@ export const updateChangoConfig = async (updates: Partial<ChangoConfig>): Promis
         dbUpdates.payment_success_seconds = updates.paymentSuccessSeconds;
         delete dbUpdates.paymentSuccessSeconds;
     }
+    if (updates.simon_max_levels !== undefined) {
+        dbUpdates.simon_max_levels = updates.simon_max_levels;
+        delete dbUpdates.simonMaxLevels;
+    }
+    if (updates.simon_speed_ms !== undefined) {
+        dbUpdates.simon_speed_ms = updates.simon_speed_ms;
+        delete dbUpdates.simonSpeedMs;
+    }
 
     const { data, error } = await supabase.from('chango_config').update(dbUpdates).eq('id', 'default').select().single();
     if (error) throw error;
@@ -466,6 +474,8 @@ export const updateChangoConfig = async (updates: Partial<ChangoConfig>): Promis
         paymentTimeoutSeconds: data.payment_timeout_seconds,
         paymentSuccessSeconds: data.payment_success_seconds,
         simon_music_url: data.simon_music_url,
+        simon_max_levels: data.simon_max_levels || 10,
+        simon_speed_ms: data.simon_speed_ms || 1000,
         penalties_music_url: data.penalties_music_url,
         penalties_difficulty: data.penalties_difficulty,
         penalties_max_shots: data.penalties_max_shots,

@@ -10,21 +10,41 @@ import {
     Sparkles,
     CheckCircle2
 } from 'lucide-react';
-import { useState } from 'react';
+import { fetchChangoConfig, updateChangoConfigAction } from '@/lib/actions';
+import { useState, useEffect } from 'react';
 
 export default function SimonAdminPage() {
-    const [difficulty, setDifficulty] = useState(5);
+    const [difficulty, setDifficulty] = useState(10);
     const [speed, setSpeed] = useState(1000); // ms
     const [isSaving, setIsSaving] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
+    useEffect(() => {
+        const init = async () => {
+            const config = await fetchChangoConfig();
+            if (config) {
+                if (config.simon_max_levels) setDifficulty(config.simon_max_levels);
+                if (config.simon_speed_ms) setSpeed(config.simon_speed_ms);
+            }
+        };
+        init();
+    }, []);
+
     const handleSave = async () => {
         setIsSaving(true);
-        // TODO: Implement save action (store in JSON config or dedicated table)
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setIsSaving(false);
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
+        try {
+            await updateChangoConfigAction({
+                simon_max_levels: difficulty,
+                simon_speed_ms: speed
+            });
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 3000);
+        } catch (error) {
+            console.error(error);
+            alert('Error al guardar');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
