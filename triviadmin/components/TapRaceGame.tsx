@@ -129,6 +129,16 @@ export default function TapRaceGame() {
 
             if (event.type === 'JOIN') {
                 setPlayers(prev => prev.map(p => p.id === event.playerId && p.type === 'human' ? { ...p, connected: true } : p));
+
+                // Re-broadcast state for the new joiner
+                if (currentGameState === 'SETUP') {
+                    sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE_SETUP' });
+                } else if (currentGameState === 'LOBBY') {
+                    sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'READY', game: 'TAPRACE' });
+                } else if (currentGameState === 'RACING') {
+                    sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE' });
+                }
+
             } else if (event.type === 'TAP') {
                 if (currentGameState === 'RACING') {
                     if (handleTapRef.current) handleTapRef.current(event.playerId);
@@ -136,8 +146,13 @@ export default function TapRaceGame() {
                     if (startGameRef.current) startGameRef.current();
                 }
             } else if (event.type === 'KEYDOWN') {
-                // Handle S, A, B as Taps or Start
                 const key = event.key ? event.key.toUpperCase() : '';
+
+                if (currentGameState === 'SETUP') {
+                    if (key === 'S') setupGame('1P');
+                    if (key === 'A') setupGame('2P');
+                }
+
                 if (['S', 'A', 'B'].includes(key)) {
                     if (currentGameState === 'RACING') {
                         let pid = 1;
@@ -154,11 +169,19 @@ export default function TapRaceGame() {
             }
         });
 
-        // Broadcast presence
-        sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE' });
+        // Broadcast Initial State based on current GameState
+        // This is important when switching states (e.g. SETUP -> LOBBY)
+        const currentGameState = gameStateRef.current;
+        if (currentGameState === 'SETUP') {
+            sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE_SETUP' });
+        } else if (currentGameState === 'LOBBY') {
+            sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'READY', game: 'TAPRACE' });
+        } else if (currentGameState === 'RACING') {
+            sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE' });
+        }
 
         return () => { sub.unsubscribe(); };
-    }, [machineId]); // Only machineId dependency!
+    }, [machineId, gameState]); // Add gameState dependency to re-broadcast on change
 
     // Watch for winner
     useEffect(() => {

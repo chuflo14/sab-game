@@ -14,7 +14,9 @@ export default function JoystickPage() {
     const [playerId, setPlayerId] = useState<number>(1);
 
     const [gameState, setGameState] = useState<'INITIALIZING' | 'WAITING' | 'CONNECTION_SUCCESS' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED' | 'WAITING_SELECTION'>('INITIALIZING');
-    const [gameType, setGameType] = useState<'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'TAPRACE' | null>(null);
+    const [gameState, setGameState] = useState<'INITIALIZING' | 'WAITING' | 'CONNECTION_SUCCESS' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED' | 'WAITING_SELECTION'>('INITIALIZING');
+    const [gameType, setGameType] = useState<'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'TAPRACE' | 'TAPRACE_SETUP' | null>(null);
+    const [isConnected, setIsConnected] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
     const [enabledGames, setEnabledGames] = useState<string[]>(['trivia', 'ruleta', 'chango', 'simon']); // Default all
