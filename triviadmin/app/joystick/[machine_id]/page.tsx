@@ -57,6 +57,7 @@ export default function JoystickPage() {
         // Fallback: If connection takes too long, force READY state (Optimistic UI)
         const fallbackTimer = setTimeout(() => {
             setGameState(current => current === 'INITIALIZING' ? 'READY' : current);
+            setIsConnected(true);
         }, 3000);
 
         // Create subscription first
