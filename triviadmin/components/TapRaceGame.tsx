@@ -322,7 +322,7 @@ export default function TapRaceGame() {
                                         <img
                                             src={p.type === 'bot' ? '/media/car-red.png' : (p.id === 2 ? '/media/car-yellow.png' : '/media/car-blue.png')}
                                             alt={p.name}
-                                            className="w-24 h-auto transform -rotate-90 object-contain"
+                                            className="w-24 h-auto object-contain"
                                         />
                                     </div>
                                     <div className={`text-xs font-bold px-2 py-0.5 rounded mt-2 border-2 border-white/50 shadow-lg ${p.type === 'bot' ? 'bg-purple-500' : (p.id === 1 ? 'bg-orange-500' : 'bg-blue-500')
