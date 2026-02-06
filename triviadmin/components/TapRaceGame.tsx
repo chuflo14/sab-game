@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { subscribeToJoystick, sendJoystickEvent } from '@/lib/realtime';
 import { fetchChangoConfig } from '@/lib/actions';
