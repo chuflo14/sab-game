@@ -54,6 +54,11 @@ export default function JoystickPage() {
 
         console.log("JoystickPage: Connecting to machine:", machineId, "Player:", playerId);
 
+        // Fallback: If connection takes too long, force READY state (Optimistic UI)
+        const fallbackTimer = setTimeout(() => {
+            setGameState(current => current === 'INITIALIZING' ? 'READY' : current);
+        }, 3000);
+
         // Create subscription first
         const channel = subscribeToJoystick(machineId, (payload) => {
             console.log("JoystickPage: Event received:", payload);
@@ -89,6 +94,7 @@ export default function JoystickPage() {
 
         return () => {
             console.log("JoystickPage: Unsubscribing...");
+            clearTimeout(fallbackTimer);
             channel.unsubscribe();
         };
     }, [machineId, playerId]);
@@ -113,7 +119,7 @@ export default function JoystickPage() {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white text-center p-8 space-y-6">
                 <div className="w-12 h-12 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin"></div>
-                <p className="animate-pulse">Sincronizando JUGADOR {playerId}...</p>
+                <p className="animate-pulse">CONECTANDO...</p>
                 <p className="text-xs text-gray-600 font-mono">ID: {machineId.slice(0, 8)}</p>
             </div>
         );
@@ -285,7 +291,12 @@ export default function JoystickPage() {
                 {gameState === 'READY' ? (
                     <div className="text-center">
                         <h1 className="text-3xl font-black text-yellow-500 mb-2">¡LISTO!</h1>
-                        <p className="text-gray-400">Espera a que inicie el juego</p>
+                        <button
+                            onClick={() => handlePress('S')}
+                            className="w-full px-8 py-4 bg-green-500 text-white rounded-full font-black text-2xl uppercase tracking-widest shadow-lg animate-bounce"
+                        >
+                            COMENZAR
+                        </button>
                     </div>
                 ) : gameState === 'PAYING' ? (
                     <div className="text-center">
