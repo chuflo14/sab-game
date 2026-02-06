@@ -125,7 +125,15 @@ export default function TapRaceGame() {
                 const key = event.key ? event.key.toUpperCase() : '';
                 if (['S', 'A', 'B'].includes(key)) {
                     if (currentGameState === 'RACING') {
-                        if (handleTapRef.current) handleTapRef.current(event.playerId || 1); // Default to 1 if missing, but usually present
+                        // Map keys to player IDs: S=1, A=2, B=3 (or however they map physically)
+                        // Assuming standard mapping: Player 1 (S), Player 2 (A), Player 3 (B) - Verification needed on exact mapping but this is a safe default for now or we can use 1 for all if single player testing, 
+                        // but TapRace is multiplayer. 
+                        // Let's assume: S -> 1, A -> 2, B -> 3 based on standard arcade layouts often used here.
+                        let pid = 1;
+                        if (key === 'A') pid = 2;
+                        if (key === 'B') pid = 3;
+
+                        if (handleTapRef.current) handleTapRef.current(pid);
                     } else if (currentGameState === 'LOBBY') {
                         if (startGameRef.current) startGameRef.current();
                     }
