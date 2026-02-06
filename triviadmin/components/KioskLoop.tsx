@@ -172,7 +172,16 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
             }
         });
 
-        return () => { sub.unsubscribe(); };
+        // Heartbeat: Broadcast READY state periodically
+        const stateInterval = setInterval(() => {
+            // console.log("KioskLoop: Broadcasting READY state (Heartbeat)");
+            sendJoystickEvent(currentMachineId, { type: 'STATE_CHANGE', state: 'READY' });
+        }, 3000);
+
+        return () => {
+            sub.unsubscribe();
+            clearInterval(stateInterval);
+        };
     }, [currentMachineId, isJoystickEnabled]);
 
     // Keyboard listener
