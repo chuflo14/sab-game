@@ -108,10 +108,19 @@ export default function InstructionsPage() {
             });
         }
 
+        // Periodic State Broadcast (Heartbeat) to catch re-connections or missed JOINs
+        const stateInterval = setInterval(() => {
+            if (machineId) {
+                // console.log("InstructionsPage: Broadcasting MENU state (Heartbeat)"); // Optional log
+                sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'MENU' });
+            }
+        }, 3000);
+
         return () => {
             clearTimeout(timeout);
             window.removeEventListener('keydown', handleKeyDown);
             if (sub) sub.unsubscribe();
+            clearInterval(stateInterval);
         };
     }, [router, paymentsEnabled, handleGameSelect]); // Add handleGameSelect dependency
 
