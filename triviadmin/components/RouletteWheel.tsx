@@ -39,14 +39,18 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
             console.log("RouletteWheel: Subscribing directly to Joystick events for machine:", mid);
             const sub = subscribeToJoystick(mid, (event) => {
                 if (event.type === 'KEYDOWN' || event.type === 'TAP') {
-                    console.log("RouletteWheel: Joystick Direct Event:", event.key || 'TAP');
-                    const key = event.key ? event.key.toUpperCase() : 'S'; // Default to S for TAP
+                    console.log("RouletteWheel: Joystick Direct Event:", event.type);
+                    let key = 'S';
+                    if (event.type === 'KEYDOWN') {
+                        key = event.key.toUpperCase();
+                    }
+
                     if (['S', 'A', 'B'].includes(key)) {
                         if (spinRef.current) spinRef.current();
                     }
                 }
             });
-            return () => sub.unsubscribe();
+            return () => { sub.unsubscribe(); };
         }
     }, []);
 

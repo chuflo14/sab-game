@@ -97,25 +97,7 @@ export default function TapRaceGame() {
         startGameRef.current = startGame;
     }, [handleTap, startGame]);
 
-    // Joystick & Game Logic
-    useEffect(() => {
-        if (!machineId) return;
 
-        console.log("TapRace: Subscribing to joystick for machine:", machineId);
-
-        const sub = subscribeToJoystick(machineId, (event) => {
-            const currentState = gameState; // This might be stale in closure if not careful, but we use it inside logic.
-            // Actually, we can't access current state reliably without ref or dependency.
-            // But we can check event type and delegate to ref which has access to fresh state via closure? No.
-            // We need a ref for gameState as well if we want to avoid dependency.
-        });
-
-        // Wait, the best pattern is to NOT depend on gameState in the effect if possible, 
-        // OR accept re-subscription but make it cheap.
-        // But re-subscribing unsubscribes first, which might lose packets.
-
-        // Better approach: Use a ref for gameState too.
-    }, [machineId]);
     // ... wait, I need to implement the replacement content fully.
 
     // Let's use a ref for gameState

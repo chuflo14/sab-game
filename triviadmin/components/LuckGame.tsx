@@ -62,14 +62,18 @@ export default function LuckGame() {
             const sub = subscribeToJoystick(mid, (event) => {
                 if (event.type === 'KEYDOWN' || event.type === 'TAP') {
                     // For Chango, any button (S, A, B or TAP) inflates
-                    const key = event.key ? event.key.toUpperCase() : 'S';
+                    let key = 'S';
+                    if (event.type === 'KEYDOWN') {
+                        key = event.key.toUpperCase();
+                    }
+
                     if (['S', 'A', 'B'].includes(key)) {
                         setLastKey(key); // Visual feedback
                         if (handleInflateRef.current) handleInflateRef.current();
                     }
                 }
             });
-            return () => sub.unsubscribe();
+            return () => { sub.unsubscribe(); };
         }
     }, []);
 

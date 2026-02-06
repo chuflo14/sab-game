@@ -6,7 +6,6 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { generateWinningTicket, logGameEvent } from '@/lib/actions';
 import GameResultOverlay from './GameResultOverlay';
 import { sendJoystickEvent, subscribeToJoystick } from '@/lib/realtime';
-import { toast } from 'sonner';
 
 interface TriviaGameProps {
     questions: Question[];
