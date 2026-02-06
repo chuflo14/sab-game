@@ -160,6 +160,10 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
         if (gameState !== 'playing') return;
         const handleKeyDown = (e: KeyboardEvent) => {
             const key = e.key.toUpperCase();
+            console.log("TriviaGame: Key pressed:", key); // DEBUG
+            if (['S', 'A', 'B'].includes(key)) {
+                toast.success(`Trivia: Key pressed ${key}`); // DEBUG
+            }
             if (key === 'S' || key === 'A' || key === 'B') {
                 handleAnswer(key as 'S' | 'A' | 'B');
             }

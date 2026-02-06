@@ -40,6 +40,7 @@ export default function JoystickListener() {
 
                     if (payload.type === 'KEYDOWN') {
                         console.log("JoystickListener: Dispatching global keydown:", payload.key);
+                        toast.info(`Joystick Event: KEYDOWN ${payload.key}`); // DEBUG
                         const event = new KeyboardEvent('keydown', {
                             key: payload.key,
                             code: `Key${payload.key.toUpperCase()}`,
