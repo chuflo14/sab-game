@@ -56,7 +56,7 @@ export default function SimonGame() {
     const handleGameOver = useCallback(() => {
         setStatus('GAME_OVER');
         statusRef.current = 'GAME_OVER';
-        setMessage('¡ERROR!');
+        setMessage('¡PERDISTE!');
         playSound('ERROR');
 
         const mid = localStorage.getItem('MACHINE_ID');
@@ -209,8 +209,6 @@ export default function SimonGame() {
         init();
     }, []); // Empty dependency array to run once
 
-    // handleGameOver and handleWin moved up
-
 
     const handleInput = useCallback((color: Color) => {
         if (statusRef.current !== 'WAITING_INPUT') return;
@@ -285,7 +283,7 @@ export default function SimonGame() {
                 <GameResultOverlay
                     isOpen={status === 'WIN' || status === 'GAME_OVER'}
                     isWin={status === 'WIN'}
-                    title={status === 'WIN' ? '¡MEMORIA PERFECTA!' : '¡ERROR!'}
+                    title={status === 'WIN' ? '¡MEMORIA PERFECTA!' : '¡PERDISTE!'}
                     subtitle={status === 'WIN' ? 'PARTIDA COMPLETADA' : 'SECUENCIA INCORRECTA'}
                     statusMessage={status === 'WIN' ? 'Generando premio...' : 'Inténtalo de nuevo'}
                 />
