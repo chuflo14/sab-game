@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { fetchAds } from '@/lib/actions';
 import { AdMedia } from '@/lib/types';
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { sendJoystickEvent } from '@/lib/realtime';
 
 import { Suspense } from 'react';
 
@@ -81,6 +82,13 @@ function PreGameContent() {
             // But if no ad found, logic handles finish.
         }
     }, [loading, selectedAd]);
+
+    useEffect(() => {
+        const mid = localStorage.getItem('MACHINE_ID');
+        if (mid) {
+            sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'WAITING_SELECTION' });
+        }
+    }, []);
 
 
     if (loading) {

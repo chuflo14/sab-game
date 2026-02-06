@@ -13,7 +13,7 @@ export default function JoystickPage() {
     const [machineId, setMachineId] = useState<string | null>(null);
     const [playerId, setPlayerId] = useState<number>(1);
 
-    const [gameState, setGameState] = useState<'INITIALIZING' | 'WAITING' | 'CONNECTION_SUCCESS' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED'>('INITIALIZING');
+    const [gameState, setGameState] = useState<'INITIALIZING' | 'WAITING' | 'CONNECTION_SUCCESS' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED' | 'WAITING_SELECTION'>('INITIALIZING');
     const [gameType, setGameType] = useState<'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'PENALTIES' | 'TAPRACE' | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
@@ -364,6 +364,11 @@ export default function JoystickPage() {
                 ) : gameState === 'PAYING' ? (
                     <div className="text-center">
                         <h1 className="text-3xl font-black text-blue-500">PAGANDO...</h1>
+                    </div>
+                ) : gameState === 'WAITING_SELECTION' ? (
+                    <div className="text-center animate-pulse">
+                        <h1 className="text-2xl font-black text-yellow-500 mb-4">ESPERANDO JUEGO<br />SELECCIONADO...</h1>
+                        <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
                     </div>
                 ) : (
                     renderControls()
