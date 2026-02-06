@@ -186,7 +186,7 @@ export default function InstructionsPage() {
                                         <span className="block text-3xl md:text-5xl font-black text-green-500 mb-2 truncate drop-shadow-md">Simón Dice</span>
                                         <span className="text-sm md:text-xl text-gray-300 font-medium">¡Sigue la secuencia de colores!</span>
                                     </div>
-                                    <div className="bg-green-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(34,197,94,0.4)] shrink-0">S</div>
+                                    <div className="bg-green-500 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(34,197,94,0.4)] shrink-0">C</div>
                                 </button>
                             )}
 
@@ -201,7 +201,7 @@ export default function InstructionsPage() {
                                         <span className="block text-3xl md:text-5xl font-black text-orange-500 mb-2 truncate drop-shadow-md">Carrera</span>
                                         <span className="text-sm md:text-xl text-gray-300 font-medium">¡Toca rápido para ganar!</span>
                                     </div>
-                                    <div className="bg-orange-600 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(234,88,12,0.4)] shrink-0">C</div>
+                                    <div className="bg-orange-600 text-white w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-3xl md:text-5xl shadow-[0_0_30px_rgba(234,88,12,0.4)] shrink-0">E</div>
                                 </button>
                             )}
                         </>
