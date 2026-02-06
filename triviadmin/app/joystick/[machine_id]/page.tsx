@@ -302,6 +302,30 @@ export default function JoystickPage() {
 
 
 
+        if (gameType === 'TAPRACE_SETUP') {
+            return (
+                <div className="flex flex-col gap-6 w-full animate-in fade-in zoom-in duration-500">
+                    <h2 className="text-center text-orange-500 uppercase font-black tracking-widest mb-2">MODO DE JUEGO</h2>
+
+                    <button onClick={() => handlePress('S')} className="w-full p-8 bg-blue-600 text-white rounded-3xl font-black text-3xl shadow-[0_10px_0_rgb(30,58,138)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
+                        <div className="flex flex-col items-start">
+                            <span>1 JUGADOR</span>
+                            <span className="text-sm font-normal opacity-70">Vs Psab Bot</span>
+                        </div>
+                        <span className="bg-black/20 px-4 py-2 rounded-xl">S</span>
+                    </button>
+
+                    <button onClick={() => handlePress('A')} className="w-full p-8 bg-purple-600 text-white rounded-3xl font-black text-3xl shadow-[0_10px_0_rgb(126,34,206)] active:translate-y-1 active:shadow-none transition-all flex items-center justify-between">
+                        <div className="flex flex-col items-start">
+                            <span>2 JUGADORES</span>
+                            <span className="text-sm font-normal opacity-70">P1 vs P2 vs Bot</span>
+                        </div>
+                        <span className="bg-black/20 px-4 py-2 rounded-xl">A</span>
+                    </button>
+                </div>
+            );
+        }
+
         if (gameType === 'TAPRACE') {
             return (
                 <div className="flex flex-col items-center justify-center w-full h-[60vh] animate-in fade-in zoom-in duration-500 p-4">
