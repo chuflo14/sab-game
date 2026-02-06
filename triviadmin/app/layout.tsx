@@ -5,6 +5,7 @@ import { ConnectivityProvider } from '@/components/ConnectivityProvider';
 import OfflineOverlay from '@/components/OfflineOverlay';
 import JoystickListener from '@/components/JoystickListener';
 import MercadoPagoInit from '@/components/MercadoPagoInit';
+import CursorHider from '@/components/CursorHider';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen w-full bg-black text-white overflow-hidden flex flex-col font-sans`}
       >
+        <CursorHider />
         <main className="w-full h-full flex-1 flex flex-col">
           <ConnectivityProvider>
             <JoystickListener />
