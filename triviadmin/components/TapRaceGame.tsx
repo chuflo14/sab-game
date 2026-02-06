@@ -172,15 +172,29 @@ export default function TapRaceGame() {
         // Broadcast Initial State based on current GameState
         // This is important when switching states (e.g. SETUP -> LOBBY)
         const currentGameState = gameStateRef.current;
-        if (currentGameState === 'SETUP') {
-            sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE_SETUP' });
-        } else if (currentGameState === 'LOBBY') {
-            sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'READY', game: 'TAPRACE' });
-        } else if (currentGameState === 'RACING') {
-            sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE' });
-        }
+        const broadcastState = () => {
+            const gs = gameStateRef.current;
+            if (gs === 'SETUP') {
+                sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE_SETUP' });
+            } else if (gs === 'LOBBY') {
+                sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'READY', game: 'TAPRACE' });
+            } else if (gs === 'RACING') {
+                sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE' });
+            }
+        };
 
-        return () => { sub.unsubscribe(); };
+        // Initial broadcast
+        broadcastState();
+
+        // Heartbeat (every 3s)
+        const interval = setInterval(() => {
+            broadcastState();
+        }, 3000);
+
+        return () => {
+            sub.unsubscribe();
+            clearInterval(interval);
+        };
     }, [machineId, gameState]); // Add gameState dependency to re-broadcast on change
 
     // Watch for winner
