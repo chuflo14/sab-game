@@ -80,6 +80,8 @@ export default function SimonGame() {
         playSequence(newSeq);
     }, [playSequence]);
 
+    const gameStarted = useRef(false);
+
     useEffect(() => {
         // Preload sounds
         Object.entries(SOUNDS).forEach(([key, src]) => {
@@ -87,6 +89,9 @@ export default function SimonGame() {
         });
 
         const init = async () => {
+            if (gameStarted.current) return;
+            gameStarted.current = true;
+
             gameStartTime.current = new Date();
             const [prizeData] = await Promise.all([
                 fetchPrizes(),
@@ -101,10 +106,17 @@ export default function SimonGame() {
             }
 
             // Start Game after short delay
-            setTimeout(startNewRound, 2000);
+            setTimeout(() => {
+                // Initial start
+                const nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+                const newSeq = [nextColor];
+                setSequence(newSeq);
+                sequenceRef.current = newSeq;
+                playSequence(newSeq);
+            }, 2000);
         };
         init();
-    }, [startNewRound]); // Added dependency
+    }, []); // Empty dependency array to run once
 
     const handleGameOver = useCallback(() => {
         setStatus('GAME_OVER');
