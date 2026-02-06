@@ -214,12 +214,12 @@ export default function TapRaceGame() {
     const setupGame = (mode: '1P' | '2P') => {
         if (mode === '1P') {
             setPlayers([
-                { id: 1, connected: false, progress: 0, name: 'TÚ', type: 'human' },
+                { id: 1, connected: true, progress: 0, name: 'TÚ', type: 'human' },
                 { id: 99, connected: true, progress: 0, name: 'Psab (CPU)', type: 'bot' }
             ]);
         } else {
             setPlayers([
-                { id: 1, connected: false, progress: 0, name: 'JUGADOR 1', type: 'human' },
+                { id: 1, connected: true, progress: 0, name: 'JUGADOR 1', type: 'human' },
                 { id: 2, connected: false, progress: 0, name: 'JUGADOR 2', type: 'human' },
                 { id: 99, connected: true, progress: 0, name: 'Psab (CPU)', type: 'bot' }
             ]);
@@ -261,7 +261,7 @@ export default function TapRaceGame() {
                             <div key={p.id} className={`flex flex-col items-center gap-4 transition-all duration-500 ${p.connected ? 'scale-110' : 'opacity-50'}`}>
                                 <div className={`p-4 bg-white rounded-3xl ${p.connected ? 'shadow-[0_0_50px_rgba(249,115,22,0.6)]' : ''}`}>
                                     <div className="w-48 h-48 flex items-center justify-center">
-                                        {p.type === 'human' ? (
+                                        {p.type === 'human' && !p.connected ? (
                                             <QRCode
                                                 value={getJoinUrl(p.id)}
                                                 size={256}
@@ -269,7 +269,7 @@ export default function TapRaceGame() {
                                                 viewBox={`0 0 256 256`}
                                             />
                                         ) : (
-                                            <div className="text-6xl">🤖</div>
+                                            <div className="text-6xl">{p.type === 'bot' ? '🤖' : '👤'}</div>
                                         )}
                                     </div>
                                 </div>
@@ -295,9 +295,9 @@ export default function TapRaceGame() {
                         <div className="text-6xl font-black font-mono text-yellow-400">{timeLeft}s</div>
                     </div>
 
-                    <div className="flex-1 flex flex-row justify-between items-end gap-4 px-8 pb-8 h-full">
+                    <div className="flex-1 flex flex-row items-end px-8 pb-8 h-full w-full">
                         {players.map(p => (
-                            <div key={p.id} className="relative h-full w-full max-w-[180px] group">
+                            <div key={p.id} className="relative h-full flex-1 group border-r border-white/10 last:border-r-0">
                                 <div className="w-full h-full bg-slate-800 rounded-full relative overflow-hidden border-4 border-slate-700 mx-auto">
                                     <div className="absolute inset-0 flex flex-col items-center py-4 justify-between opacity-30">
                                         {[...Array(15)].map((_, i) => <div key={i} className="h-2 w-16 bg-slate-600" />)}
