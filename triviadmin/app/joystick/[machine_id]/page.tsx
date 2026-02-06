@@ -13,7 +13,7 @@ export default function JoystickPage() {
     const [machineId, setMachineId] = useState<string | null>(null);
     const [playerId, setPlayerId] = useState<number>(1);
 
-    const [gameState, setGameState] = useState<'WAITING' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED'>('WAITING');
+    const [gameState, setGameState] = useState<'INITIALIZING' | 'WAITING' | 'READY' | 'PLAYING' | 'PAYING' | 'PAYMENT_APPROVED'>('INITIALIZING');
     const [gameType, setGameType] = useState<'MENU' | 'TRIVIA' | 'RULETA' | 'CHANGO' | 'SIMON' | 'PENALTIES' | 'TAPRACE' | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [machineName, setMachineName] = useState<string>('');
@@ -83,10 +83,9 @@ export default function JoystickPage() {
                 console.log("JoystickPage: Subscribed! Sending JOIN...");
                 // Notify Join ONLY after we are listening
                 sendJoystickEvent(machineId, { type: 'JOIN', playerId });
+                setIsConnected(true);
             }
         });
-
-        setIsConnected(true);
 
         return () => {
             console.log("JoystickPage: Unsubscribing...");
@@ -110,7 +109,7 @@ export default function JoystickPage() {
 
     if (!machineId) return <div className="bg-black text-white p-4">Error: Sin ID</div>;
 
-    if (!isConnected) {
+    if (!isConnected || gameState === 'INITIALIZING') {
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white text-center p-8 space-y-6">
                 <div className="w-12 h-12 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin"></div>
