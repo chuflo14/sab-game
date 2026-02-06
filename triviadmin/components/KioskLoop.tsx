@@ -153,6 +153,12 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
         return () => clearInterval(heartbeatTimer);
     }, [currentMachineId]);
 
+    // Use ref to hold the latest handleStart to avoid re-subscribing when cooldown changes
+    const handleStartRef = useRef(handleStart);
+    useEffect(() => {
+        handleStartRef.current = handleStart;
+    }, [handleStart]);
+
     // Joystick Realtime Logic - Report State & Respond to JOIN
     useEffect(() => {
         if (!currentMachineId || !isJoystickEnabled) return;
@@ -168,7 +174,9 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                 sendJoystickEvent(currentMachineId, { type: 'STATE_CHANGE', state: 'READY' });
             } else if (event.type === 'KEYDOWN' || event.type === 'TAP') {
                 console.log("KioskLoop: Joystick input received, triggering start.");
-                handleStart();
+                if (handleStartRef.current) {
+                    handleStartRef.current();
+                }
             }
         });
 
