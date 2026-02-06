@@ -87,24 +87,69 @@ export default function TapRaceGame() {
         init();
     }, []);
 
+    // Refs for handlers to avoid re-subscriptions
+    const handleTapRef = useRef<(pid: number) => void>(() => { });
+    const startGameRef = useRef<() => void>(() => { });
+
+    // Update refs
+    useEffect(() => {
+        handleTapRef.current = handleTap;
+        startGameRef.current = startGame;
+    }, [handleTap, startGame]);
+
     // Joystick & Game Logic
     useEffect(() => {
         if (!machineId) return;
 
+        console.log("TapRace: Subscribing to joystick for machine:", machineId);
+
         const sub = subscribeToJoystick(machineId, (event) => {
+            const currentState = gameState; // This might be stale in closure if not careful, but we use it inside logic.
+            // Actually, we can't access current state reliably without ref or dependency.
+            // But we can check event type and delegate to ref which has access to fresh state via closure? No.
+            // We need a ref for gameState as well if we want to avoid dependency.
+        });
+
+        // Wait, the best pattern is to NOT depend on gameState in the effect if possible, 
+        // OR accept re-subscription but make it cheap.
+        // But re-subscribing unsubscribes first, which might lose packets.
+
+        // Better approach: Use a ref for gameState too.
+    }, [machineId]);
+    // ... wait, I need to implement the replacement content fully.
+
+    // Let's use a ref for gameState
+    const gameStateRef = useRef(gameState);
+    useEffect(() => {
+        gameStateRef.current = gameState;
+    }, [gameState]);
+
+    useEffect(() => {
+        if (!machineId) return;
+
+        const sub = subscribeToJoystick(machineId, (event) => {
+            const currentGameState = gameStateRef.current;
+
             if (event.type === 'JOIN') {
                 setPlayers(prev => prev.map(p => p.id === event.playerId ? { ...p, connected: true } : p));
             } else if (event.type === 'TAP') {
-                if (gameState === 'RACING') {
-                    handleTap(event.playerId);
-                } else if (gameState === 'LOBBY') {
-                    // Allow TAP to start if lobby
-                    startGame();
+                if (currentGameState === 'RACING') {
+                    if (handleTapRef.current) handleTapRef.current(event.playerId);
+                } else if (currentGameState === 'LOBBY') {
+                    if (startGameRef.current) startGameRef.current();
                 }
-            } else if (event.type === 'KEYDOWN' && event.key === 'S' && gameState === 'LOBBY') {
-                startGame();
-            } else if (gameState === 'LOBBY' && event.type === 'START') {
-                startGame();
+            } else if (event.type === 'KEYDOWN') {
+                // Handle S, A, B as Taps or Start
+                const key = event.key ? event.key.toUpperCase() : '';
+                if (['S', 'A', 'B'].includes(key)) {
+                    if (currentGameState === 'RACING') {
+                        if (handleTapRef.current) handleTapRef.current(event.playerId || 1); // Default to 1 if missing, but usually present
+                    } else if (currentGameState === 'LOBBY') {
+                        if (startGameRef.current) startGameRef.current();
+                    }
+                }
+            } else if (event.type === 'START' && currentGameState === 'LOBBY') {
+                if (startGameRef.current) startGameRef.current();
             }
         });
 
@@ -112,7 +157,7 @@ export default function TapRaceGame() {
         sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE' });
 
         return () => { sub.unsubscribe(); };
-    }, [machineId, gameState, handleTap, startGame]);
+    }, [machineId]); // Only machineId dependency!
 
     // Watch for winner
     useEffect(() => {

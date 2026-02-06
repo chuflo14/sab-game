@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { generateWinningTicket, fetchPrizes, fetchChangoConfig, logGameEvent } from '@/lib/actions';
 import GameResultOverlay from './GameResultOverlay';
-import { sendJoystickEvent } from '@/lib/realtime';
+import { sendJoystickEvent, subscribeToJoystick } from '@/lib/realtime';
 
 export default function LuckGame() {
     const router = useRouter();
@@ -22,6 +22,9 @@ export default function LuckGame() {
     const gameStartTime = useRef(new Date());
 
     const [config, setConfig] = useState<ChangoConfig | null>(null);
+
+    // Ref for the inflate handler to avoid re-subscribing
+    const handleInflateRef = useRef<() => void>(() => { });
 
     useEffect(() => {
         const initGame = async () => {
@@ -51,6 +54,22 @@ export default function LuckGame() {
         const mid = localStorage.getItem('MACHINE_ID');
         if (mid) {
             sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'CHANGO' });
+        }
+
+        // Direct Joystick Subscription
+        if (mid) {
+            console.log("LuckGame: Subscribing directly to Joystick events for machine:", mid);
+            const sub = subscribeToJoystick(mid, (event) => {
+                if (event.type === 'KEYDOWN' || event.type === 'TAP') {
+                    // For Chango, any button (S, A, B or TAP) inflates
+                    const key = event.key ? event.key.toUpperCase() : 'S';
+                    if (['S', 'A', 'B'].includes(key)) {
+                        setLastKey(key); // Visual feedback
+                        if (handleInflateRef.current) handleInflateRef.current();
+                    }
+                }
+            });
+            return () => sub.unsubscribe();
         }
     }, []);
 
@@ -96,6 +115,10 @@ export default function LuckGame() {
         setIsPumping(true);
         setTimeout(() => setIsPumping(false), 100);
     }, [gameState, isBurst, inflation]);
+
+    useEffect(() => {
+        handleInflateRef.current = handleInflate;
+    }, [handleInflate]);
 
     const handleWin = useCallback(() => {
         if (hasGeneratedTicket.current) return;

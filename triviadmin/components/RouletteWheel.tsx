@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { generateWinningTicket, logGameEvent } from '@/lib/actions';
 import GameResultOverlay from './GameResultOverlay';
-import { sendJoystickEvent } from '@/lib/realtime';
+import { sendJoystickEvent, subscribeToJoystick } from '@/lib/realtime';
 
 interface RouletteWheelProps {
     segments: RouletteSegment[];
@@ -20,6 +20,9 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
     const gameStartTime = useRef(new Date());
     const [config, setConfig] = useState<ChangoConfig | null>(null);
 
+    // Forward declaration of spin for the effect
+    const spinRef = useRef<() => void>(() => { });
+
     useEffect(() => {
         import('@/lib/actions').then(mod => {
             mod.fetchChangoConfig().then(setConfig);
@@ -29,6 +32,21 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
         const mid = localStorage.getItem('MACHINE_ID');
         if (mid) {
             sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'RULETA' });
+        }
+
+        // Direct Joystick Subscription
+        if (mid) {
+            console.log("RouletteWheel: Subscribing directly to Joystick events for machine:", mid);
+            const sub = subscribeToJoystick(mid, (event) => {
+                if (event.type === 'KEYDOWN' || event.type === 'TAP') {
+                    console.log("RouletteWheel: Joystick Direct Event:", event.key || 'TAP');
+                    const key = event.key ? event.key.toUpperCase() : 'S'; // Default to S for TAP
+                    if (['S', 'A', 'B'].includes(key)) {
+                        if (spinRef.current) spinRef.current();
+                    }
+                }
+            });
+            return () => sub.unsubscribe();
         }
     }, []);
 
@@ -138,6 +156,11 @@ export default function RouletteWheel({ segments }: RouletteWheelProps) {
         setIsSpinning(true);
         requestRef.current = requestAnimationFrame(animate);
     }, [isSpinning, result, animate]);
+
+    // Update ref for the effect to use
+    useEffect(() => {
+        spinRef.current = spin;
+    }, [spin]);
 
     useEffect(() => {
         draw();
