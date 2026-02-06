@@ -14,9 +14,130 @@ interface TriviaGameProps {
 
 export default function TriviaGame({ questions }: TriviaGameProps) {
     const router = useRouter();
-    // ... (rest of state) ...
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(10);
+    const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
+    const [prizes, setPrizes] = useState<Prize[]>([]);
+    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+    const [isAnswering, setIsAnswering] = useState(false);
+    const gameStartTime = useRef(new Date());
 
-    // ... (rest of effects) ...
+    const [config, setConfig] = useState<ChangoConfig | null>(null);
+
+    useEffect(() => {
+        // We use ChangoConfig as the general config for now
+        import('@/lib/actions').then(mod => {
+            Promise.all([
+                mod.fetchPrizes(),
+                mod.fetchChangoConfig()
+            ]).then(([prizesData, configData]) => {
+                setPrizes(prizesData);
+                setConfig(configData);
+            });
+        });
+
+        // Report state to joystick
+        const mid = localStorage.getItem('MACHINE_ID');
+        if (mid) {
+            sendJoystickEvent(mid, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TRIVIA' });
+        }
+    }, []);
+
+    const handleGameOver = useCallback(async () => {
+        if (!config) return; // Wait for config to load
+        setGameState('lost');
+
+        const mid = localStorage.getItem('MACHINE_ID');
+        if (mid) {
+            sendJoystickEvent(mid, { type: 'GAME_OVER' });
+        }
+
+        await logGameEvent({
+            gameType: 'trivia',
+            startedAt: gameStartTime.current,
+            finishedAt: new Date(),
+            result: 'LOSE',
+            machineId: mid || undefined
+        });
+        const cooldownSec = config?.gameCooldownSeconds || 0;
+        if (cooldownSec > 0) {
+            localStorage.setItem('game_cooldown_until', (Date.now() + cooldownSec * 1000).toString());
+        }
+        setTimeout(() => {
+            router.push('/');
+        }, (config?.resultDurationSeconds || 1.5) * 1000);
+    }, [router, config]);
+
+    const handleWin = useCallback(async () => {
+        setGameState('won');
+
+        const generateTicketPromise = (async () => {
+            try {
+                const prize = prizes.length > 0 ? prizes[Math.floor(Math.random() * prizes.length)] : null;
+                if (prize) {
+                    const ticket = await generateWinningTicket(prize.id, 'trivia');
+                    await logGameEvent({
+                        gameType: 'trivia',
+                        startedAt: gameStartTime.current,
+                        finishedAt: new Date(),
+                        result: 'WIN',
+                        ticketId: ticket.id,
+                        machineId: localStorage.getItem('MACHINE_ID') || undefined
+                    });
+
+                    const mid = localStorage.getItem('MACHINE_ID');
+                    if (mid) {
+                        sendJoystickEvent(mid, { type: 'GAME_OVER' });
+                    }
+
+                    return ticket;
+                }
+                return null;
+            } catch (error) {
+                console.error("Error generating ticket", error);
+                return null;
+            }
+        })();
+
+        const cooldownSec = config?.gameCooldownSeconds || 0;
+        if (cooldownSec > 0) {
+            localStorage.setItem('game_cooldown_until', (Date.now() + cooldownSec * 1000).toString());
+        }
+
+        setTimeout(async () => {
+            const ticket = await generateTicketPromise;
+            if (ticket) {
+                router.push(`/result?ticketId=${ticket.id}`);
+            } else {
+                router.push('/');
+            }
+        }, (config?.resultDurationSeconds || 1.5) * 1000);
+    }, [router, prizes, config]);
+
+    const handleAnswer = useCallback((answerKey: 'S' | 'A' | 'B') => {
+        if (isAnswering || gameState !== 'playing') return;
+
+        setIsAnswering(true);
+        setSelectedAnswer(answerKey);
+
+        const isCorrect = questions[currentQuestionIndex].correctKey === answerKey;
+
+        if (isCorrect && currentQuestionIndex === questions.length - 1) {
+            handleWin();
+        } else {
+            setTimeout(() => {
+                if (isCorrect) {
+                    setCurrentQuestionIndex(prev => prev + 1);
+                    setTimeLeft(10);
+                    setIsAnswering(false);
+                    setSelectedAnswer(null);
+                } else {
+                    handleGameOver();
+                }
+            }, 1000);
+        }
+    }, [questions, currentQuestionIndex, handleWin, handleGameOver, isAnswering, gameState]);
+
 
     // Joystick Direct Subscription
     useEffect(() => {
@@ -40,7 +161,25 @@ export default function TriviaGame({ questions }: TriviaGameProps) {
         };
     }, [handleAnswer]);
 
-    // Keyboard Listener (Keep for physical keyboard support)
+    useEffect(() => {
+        if (gameState !== 'playing') return;
+
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 0) return 0;
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [gameState]);
+
+    // Monitor time left for game over
+    useEffect(() => {
+        if (timeLeft === 0 && gameState === 'playing') {
+            handleGameOver();
+        }
+    }, [timeLeft, gameState, handleGameOver]);
+
     useEffect(() => {
         if (gameState !== 'playing') return;
         const handleKeyDown = (e: KeyboardEvent) => {
