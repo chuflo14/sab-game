@@ -309,7 +309,7 @@ export default function TapRaceGame() {
                                             <div className="flex items-center justify-center">
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img
-                                                    src={p.type === 'bot' ? '/media/car-red.png' : '/media/car-blue.png'}
+                                                    src={p.type === 'bot' ? '/media/car-red.png' : (p.id === 2 ? '/media/car-yellow.png' : '/media/car-blue.png')}
                                                     alt="Avatar"
                                                     className="w-24 h-24 object-contain"
                                                 />
@@ -362,7 +362,7 @@ export default function TapRaceGame() {
                                             className="w-24 h-auto object-contain"
                                         />
                                     </div>
-                                    <div className={`text-xs font-bold px-2 py-0.5 rounded mt-2 border-2 border-white/50 shadow-lg ${p.type === 'bot' ? 'bg-purple-500' : (p.id === 1 ? 'bg-orange-500' : 'bg-blue-500')
+                                    <div className={`text-xl font-black px-4 py-1 rounded-xl mt-2 border-4 border-white/50 shadow-xl uppercase whitespace-nowrap min-w-[120px] text-center ${p.type === 'bot' ? 'bg-purple-600' : (p.id === 1 ? 'bg-orange-600' : 'bg-blue-600')
                                         }`}>
                                         {p.name}
                                     </div>
