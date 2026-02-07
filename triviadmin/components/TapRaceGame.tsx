@@ -281,7 +281,7 @@ export default function TapRaceGame() {
                                     </div>
                                 </div>
                                 <div className={`px-6 py-2 rounded-full font-black text-xl uppercase ${p.connected ? 'bg-orange-500 text-white' : 'bg-slate-800 text-slate-500'}`}>
-                                    {p.connected ? (p.type === 'bot' ? 'LISTO (CPU)' : 'LISTO') : p.name}
+                                    {p.connected ? (p.type === 'bot' ? 'LISTO (SAB)' : 'LISTO') : p.name}
                                 </div>
                             </div>
                         ))}
