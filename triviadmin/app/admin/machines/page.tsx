@@ -17,6 +17,7 @@ import {
     Gamepad2,
     Layers
 } from 'lucide-react';
+import QrDownloader from '@/components/QrDownloader';
 
 export default function MachinesAdminPage() {
     const [machines, setMachines] = useState<Machine[]>([]);
@@ -216,9 +217,12 @@ export default function MachinesAdminPage() {
                                         <div className={`p-4 rounded-2xl transition-all duration-300 ${m.isOperational ? 'bg-indigo-50 text-indigo-600' : 'bg-red-50 text-red-500'}`}>
                                             <Cpu className="w-6 h-6" />
                                         </div>
-                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-widest ${isOnline ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-500'}`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                                            {isOnline ? 'Online' : 'Offline'}
+                                        <div className="flex flex-col items-end gap-2">
+                                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-widest ${isOnline ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-500'}`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                                                {isOnline ? 'Online' : 'Offline'}
+                                            </div>
+                                            <QrDownloader machineId={m.id} machineName={m.name} />
                                         </div>
                                     </div>
 

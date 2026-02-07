@@ -11,6 +11,7 @@ import {
     MonitorPlay
 } from 'lucide-react';
 import Link from 'next/link';
+import QrDownloader from '@/components/QrDownloader';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,7 +76,10 @@ export default async function AliadoPage() {
                                             {machine.isOperational ? <Signal className="w-6 h-6" /> : <SignalZero className="w-6 h-6" />}
                                         </div>
                                         <div>
-                                            <h3 className="font-black text-slate-800 uppercase tracking-tight text-xl">{machine.name}</h3>
+                                            <div className="flex items-center gap-3">
+                                                <h3 className="font-black text-slate-800 uppercase tracking-tight text-xl">{machine.name}</h3>
+                                                <QrDownloader machineId={machine.id} machineName={machine.name} />
+                                            </div>
                                             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
                                                 {machine.location || 'Sin Ubicación'}
                                             </p>
