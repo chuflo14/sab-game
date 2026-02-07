@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LogOut, LayoutDashboard } from 'lucide-react';
+import { LogOut, LayoutDashboard, MonitorPlay } from 'lucide-react';
 import { logout } from '@/lib/actions';
 
 export default function AliadoLayout({
@@ -25,6 +25,11 @@ export default function AliadoLayout({
                         <Link href="/aliado" className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:text-green-400 transition-colors">
                             <LayoutDashboard className="w-4 h-4" />
                             <span className="hidden md:inline">Dashboard</span>
+                        </Link>
+
+                        <Link href="/admin/ads" className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:text-green-400 transition-colors">
+                            <MonitorPlay className="w-4 h-4" />
+                            <span className="hidden md:inline">Publicidad</span>
                         </Link>
 
                         <form action={async () => {

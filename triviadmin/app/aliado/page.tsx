@@ -7,8 +7,10 @@ import {
     Gamepad2,
     DollarSign,
     Signal,
-    SignalZero
+    SignalZero,
+    MonitorPlay
 } from 'lucide-react';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,9 +43,18 @@ export default async function AliadoPage() {
         <div className="space-y-8 pb-20">
             <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
                 <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Bienvenido, {currentUser.username}</h2>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
-                    Tienes {myMachines.length} kiosco(s) asignado(s)
-                </p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        Tienes {myMachines.length} kiosco(s) asignado(s)
+                    </p>
+                    <Link
+                        href="/admin/ads"
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 w-full md:w-auto"
+                    >
+                        <MonitorPlay className="w-4 h-4" />
+                        Gestionar Publicidad
+                    </Link>
+                </div>
             </div>
 
             {myMachines.length === 0 ? (

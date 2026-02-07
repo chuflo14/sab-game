@@ -19,6 +19,17 @@ export function middleware(request: NextRequest) {
             loginUrl.searchParams.set('next', pathname);
             return NextResponse.redirect(loginUrl);
         }
+
+        try {
+            const sessionData = JSON.parse(session.value);
+            // Redirect Aliado to /aliado if they try to go to /admin (root)
+            if (sessionData.role === 'ALIADO' && pathname === '/admin') {
+                return NextResponse.redirect(new URL('/aliado', request.url));
+            }
+        } catch (e) {
+            // Invalid session cookie
+            return NextResponse.redirect(new URL('/login', request.url));
+        }
     }
 
     return NextResponse.next();
