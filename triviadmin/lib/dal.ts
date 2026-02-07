@@ -66,7 +66,8 @@ export const getAds = async (): Promise<AdMedia[]> => {
         ...a,
         durationSec: a.duration_sec,
         createdAt: new Date(a.created_at),
-        machineIds: a.machine_ids || []
+        machineIds: a.machine_ids || [],
+        uploadedBy: a.uploaded_by
     })) as AdMedia[];
 };
 export const addAd = async (ad: AdMedia): Promise<AdMedia> => {
@@ -79,7 +80,8 @@ export const addAd = async (ad: AdMedia): Promise<AdMedia> => {
         priority: ad.priority,
         active: ad.active,
         created_at: ad.createdAt,
-        machine_ids: ad.machineIds
+        machine_ids: ad.machineIds,
+        uploaded_by: ad.uploadedBy
     };
     const { data, error } = await supabase.from('ads').insert(dbAd).select().single();
     if (error) throw error;
@@ -87,7 +89,8 @@ export const addAd = async (ad: AdMedia): Promise<AdMedia> => {
         ...ad,
         durationSec: data.duration_sec,
         createdAt: new Date(data.created_at),
-        machineIds: data.machine_ids
+        machineIds: data.machine_ids,
+        uploadedBy: data.uploaded_by
     };
 };
 export const updateAd = async (id: string, updates: Partial<AdMedia>): Promise<AdMedia | undefined> => {
@@ -110,7 +113,8 @@ export const updateAd = async (id: string, updates: Partial<AdMedia>): Promise<A
         ...data,
         durationSec: data.duration_sec,
         createdAt: new Date(data.created_at),
-        machineIds: data.machine_ids
+        machineIds: data.machine_ids,
+        uploadedBy: data.uploaded_by
     } as AdMedia;
 };
 export const deleteAd = async (id: string): Promise<void> => {

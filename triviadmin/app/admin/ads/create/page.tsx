@@ -286,13 +286,13 @@ export default function CreateAdPage() {
                         })}
                     </div>
                     {machines.length === 0 && (
-                        <p className="text-xs text-slate-400 italic">No hay kioscos registrados aún.</p>
+                        <p className="text-xs text-slate-400 italic">No tienes kioscos asignados o no hay kioscos disponibles.</p>
                     )}
                 </div>
 
                 <button
                     type="submit"
-                    disabled={isLoading || uploading}
+                    disabled={isLoading || uploading || (machines.length > 0 && selectedMachineIds.length === 0)}
                     className="w-full bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white rounded-2xl py-6 font-black text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-4 shadow-2xl transition-all active:scale-95 fixed bottom-6 left-4 right-4 md:static md:w-full z-50 md:z-0 max-w-[calc(100%-2rem)] md:max-w-none mx-auto"
                 >
                     {isLoading || uploading ? (

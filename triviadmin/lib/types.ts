@@ -115,6 +115,7 @@ export interface AdMedia {
     active: boolean;
     createdAt: Date;
     machineIds?: string[]; // IDs of machines this ad should target. Empty = All
+    uploadedBy?: string; // User ID who uploaded this ad
 }
 
 export interface TriviaQuestion {

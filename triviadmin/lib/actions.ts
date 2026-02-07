@@ -197,19 +197,95 @@ export async function getAliadoStats(machineIds: string[]) {
 
 // Ad Actions
 export async function fetchAds() {
-    return await dal.getAds();
+    const cookieStore = await cookies();
+    const session = cookieStore.get('sb_session');
+    let userRole = 'ADMIN';
+    let userId = '';
+    let userMachineIds: string[] = [];
+
+    if (session) {
+        const data = JSON.parse(session.value);
+        userRole = data.role;
+        userId = data.userId;
+        // Fetch fresh user data to get machineIds
+        const users = await dal.getUsers();
+        const user = users.find(u => u.id === userId);
+        if (user) userMachineIds = user.machineIds || [];
+    }
+
+    const allAds = await dal.getAds();
+
+    if (userRole === 'ADMIN') {
+        return allAds;
+    }
+
+    if (userRole === 'ALIADO') {
+        // Aliado sees ads they uploaded OR ads that are targeted to their machines (optional)
+        // Request says "puedo subir publicidad que se va ver en sus propias maquinas"
+        // and "administrador si lo desea puedo editaro o borra"
+        // It's safest to show them ads they created.
+        // If we want them to see system ads on their machines, we'd add OR logic.
+        // But for management, "My Ads" is usually better.
+        // Let's stick to: Ads uploaded by me.
+        return allAds.filter(ad => ad.uploadedBy === userId);
+    }
+
+    return [];
 }
+
 export async function createAd(data: AdMedia) {
-    const newAd = await dal.addAd(data);
+    const cookieStore = await cookies();
+    const session = cookieStore.get('sb_session');
+    let userId = undefined;
+
+    if (session) {
+        const sessionData = JSON.parse(session.value);
+        userId = sessionData.userId;
+    }
+
+    const newAd = await dal.addAd({
+        ...data,
+        uploadedBy: userId
+    });
     revalidatePath('/admin/ads');
     return newAd;
 }
+
 export async function updateAdAction(id: string, data: Partial<AdMedia>) {
+    // Basic permission check could be added here, but UI hides buttons.
+    // Ideally we check ownership if ALIADO.
+    const cookieStore = await cookies();
+    const session = cookieStore.get('sb_session');
+    if (session) {
+        const sessionData = JSON.parse(session.value);
+        if (sessionData.role === 'ALIADO') {
+            const ads = await dal.getAds();
+            const ad = ads.find(a => a.id === id);
+            if (ad && ad.uploadedBy !== sessionData.userId) {
+                throw new Error('Unauthorized');
+            }
+        }
+    }
+
     const updated = await dal.updateAd(id, data);
     revalidatePath('/admin/ads');
     return updated;
 }
+
 export async function deleteAdAction(id: string) {
+    const cookieStore = await cookies();
+    const session = cookieStore.get('sb_session');
+    if (session) {
+        const sessionData = JSON.parse(session.value);
+        if (sessionData.role === 'ALIADO') {
+            const ads = await dal.getAds();
+            const ad = ads.find(a => a.id === id);
+            // Aliado can only delete their own ads
+            if (ad && ad.uploadedBy !== sessionData.userId) {
+                throw new Error('Unauthorized');
+            }
+        }
+    }
     await dal.deleteAd(id);
     revalidatePath('/admin/ads');
 }
@@ -253,7 +329,27 @@ export async function fetchRandomQuestions(limit: number) {
 
 // Machine Actions
 export async function fetchMachines() {
-    return await dal.getMachines();
+    const cookieStore = await cookies();
+    const session = cookieStore.get('sb_session');
+    let userRole = 'ADMIN';
+    let userId = '';
+
+    if (session) {
+        const data = JSON.parse(session.value);
+        userRole = data.role;
+        userId = data.userId;
+    }
+
+    const allMachines = await dal.getMachines();
+
+    if (userRole === 'ALIADO') {
+        const users = await dal.getUsers();
+        const user = users.find(u => u.id === userId);
+        const allowedIds = user?.machineIds || [];
+        return allMachines.filter(m => allowedIds.includes(m.id));
+    }
+
+    return allMachines;
 }
 export async function getMachineByShortIdAction(code: string) {
     console.log('getMachineByShortIdAction called with:', code);

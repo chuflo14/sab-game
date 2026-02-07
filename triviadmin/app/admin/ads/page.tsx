@@ -119,7 +119,16 @@ export default function AdsAdminPage() {
                                         <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight truncate max-w-[180px]">
                                             {ad.name || ad.url.split('/').pop()?.substring(0, 20) || 'Publicidad'}
                                         </h4>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registrado el {new Date(ad.createdAt).toLocaleDateString()}</p>
+                                        <div className="flex flex-col gap-0.5">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                Registrado el {new Date(ad.createdAt).toLocaleDateString()}
+                                            </p>
+                                            {ad.uploadedBy && (
+                                                <p className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest truncate max-w-[150px]">
+                                                    Por: {ad.uploadedBy.substring(0, 8)}...
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                     <button
                                         onClick={() => toggleStatus(ad)}
