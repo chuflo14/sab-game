@@ -3,32 +3,69 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { subscribeToJoystick, sendJoystickEvent } from '@/lib/realtime';
-import { fetchChangoConfig } from '@/lib/actions';
-import { ChangoConfig } from '@/lib/types';
+import { fetchChangoConfig, generateWinningTicket, fetchPrizes, logGameEvent } from '@/lib/actions';
+import { ChangoConfig, Prize } from '@/lib/types';
 import { Trophy } from 'lucide-react';
 import QRCode from 'react-qr-code';
+import GameResultOverlay from './GameResultOverlay';
 
 export default function TapRaceGame() {
     const router = useRouter();
-    const [gameState, setGameState] = useState<'SETUP' | 'LOBBY' | 'RACING' | 'RESULT'>('SETUP');
+    const [gameState, setGameState] = useState<'SETUP' | 'LOBBY' | 'RACING' | 'RESULT' | 'WON' | 'LOST'>('SETUP');
     const [players, setPlayers] = useState<{ id: number, connected: boolean, progress: number, name: string, type: 'human' | 'bot' }[]>([]);
     const [winner, setWinner] = useState<number | null>(null);
     const [timeLeft, setTimeLeft] = useState(30);
     const [config, setConfig] = useState<ChangoConfig | null>(null);
+    const [prizes, setPrizes] = useState<Prize[]>([]);
     const [machineId, setMachineId] = useState<string | null>(null);
     const [baseUrl, setBaseUrl] = useState('');
+    const gameStartTime = useRef(new Date());
 
-    const endGame = useCallback((winnerId: number | null) => {
+    const endGame = useCallback(async (winnerId: number | null) => {
         setWinner(winnerId);
-        setGameState('RESULT');
+        const isWin = winnerId !== null && players.find(p => p.id === winnerId)?.type === 'human';
+
+        setGameState(isWin ? 'WON' : 'LOST');
+
         if (machineId) {
             sendJoystickEvent(machineId, { type: 'GAME_OVER' });
         }
 
+        // Generate Ticket if Human Won
+        let ticketId: string | undefined;
+
+        if (isWin) {
+            try {
+                const prize = prizes.length > 0 ? prizes[Math.floor(Math.random() * prizes.length)] : null;
+                if (prize) {
+                    const ticket = await generateWinningTicket(prize.id, 'taprace');
+                    ticketId = ticket.id;
+                }
+            } catch (e) {
+                console.error("Error generating ticket:", e);
+            }
+        }
+
+        // Log Event
+        await logGameEvent({
+            gameType: 'taprace',
+            startedAt: gameStartTime.current,
+            finishedAt: new Date(),
+            result: isWin ? 'WIN' : 'LOSE',
+            ticketId: ticketId,
+            machineId: machineId || undefined
+        });
+
+        // Redirect
         setTimeout(() => {
-            router.push('/');
-        }, 5000);
-    }, [machineId, router]);
+            if (ticketId) {
+                router.push(`/result?ticketId=${ticketId}`);
+            } else {
+                router.push('/');
+            }
+        }, (config?.resultDurationSeconds || 5) * 1000);
+
+    }, [machineId, router, players, prizes, config]);
 
     const startGame = useCallback(() => {
         setGameState('RACING');
@@ -346,20 +383,14 @@ export default function TapRaceGame() {
                 </div>
             )}
 
-            {gameState === 'RESULT' && (
-                <div className="flex-1 flex flex-col items-center justify-center text-center animate-in zoom-in">
-                    {winner ? (
-                        <>
-                            <Trophy className="w-32 h-32 text-yellow-500 animate-bounce mb-8" />
-                            <h1 className="text-8xl font-black text-white mb-4">
-                                {players.find(p => p.id === winner)?.name} GANA!
-                            </h1>
-                            <p className="text-2xl text-slate-400">Increíble velocidad</p>
-                        </>
-                    ) : (
-                        <h1 className="text-8xl font-black text-red-500">TIEMPO AGOTADO</h1>
-                    )}
-                </div>
+            {(gameState === 'WON' || gameState === 'LOST') && (
+                <GameResultOverlay
+                    isOpen={true}
+                    isWin={gameState === 'WON'}
+                    title={gameState === 'WON' ? '¡GANASTE!' : '¡PERDISTE!'}
+                    subtitle={gameState === 'WON' ? '¡VELOCIDAD PURA!' : 'INTÉNTALO DE NUEVO'}
+                    statusMessage={gameState === 'WON' ? 'Generando tu premio...' : undefined}
+                />
             )}
         </div>
     );
