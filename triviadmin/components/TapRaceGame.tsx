@@ -260,11 +260,11 @@ export default function TapRaceGame() {
                         {players.map(p => (
                             <div key={p.id} className={`flex flex-col items-center gap-4 transition-all duration-500 ${p.connected ? 'scale-110' : 'opacity-50'}`}>
                                 <div className={`p-4 bg-white rounded-3xl ${p.connected ? 'shadow-[0_0_50px_rgba(249,115,22,0.6)]' : ''}`}>
-                                    <div className="w-48 h-48 flex items-center justify-center">
+                                    <div className="w-72 h-72 flex items-center justify-center">
                                         {p.type === 'human' && !p.connected ? (
                                             <QRCode
                                                 value={getJoinUrl(p.id)}
-                                                size={256}
+                                                size={350}
                                                 style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                                                 viewBox={`0 0 256 256`}
                                             />

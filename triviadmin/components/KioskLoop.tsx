@@ -436,10 +436,10 @@ export default function KioskLoop({ ads, config }: KioskLoopProps) {
                                     Escanear QR para Jugar
                                 </span>
 
-                                <div className="pointer-events-auto bg-white p-4 rounded-xl shadow-2xl flex flex-col items-center gap-2 group/qr transition-transform hover:scale-105 mt-4">
+                                <div className="pointer-events-auto bg-white p-4 rounded-xl shadow-2xl flex flex-col items-center gap-2 group/qr transition-transform hover:scale-105 mt-4 w-96">
                                     <QRCode
                                         value={`${window.location.origin}/joystick/${currentMachineId}`}
-                                        size={180}
+                                        size={300}
                                         style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                                         viewBox={`0 0 256 256`}
                                     />
