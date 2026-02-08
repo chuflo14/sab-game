@@ -9,10 +9,20 @@ import { Trophy } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import GameResultOverlay from './GameResultOverlay';
 
+interface Player {
+    id: number;
+    connected: boolean;
+    progress: number;
+    name: string;
+    type: 'human' | 'bot';
+    sessionId?: string; // Locking ID
+    winner?: boolean;
+}
+
 export default function TapRaceGame() {
     const router = useRouter();
     const [gameState, setGameState] = useState<'SETUP' | 'LOBBY' | 'RACING' | 'RESULT' | 'WON' | 'LOST'>('SETUP');
-    const [players, setPlayers] = useState<{ id: number, connected: boolean, progress: number, name: string, type: 'human' | 'bot' }[]>([]);
+    const [players, setPlayers] = useState<Player[]>([]);
     const [winner, setWinner] = useState<number | null>(null);
     const [timeLeft, setTimeLeft] = useState(30);
     const [config, setConfig] = useState<ChangoConfig | null>(null);
@@ -239,11 +249,59 @@ export default function TapRaceGame() {
 
         const sub = subscribeToJoystick(machineId, (event) => {
             const currentGameState = gameStateRef.current;
+            const currentPlayers = playersRef.current; // Use ref for latest players
 
             if (event.type === 'JOIN') {
-                setPlayers(prev => prev.map(p => p.id === event.playerId && p.type === 'human' ? { ...p, connected: true } : p));
+                setPlayers(prev => {
+                    const targetP = prev.find(p => p.id === event.playerId);
 
-                // Re-broadcast state for the new joiner
+                    // 1. If slot is empty or disconnected -> Accept & Lock
+                    if (targetP && (!targetP.connected || !targetP.sessionId)) {
+                        console.log(`TapRace: Locking Slot P${event.playerId} to Session ${event.sessionId}`);
+                        // Send Success to this session
+                        sendJoystickEvent(machineId, {
+                            type: 'STATE_CHANGE',
+                            state: 'CONNECTION_SUCCESS',
+                            sessionId: event.sessionId
+                        });
+
+                        // Then update state for everyone
+                        // If in SETUP, we might change state to PLAYING if needed? 
+                        // Logic below handles re-broadcast.
+
+                        return prev.map(p => p.id === event.playerId ? { ...p, connected: true, sessionId: event.sessionId } : p);
+                    }
+
+                    // 2. If slot is occupied
+                    if (targetP && targetP.connected) {
+                        // A. Same Session -> Re-confirm
+                        if (targetP.sessionId === event.sessionId) {
+                            console.log(`TapRace: Re-confirming Slot P${event.playerId} for Session ${event.sessionId}`);
+                            sendJoystickEvent(machineId, {
+                                type: 'STATE_CHANGE',
+                                state: 'CONNECTION_SUCCESS',
+                                sessionId: event.sessionId
+                            });
+                            return prev;
+                        }
+                        // B. Different Session -> REJECT (Busy)
+                        else {
+                            console.log(`TapRace: Rejecting hijack attempt on P${event.playerId} from ${event.sessionId}`);
+                            sendJoystickEvent(machineId, {
+                                type: 'STATE_CHANGE',
+                                state: 'BUSY',
+                                sessionId: event.sessionId
+                            });
+                            return prev;
+                        }
+                    }
+
+                    return prev;
+                });
+
+                // Re-broadcast state for the new joiner (if accepted)
+                // Note: The logic above handles the 'Reject' case by sending BUSY immediately.
+                // The broadcast below might overlap, but that's okay.
                 if (currentGameState === 'SETUP') {
                     sendJoystickEvent(machineId, { type: 'STATE_CHANGE', state: 'PLAYING', game: 'TAPRACE_SETUP' });
                 } else if (currentGameState === 'LOBBY') {
@@ -253,19 +311,40 @@ export default function TapRaceGame() {
                 }
 
             } else if (event.type === 'TAP') {
+                // LOCK CHECK
+                const player = currentPlayers.find(p => p.id === event.playerId);
+                if (player?.sessionId && player.sessionId !== event.sessionId) {
+                    console.warn(`Ignored TAP from unauthorized session ${event.sessionId} on P${event.playerId}`);
+                    return;
+                }
+
                 if (currentGameState === 'RACING') {
                     if (handleTapRef.current) handleTapRef.current(event.playerId);
                 } else if (currentGameState === 'LOBBY') {
                     if (startGameRef.current) startGameRef.current();
                 }
             } else if (event.type === 'KEYDOWN') {
-                // We keep this for QR-sent keys, but local keys are handled by the listener above
-                // To avoid double-tapping, we could check if it's already handled, 
-                // but usually QR sends special events or different keys if simulating buttons.
-                // Assuming QR sends 'KEYDOWN' for remote buttons.
+                // LOCK CHECK ? 
+                // KEYDOWN usually doesn't carry playerId unless we infer it. 
+                // But in JoystickPage we send sessionId now.
+                // We don't have a mapping of Key -> PlayerId easily here without logic.
+                // 'S' = P1, 'A' = P2.
+                // Let's protect P1/P2 if we can.
 
                 const key = event.key ? event.key.toUpperCase() : '';
+                let targetPid = 0;
+                if (key === 'S') targetPid = 1;
+                if (key === 'A') targetPid = 2;
 
+                if (targetPid > 0) {
+                    const player = currentPlayers.find(p => p.id === targetPid);
+                    if (player?.sessionId && player.sessionId !== event.sessionId) {
+                        console.warn(`Ignored KEYDOWN ${key} from unauthorized session ${event.sessionId}`);
+                        return;
+                    }
+                }
+
+                // ... Keep existing logic ...
                 if (currentGameState === 'SETUP') {
                     if (key === 'S') setupGame('1P');
                     if (key === 'A') setupGame('2P');
@@ -292,7 +371,7 @@ export default function TapRaceGame() {
             } else if (event.type === 'START' && currentGameState === 'LOBBY') {
                 // Check if 2P mode and P2 is connected
                 if (mode === '2P') {
-                    const p2 = players.find(p => p.id === 2);
+                    const p2 = currentPlayers.find(p => p.id === 2);
                     if (!p2?.connected) {
                         return;
                     }

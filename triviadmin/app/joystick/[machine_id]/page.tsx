@@ -23,6 +23,17 @@ export default function JoystickPage() {
     // Tap Race State - direct event sending
     // const [tapCount, setTapCount] = useState(0);
 
+    const [sessionId] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const stored = sessionStorage.getItem('joystick_session_id');
+            if (stored) return stored;
+            const newId = crypto.randomUUID();
+            sessionStorage.setItem('joystick_session_id', newId);
+            return newId;
+        }
+        return '';
+    });
+
     useEffect(() => {
         if (rawMachineId) {
             let realId = rawMachineId;
@@ -63,55 +74,78 @@ export default function JoystickPage() {
 
 
     useEffect(() => {
-        if (!machineId) return;
+        if (!machineId || !sessionId) return;
 
-        console.log("JoystickPage: Connecting to machine:", machineId, "Player:", playerId);
+        console.log("JoystickPage: Connecting to machine:", machineId, "Player:", playerId, "Session:", sessionId);
 
         // Fallback: If connection takes too long, force READY state (Optimistic UI)
         const fallbackTimer = setTimeout(() => {
             if (!isConnected) {
-                setGameState(current => current === 'INITIALIZING' ? 'CONNECTION_SUCCESS' : current);
-                setIsConnected(true);
-                setTimeout(() => setGameState('READY'), 2000);
+                // setGameState(current => current === 'INITIALIZING' ? 'CONNECTION_SUCCESS' : current);
+                // setIsConnected(true);
+                // setTimeout(() => setGameState('READY'), 2000);
             }
         }, 3000);
 
         // Create subscription first
         const channel = subscribeToJoystick(machineId, (payload) => {
             console.log("JoystickPage: Event received:", payload);
-            if (payload.type === 'STATE_CHANGE') {
-                setGameState(payload.state);
-                if (payload.game) {
-                    setGameType(payload.game as any);
+
+            // Filter events: only process if broadcast to all OR specifically to this session
+            if (payload.sessionId && payload.sessionId !== sessionId) {
+                // If event has a sessionId and it's not ours, ignore updates meant for others?
+                // Actually, STATE_CHANGE usually is broadcast to all.
+                // But a 'BUSY' state change might be specific to a rejected joiner.
+                // The server/game will send { type: 'STATE_CHANGE', state: 'BUSY', sessionId: 'rejected-id' }
+                if (payload.type === 'STATE_CHANGE' && payload.state === 'BUSY') {
+                    // This is NOT for us if IDs don't match, right?
+                    // Wait, if server sends BUSY to a specific ID, we should check equality.
+                    return;
                 }
-                if (payload.paymentUrl) {
-                    window.location.href = payload.paymentUrl;
+            }
+
+            // If specifically for us (e.g. rejection)
+            if (payload.sessionId === sessionId) {
+                if (payload.type === 'STATE_CHANGE') {
+                    setGameState(payload.state);
+                    if (payload.game) setGameType(payload.game as any);
+                    if (payload.paymentUrl) window.location.href = payload.paymentUrl;
+                    return;
                 }
-            } else if (payload.type === 'GAME_OVER') {
-                setGameState('WAITING');
-                setTimeout(() => {
-                    setIsConnected(false);
+            }
+
+            // General Broadcasts (no sessionId or sessionId matches)
+            if (!payload.sessionId || payload.sessionId === sessionId) {
+                if (payload.type === 'STATE_CHANGE') {
+                    setGameState(payload.state);
+                    if (payload.game) {
+                        setGameType(payload.game as any);
+                    }
+                    if (payload.paymentUrl) {
+                        window.location.href = payload.paymentUrl;
+                    }
+                } else if (payload.type === 'GAME_OVER') {
                     setGameState('WAITING');
-                }, 2000);
-            } else if (payload.type === 'TIMEOUT') {
-                setGameState('WAITING'); // Was TIMEOUT state?
-                setTimeout(() => {
-                    setIsConnected(false);
-                    setGameState('WAITING');
-                }, 3000);
+                    setTimeout(() => {
+                        setIsConnected(false);
+                        setGameState('WAITING');
+                    }, 2000);
+                } else if (payload.type === 'TIMEOUT') {
+                    setGameState('WAITING'); // Was TIMEOUT state?
+                    setTimeout(() => {
+                        setIsConnected(false);
+                        setGameState('WAITING');
+                    }, 3000);
+                }
             }
         }, (status) => {
             if (status === 'SUBSCRIBED') {
                 console.log("JoystickPage: Subscribed! Sending JOIN...");
                 // Notify Join ONLY after we are listening
-                sendJoystickEvent(machineId, { type: 'JOIN', playerId });
+                sendJoystickEvent(machineId, { type: 'JOIN', playerId, sessionId });
                 setIsConnected(true);
 
-                // Show Success Message first
-                setGameState('CONNECTION_SUCCESS');
-                setTimeout(() => {
-                    setGameState(prev => prev === 'CONNECTION_SUCCESS' ? 'READY' : prev);
-                }, 2000);
+                // We DON'T optimistically set SUCCESS anymore, we wait for Game to confirm or reject
             }
         });
 
@@ -120,10 +154,10 @@ export default function JoystickPage() {
             clearTimeout(fallbackTimer);
             channel.unsubscribe();
         };
-    }, [machineId, playerId]);
+    }, [machineId, playerId, sessionId]);
 
     const handlePress = useCallback(async (key: string) => {
-        if (!machineId || gameState === 'WAITING') return; // approximate check
+        if (!machineId || gameState === 'WAITING' || gameState === 'BUSY') return; // approximate check
 
         // Visual Feedback
         setHighlightedKey(key);
@@ -133,12 +167,12 @@ export default function JoystickPage() {
         if (navigator.vibrate) navigator.vibrate(50);
 
         if (gameType === 'TAPRACE' && key === 'TAP') {
-            await sendJoystickEvent(machineId, { type: 'TAP', playerId });
+            await sendJoystickEvent(machineId, { type: 'TAP', playerId, sessionId });
         } else {
-            await sendJoystickEvent(machineId, { type: 'KEYDOWN', key }); // Key can be color
+            await sendJoystickEvent(machineId, { type: 'KEYDOWN', key, sessionId }); // Key can be color
         }
 
-    }, [machineId, gameState, gameType, playerId]);
+    }, [machineId, gameState, gameType, playerId, sessionId]);
 
     if (!machineId) return <div className="bg-black text-white p-4">Error: Sin ID</div>;
 
@@ -148,6 +182,25 @@ export default function JoystickPage() {
                 <div className="w-12 h-12 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin"></div>
                 <p className="animate-pulse">CONECTANDO...</p>
                 <p className="text-xs text-gray-600 font-mono">ID: {machineId.slice(0, 8)}</p>
+                <p className="text-[10px] text-gray-800 font-mono">{sessionId?.slice(0, 8)}</p>
+            </div>
+        );
+    }
+
+    if (gameState === 'BUSY') {
+        return (
+            <div className="min-h-screen bg-orange-600 flex flex-col items-center justify-center text-white text-center p-8 space-y-6 animate-in fade-in zoom-in duration-300">
+                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mb-4">
+                    <span className="text-6xl">⏳</span>
+                </div>
+                <h1 className="text-3xl font-black uppercase tracking-widest">JUEGO EN CURSO</h1>
+                <p className="text-xl">Por favor espera a que termine la partida actual.</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="mt-8 px-6 py-3 bg-black/30 rounded-xl font-bold hover:bg-black/50 transition-colors"
+                >
+                    Reintentar
+                </button>
             </div>
         );
     }
@@ -171,6 +224,10 @@ export default function JoystickPage() {
                 onClick={() => {
                     setGameState('INITIALIZING');
                     setIsConnected(false);
+                    // Force re-join attempt
+                    if (machineId && playerId && sessionId) {
+                        sendJoystickEvent(machineId, { type: 'JOIN', playerId, sessionId });
+                    }
                 }}
                 className="px-8 py-3 bg-yellow-500 text-black rounded-full font-black uppercase tracking-widest hover:bg-yellow-400 transition-colors"
             >
