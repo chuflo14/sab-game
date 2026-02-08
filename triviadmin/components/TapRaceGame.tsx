@@ -21,6 +21,11 @@ export default function TapRaceGame() {
     const [baseUrl, setBaseUrl] = useState('');
     const gameStartTime = useRef(new Date());
 
+    // New state for timers and mode
+    const [setupTimer, setSetupTimer] = useState(10);
+    const [lobbyTimer, setLobbyTimer] = useState(45);
+    const [mode, setMode] = useState<'1P' | '2P'>('1P'); // Track selected mode
+
     const endGame = useCallback(async (winnerId: number | null) => {
         setWinner(winnerId);
         const isWin = winnerId !== null && players.find(p => p.id === winnerId)?.type === 'human';
@@ -107,6 +112,46 @@ export default function TapRaceGame() {
         });
     }, [config]);
 
+    // Setup Timer (10s)
+    useEffect(() => {
+        if (gameState !== 'SETUP') return;
+
+        const timer = setInterval(() => {
+            setSetupTimer(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    setupGame('1P'); // Default to 1P if timeout
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [gameState]);
+
+    // Lobby Timer (45s) for 2P
+    useEffect(() => {
+        if (gameState !== 'LOBBY' || mode !== '2P') return;
+
+        const timer = setInterval(() => {
+            setLobbyTimer(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    // Time out in lobby... what to do?
+                    // Option 1: Start game anyway (if P1 ready)
+                    // Option 2: Fallback to single player?
+                    // User request: "si no se conecta empezar la partida" -> Start game
+                    if (startGameRef.current) startGameRef.current();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [gameState, mode]);
+
     // Bot Logic
     useEffect(() => {
         if (gameState !== 'RACING') return;
@@ -158,6 +203,37 @@ export default function TapRaceGame() {
         gameStateRef.current = gameState;
     }, [gameState]);
 
+    // Local Keyboard Listener for Low Latency
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.repeat) return; // Ignore hold-down
+
+            const key = e.key.toUpperCase();
+            const currentGameState = gameStateRef.current; // Use ref for current state
+
+            if (currentGameState === 'SETUP') {
+                if (key === 'S') setupGame('1P');
+                if (key === 'A') setupGame('2P');
+            } else if (currentGameState === 'LOBBY') {
+                if (['S', 'A', 'B'].includes(key)) {
+                    if (startGameRef.current) startGameRef.current();
+                }
+            } else if (currentGameState === 'RACING') {
+                let pid = 0;
+                if (key === 'S') pid = 1;
+                if (key === 'A') pid = 2; // Assuming 'A' is P2
+                if (key === 'B') pid = 3; // Assuming 'B' is P3/Bot/Extra
+
+                if (pid > 0 && handleTapRef.current) {
+                    handleTapRef.current(pid);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []); // Empty dependency array, relies on Refs
+
     useEffect(() => {
         if (!machineId) return;
 
@@ -183,6 +259,11 @@ export default function TapRaceGame() {
                     if (startGameRef.current) startGameRef.current();
                 }
             } else if (event.type === 'KEYDOWN') {
+                // We keep this for QR-sent keys, but local keys are handled by the listener above
+                // To avoid double-tapping, we could check if it's already handled, 
+                // but usually QR sends special events or different keys if simulating buttons.
+                // Assuming QR sends 'KEYDOWN' for remote buttons.
+
                 const key = event.key ? event.key.toUpperCase() : '';
 
                 if (currentGameState === 'SETUP') {
@@ -191,6 +272,13 @@ export default function TapRaceGame() {
                 }
 
                 if (['S', 'A', 'B'].includes(key)) {
+                    // Check if this is coming from a remote source to avoid duplication if local?
+                    // Realtime events are usually from other clients. 
+                    // If local kiosk sends to itself via realtime, we might have duplication.
+                    // But we want to prioritize the local listener.
+
+                    // For now, let's allow both. If user uses QR to send 'S', it works.
+                    // If user presses physical 'S', it works via local listener (faster).
                     if (currentGameState === 'RACING') {
                         let pid = 1;
                         if (key === 'A') pid = 2;
@@ -202,6 +290,13 @@ export default function TapRaceGame() {
                     }
                 }
             } else if (event.type === 'START' && currentGameState === 'LOBBY') {
+                // Check if 2P mode and P2 is connected
+                if (mode === '2P') {
+                    const p2 = players.find(p => p.id === 2);
+                    if (!p2?.connected) {
+                        return;
+                    }
+                }
                 if (startGameRef.current) startGameRef.current();
             }
         });
@@ -248,8 +343,11 @@ export default function TapRaceGame() {
 
     const getJoinUrl = (pid: number) => `${baseUrl}/joystick/${machineId}${pid > 1 ? `-P${pid}` : ''}`;
 
-    const setupGame = (mode: '1P' | '2P') => {
-        if (mode === '1P') {
+    const setupGame = (selectedMode: '1P' | '2P') => {
+        setMode(selectedMode);
+        setLobbyTimer(45); // Reset lobby timer
+
+        if (selectedMode === '1P') {
             setPlayers([
                 { id: 1, connected: true, progress: 0, name: 'TÚ', type: 'human' },
                 { id: 99, connected: true, progress: 0, name: 'Psab (CPU)', type: 'bot' }
@@ -285,13 +383,18 @@ export default function TapRaceGame() {
                             <div className="text-base font-normal opacity-70 mt-4">P1 vs P2 vs Psab Bot</div>
                         </button>
                     </div>
+                    <div className="text-2xl font-mono text-slate-500">Selección automática en {setupTimer}s</div>
                 </div>
             )}
 
             {gameState === 'LOBBY' && (
                 <div className="flex-1 flex flex-col items-center justify-center gap-8 animate-in fade-in">
                     <h1 className="text-6xl font-black text-orange-500 uppercase italic tracking-tighter">Carrera de Dedos</h1>
-                    <p className="text-xl text-slate-400">Escaneen para unirse. Presiona START cuando estén listos.</p>
+                    <p className="text-xl text-slate-400">
+                        {mode === '2P'
+                            ? `Esperando a Jugador 2... ${lobbyTimer}s`
+                            : 'Escaneen para unirse. Presiona START cuando estén listos.'}
+                    </p>
 
                     <div className="flex gap-8 items-center justify-center w-full">
                         {players.map(p => (
@@ -325,9 +428,13 @@ export default function TapRaceGame() {
                     </div>
 
                     {players.filter(p => p.type === 'human').some(p => p.connected) && (
-                        <div className="animate-bounce mt-12 bg-white/10 px-8 py-4 rounded-full border border-white/20 backdrop-blur-md">
-                            <p className="text-2xl font-bold uppercase tracking-widest">Presiona <span className="text-yellow-400">COMENZAR</span> (Joystick 1)</p>
-                        </div>
+                        mode === '2P' && !players.find(p => p.id === 2)?.connected ? (
+                            <div className="mt-12 text-slate-500 animate-pulse">Esperando conexión de Jugador 2...</div>
+                        ) : (
+                            <div className="animate-bounce mt-12 bg-white/10 px-8 py-4 rounded-full border border-white/20 backdrop-blur-md">
+                                <p className="text-2xl font-bold uppercase tracking-widest">Presiona <span className="text-yellow-400">COMENZAR</span> (Joystick 1)</p>
+                            </div>
+                        )
                     )}
                 </div>
             )}
